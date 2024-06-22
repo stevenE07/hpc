@@ -1,0 +1,3 @@
+/home/daniel/Documentos/hpc/cmake-build-debug/CMakeFiles/hpc.dir
+/home/daniel/Documentos/hpc/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/daniel/Documentos/hpc/cmake-build-debug/CMakeFiles/rebuild_cache.dir
