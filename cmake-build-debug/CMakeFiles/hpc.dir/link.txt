@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/hpc.dir/src/main.cpp.o CMakeFiles/hpc.dir/src/Calle.cpp.o CMakeFiles/hpc.dir/src/Vehiculo.cpp.o CMakeFiles/hpc.dir/src/Grafo.cpp.o -o hpc 

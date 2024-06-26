@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/home/daniel/Documentos/hpc/cmake-build-debug",
-		"source" : "/home/daniel/Documentos/hpc"
+		"build" : "/home/dpadron/Documentos/hpc/cmake-build-debug",
+		"source" : "/home/dpadron/Documentos/hpc"
 	},
 	"version" : 
 	{
