@@ -78,7 +78,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
         if(nuevaCarilPosicion.second >= largo){
            if(!v->isEsperandoTrasladoEntreCalles()){
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
-                  cout << " #####################################  Vehiculo con ID: " << v->getId() << " Termino" << endl;
+                   LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino";
                   posiciones_vehiculos_en_calle.erase(v->getId());
                   continue;
                } else {
@@ -130,13 +130,14 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 void Calle::mostrarEstado(){
     string idCalle = Calle::getIdCalle(this);
 
-    cout << " >>>>>>>>>>>  Info calle: " << idCalle << endl;
+    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle;
+
 
     for( Vehiculo* v: vehculos_ordenados_en_calle){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
 
-        cout << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-        << " | posicion= " << carrilPosicion.second  << " | velocidad = " << v->getVelocidad() << "Km" << endl;
+        LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
+        << " | posicion= " << carrilPosicion.second  << " | velocidad = " << v->getVelocidad() << "Km";
     }
 
 }

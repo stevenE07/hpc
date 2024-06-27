@@ -1,1 +1,3 @@
-/usr/bin/c++ -g CMakeFiles/hpc.dir/main.cpp.o CMakeFiles/hpc.dir/src/Calle.cpp.o CMakeFiles/hpc.dir/src/Vehiculo.cpp.o CMakeFiles/hpc.dir/src/Grafo.cpp.o -o hpc 
+"C:\Program Files\JetBrains\CLion 2024.1.4\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\hpc.dir/objects.a
+C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\ar.exe qc CMakeFiles\hpc.dir/objects.a @CMakeFiles\hpc.dir\objects1.rsp
+C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\G__~1.EXE -g -Wl,--whole-archive CMakeFiles\hpc.dir/objects.a -Wl,--no-whole-archive -o hpc.exe -Wl,--out-implib,libhpc.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\hpc.dir\linkLibs.rsp

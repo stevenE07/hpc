@@ -1,10 +1,18 @@
+#include "easylogging++.h"
 #include <iostream>
 #include <functional>
 #include "map"
 #include "vector"
 #include "include/Calle.h"
 #include "iostream"
+#include <filesystem>
+#include "include/CargarGrafo.h"
+INITIALIZE_EASYLOGGINGPP
+
+#include "json.hpp"
 #define TIEMPO_EPOCA_MS 100 //En ms
+
+
 
 using namespace std;
 
@@ -15,7 +23,7 @@ map<string, Calle*> todas_calles;
 
 
 void ejecutar_epoca(int numero_epoca){
-    cout << " ========  Epoca  "<< numero_epoca << " ==========" << endl;
+    LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
     for(auto calle: todas_calles){
         calle.second->ejecutarEpoca(TIEMPO_EPOCA_MS);
         calle.second->mostrarEstado();
@@ -23,8 +31,24 @@ void ejecutar_epoca(int numero_epoca){
 }
 
 int main() {
-    vector<Vehiculo*> vec;
 
+    el::Configurations defaultConf;
+    defaultConf.setToDefault();
+    // Values are always std::string
+    defaultConf.set(el::Level::Info,
+             el::ConfigurationType::Format, "%datetime %level %msg");
+    std::string loogingFile =  PROJECT_BASE_DIR + std::string("/logs/logs.log");
+    std::string configFilePath = PROJECT_BASE_DIR + std::string("/configuraciones/logging.ini");
+
+    el::Configurations conf(configFilePath);
+    conf.setGlobally(el::ConfigurationType::Filename, loogingFile);
+    el::Loggers::reconfigureLogger("default", conf);
+
+    LOG(INFO) << "------------COMIENZO--------------";
+
+    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/calles_montevideo.json"));
+    /*
+    vector<Vehiculo*> vec;
 
     auto getCalle = std::function<Calle*(string)>{};
     getCalle = [=] (string idCalle) -> Calle* {return todas_calles[idCalle];};
@@ -70,6 +94,7 @@ int main() {
     for (Vehiculo* v: vec){
         delete v;
     }
-
+*/
     return 0;
+
 }

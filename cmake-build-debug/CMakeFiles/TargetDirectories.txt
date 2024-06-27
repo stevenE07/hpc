@@ -1,3 +1,3 @@
-/home/dpadron/Documentos/hpc/cmake-build-debug/CMakeFiles/hpc.dir
-/home/dpadron/Documentos/hpc/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/dpadron/Documentos/hpc/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Steven/Desktop/hpc/cmake-build-debug/CMakeFiles/hpc.dir
+C:/Users/Steven/Desktop/hpc/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Steven/Desktop/hpc/cmake-build-debug/CMakeFiles/rebuild_cache.dir
