@@ -29,9 +29,11 @@ private:
     // Lista de vehiculos dentro de la calle, ordenadados por posicion (de mayor a menor), se actualizan en este orden.
     vector<Vehiculo*> vehculos_ordenados_en_calle;
 
+    function<Calle*(string)> obtenerCallePorIdFn;
+
 
 public:
-    Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima);
+    Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn);
 
     void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
 
@@ -44,6 +46,10 @@ public:
 
     static string getIdCalle(Calle* calle){
         return to_string(calle->nodo_inicial) + "-" + to_string(calle->nodo_final);
+    }
+
+    static string getIdCalle(unsigned int nodo_inicial, unsigned int nodo_final){
+        return to_string(nodo_inicial)+ "-" + to_string(nodo_final);
     }
 
 

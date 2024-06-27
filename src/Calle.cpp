@@ -1,13 +1,15 @@
+#include <functional>
 #include "../include/Calle.h"
 #include "cmath"
 #include "iostream"
 
-Calle::Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles,float velocidad_maxima){
+Calle::Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
    this->numero_carriles = numero_carriles;
    this->velocidad_maxima = velocidad_maxima;
+   this->obtenerCallePorIdFn = obtenerCallePorIdFn;
 }
 
 void Calle::insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo){
@@ -33,6 +35,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
      * 4. Solicitar transpaso
      */
 
+
+
     // 2- Actualizar vehiculo en calle
     auto maximoPorCarril = new float[numero_carriles];
 
@@ -43,6 +47,14 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     vector<Vehiculo *> vehiculos_ordenados_en_calle_aux;
 
     for (Vehiculo *v: vehculos_ordenados_en_calle) {
+
+        //eliminamos los vehiculos que fueron aceptados.
+        if( notificaciones_traslado_calle_realizado.find(v->getId()) != notificaciones_traslado_calle_realizado.end()) {
+            notificaciones_traslado_calle_realizado.erase(v->getId());
+            posiciones_vehiculos_en_calle.erase(v->getId());
+            continue;
+        }
+
         // Actualizo velocidad vehiculo
         v->setVelocidad(velocidad_maxima); //ToDo aumentar complejidad
 
@@ -57,15 +69,31 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
         float topeEnCarril = maximoPorCarril[numeroCarril];
 
-        pair<int, float> nuevaPosicion;
-        nuevaPosicion.first = numeroCarril;
-        nuevaPosicion.second = fmin(topeEnCarril, posicion + desplasamiento_ideal);
+        float nuevaPosicion = fmin(topeEnCarril, posicion + desplasamiento_ideal);
 
-        v->setVelocidad( (float)nuevaPosicion.second * (3.6f) / (tiempo_epoca / 1000.f));
+        pair<int, float> nuevaCarilPosicion;
+        nuevaCarilPosicion.first = numeroCarril;
+        nuevaCarilPosicion.second = nuevaPosicion;
 
-        posiciones_vehiculos_en_calle[v->getId()] = nuevaPosicion;
+        if(nuevaCarilPosicion.second >= largo){
+           if(!v->isEsperandoTrasladoEntreCalles()){
+               if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
+                  cout << " #####################################  Vehiculo con ID: " << v->getId() << " Termino" << endl;
+                  posiciones_vehiculos_en_calle.erase(v->getId());
+                  continue;
+               } else {
+                  v->setEsperandoTrasladoEntreCalles(true);
+                  Calle* sigCalle = obtenerCallePorIdFn(v->sigCalleARecorrer());
+                  sigCalle->insertarSolicitudTranspaso(this, v);
+               }
+           }
+        }
 
-        maximoPorCarril[numeroCarril] = nuevaPosicion.second - LARGO_VEHICULO;
+        v->setVelocidad( ((float)nuevaPosicion - posicion) * (3.6f) / (tiempo_epoca / 1000.f));
+
+        posiciones_vehiculos_en_calle[v->getId()] = nuevaCarilPosicion;
+
+        maximoPorCarril[numeroCarril] = nuevaPosicion - LARGO_VEHICULO;
 
         vehiculos_ordenados_en_calle_aux.push_back(v);
     }
@@ -75,18 +103,24 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     // 3- aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
     for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
         if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
-            pair<Calle*, Vehiculo*> solicitud = solicitudes_traspaso_calle.front();
-            solicitudes_traspaso_calle.pop();
+            if(solicitudes_traspaso_calle.size() > 0){
+                pair<Calle*, Vehiculo*> solicitud = solicitudes_traspaso_calle.front();
+                solicitudes_traspaso_calle.pop();
 
 
-            pair<int, float> carrilPosicion;
-            carrilPosicion.first = num_carril;
-            carrilPosicion.second = 0.f;
-            posiciones_vehiculos_en_calle[solicitud.second->getId()] = carrilPosicion;
+                pair<int, float> carrilPosicion;
+                carrilPosicion.first = num_carril;
+                carrilPosicion.second = 0.f;
+                posiciones_vehiculos_en_calle[solicitud.second->getId()] = carrilPosicion;
 
-            vehculos_ordenados_en_calle.push_back(solicitud.second);
+                vehculos_ordenados_en_calle.push_back(solicitud.second);
 
-            solicitud.first->notificarTranspasoCompleto(solicitud.second->getId());
+                solicitud.second->setEsperandoTrasladoEntreCalles(false);
+
+                if(solicitud.first != nullptr){
+                    solicitud.first->notificarTranspasoCompleto(solicitud.second->getId());
+                }
+            }
         }
     }
 
@@ -102,7 +136,7 @@ void Calle::mostrarEstado(){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
 
         cout << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-        << " | posicion= " << carrilPosicion.second  << " | velocidad = " << v->getVelocidad() << endl;
+        << " | posicion= " << carrilPosicion.second  << " | velocidad = " << v->getVelocidad() << "Km" << endl;
     }
 
 }

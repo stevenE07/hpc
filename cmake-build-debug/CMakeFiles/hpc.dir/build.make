@@ -69,19 +69,19 @@ include CMakeFiles/hpc.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/hpc.dir/flags.make
 
-CMakeFiles/hpc.dir/src/main.cpp.o: CMakeFiles/hpc.dir/flags.make
-CMakeFiles/hpc.dir/src/main.cpp.o: /home/dpadron/Documentos/hpc/src/main.cpp
-CMakeFiles/hpc.dir/src/main.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dpadron/Documentos/hpc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hpc.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/main.cpp.o -MF CMakeFiles/hpc.dir/src/main.cpp.o.d -o CMakeFiles/hpc.dir/src/main.cpp.o -c /home/dpadron/Documentos/hpc/src/main.cpp
+CMakeFiles/hpc.dir/main.cpp.o: CMakeFiles/hpc.dir/flags.make
+CMakeFiles/hpc.dir/main.cpp.o: /home/dpadron/Documentos/hpc/main.cpp
+CMakeFiles/hpc.dir/main.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dpadron/Documentos/hpc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hpc.dir/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/main.cpp.o -MF CMakeFiles/hpc.dir/main.cpp.o.d -o CMakeFiles/hpc.dir/main.cpp.o -c /home/dpadron/Documentos/hpc/main.cpp
 
-CMakeFiles/hpc.dir/src/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hpc.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dpadron/Documentos/hpc/src/main.cpp > CMakeFiles/hpc.dir/src/main.cpp.i
+CMakeFiles/hpc.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hpc.dir/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dpadron/Documentos/hpc/main.cpp > CMakeFiles/hpc.dir/main.cpp.i
 
-CMakeFiles/hpc.dir/src/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hpc.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dpadron/Documentos/hpc/src/main.cpp -o CMakeFiles/hpc.dir/src/main.cpp.s
+CMakeFiles/hpc.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hpc.dir/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dpadron/Documentos/hpc/main.cpp -o CMakeFiles/hpc.dir/main.cpp.s
 
 CMakeFiles/hpc.dir/src/Calle.cpp.o: CMakeFiles/hpc.dir/flags.make
 CMakeFiles/hpc.dir/src/Calle.cpp.o: /home/dpadron/Documentos/hpc/src/Calle.cpp
@@ -127,7 +127,7 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.s: cmake_force
 
 # Object files for target hpc
 hpc_OBJECTS = \
-"CMakeFiles/hpc.dir/src/main.cpp.o" \
+"CMakeFiles/hpc.dir/main.cpp.o" \
 "CMakeFiles/hpc.dir/src/Calle.cpp.o" \
 "CMakeFiles/hpc.dir/src/Vehiculo.cpp.o" \
 "CMakeFiles/hpc.dir/src/Grafo.cpp.o"
@@ -135,7 +135,7 @@ hpc_OBJECTS = \
 # External object files for target hpc
 hpc_EXTERNAL_OBJECTS =
 
-hpc: CMakeFiles/hpc.dir/src/main.cpp.o
+hpc: CMakeFiles/hpc.dir/main.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Calle.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Vehiculo.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Grafo.cpp.o

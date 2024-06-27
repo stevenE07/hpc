@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenMP REQUIRED)
 #find_package(Boost REQUIRED COMPONENTS graph)
 
-add_executable(hpc src/main.cpp
+add_executable(hpc main.cpp
         src/Calle.cpp
         include/Calle.h
         src/Vehiculo.cpp

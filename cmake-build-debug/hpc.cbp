@@ -94,6 +94,9 @@
 		<Unit filename="/home/dpadron/Documentos/hpc/include/Vehiculo.h">
 			<Option target="hpc"/>
 		</Unit>
+		<Unit filename="/home/dpadron/Documentos/hpc/main.cpp">
+			<Option target="hpc"/>
+		</Unit>
 		<Unit filename="/home/dpadron/Documentos/hpc/src/Calle.cpp">
 			<Option target="hpc"/>
 		</Unit>
@@ -101,9 +104,6 @@
 			<Option target="hpc"/>
 		</Unit>
 		<Unit filename="/home/dpadron/Documentos/hpc/src/Vehiculo.cpp">
-			<Option target="hpc"/>
-		</Unit>
-		<Unit filename="/home/dpadron/Documentos/hpc/src/main.cpp">
 			<Option target="hpc"/>
 		</Unit>
 		<Unit filename="/home/dpadron/Documentos/hpc/CMakeLists.txt">

@@ -4,6 +4,14 @@
 
 #include "../include/Vehiculo.h"
 
+Vehiculo::Vehiculo(int id,unsigned long epoca_inicial,float velocidad ){
+    this->id = id;
+    this-> epoca_inicial = epoca_inicial;
+    this->velocidad = velocidad;
+    this->indice_calle_recorrida = 0;
+    this->esperando_traslado_entre_calles = false;
+}
+
 unsigned int Vehiculo::getId() const {
     return id;
 }
@@ -42,4 +50,25 @@ float Vehiculo::getVelocidad() const {
 
 void Vehiculo::setVelocidad(float velocidad) {
     Vehiculo::velocidad = velocidad;
+}
+
+unsigned int Vehiculo::getNumeroCalleRecorrida() const {
+    return indice_calle_recorrida;
+}
+
+void Vehiculo::setNumeroCalleRecorrida(unsigned int numeroCalleRecorrida) {
+    indice_calle_recorrida = numeroCalleRecorrida;
+}
+
+string Vehiculo::sigCalleARecorrer(){
+    indice_calle_recorrida ++;
+    return to_string(ruta[indice_calle_recorrida]) + "-" +  to_string(ruta[indice_calle_recorrida + 1]);
+}
+
+bool Vehiculo::isEsperandoTrasladoEntreCalles() const {
+    return esperando_traslado_entre_calles;
+}
+
+void Vehiculo::setEsperandoTrasladoEntreCalles(bool esperandoTrasladoEntreCalles) {
+    esperando_traslado_entre_calles = esperandoTrasladoEntreCalles;
 }
