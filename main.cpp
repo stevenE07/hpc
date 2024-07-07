@@ -7,6 +7,8 @@
 #include "iostream"
 #include <filesystem>
 #include "include/CargarGrafo.h"
+#include "include/Grafo.h"
+
 INITIALIZE_EASYLOGGINGPP
 
 #include "json.hpp"
@@ -30,7 +32,37 @@ void ejecutar_epoca(int numero_epoca){
     }
 }
 
+
+void pruebaDijkstra(){
+    auto graf = new Grafo;
+
+    int id_0 = graf->agregarNodo();
+    int id_1 = graf->agregarNodo();
+    int id_2 = graf->agregarNodo();
+    int id_3 = graf->agregarNodo();
+    int id_4 = graf->agregarNodo();
+
+    graf->agregarArista(id_0, id_1, 1.f);
+    graf->agregarArista(id_0, id_2, 3.f);
+    graf->agregarArista(id_1, id_2, 1.f);
+    graf->agregarArista(id_1, id_3, 1.f);
+    graf->agregarArista(id_2, id_3, 4.f);
+    graf->agregarArista(id_2, id_4, 2.f);
+    graf->agregarArista(id_3, id_4, 1.f);
+
+    vector<int> camino =  graf->computarCaminoMasCorto(id_0, id_4);
+
+    for(int id: camino){
+        cout << id << " ";
+    }
+
+    delete graf;
+}
+
 int main() {
+
+    //pruebaDijkstra();
+    //return 0;
 
     el::Configurations defaultConf;
     defaultConf.setToDefault();
