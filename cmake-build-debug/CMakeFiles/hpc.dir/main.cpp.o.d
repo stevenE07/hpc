@@ -240,6 +240,9 @@ CMakeFiles/hpc.dir/main.cpp.o: /home/dpadron/Documentos/hpc/main.cpp \
  /usr/include/c++/13.2.1/codecvt /usr/include/c++/13.2.1/bits/fs_dir.h \
  /usr/include/c++/13.2.1/bits/fs_ops.h \
  /home/dpadron/Documentos/hpc/include/CargarGrafo.h \
+ /home/dpadron/Documentos/hpc/include/Grafo.h \
+ /home/dpadron/Documentos/hpc/include/Nodo.h \
+ /home/dpadron/Documentos/hpc/include/Calle.h \
  /home/dpadron/Documentos/hpc/external/nlohmann/json.hpp \
  /usr/include/c++/13.2.1/iterator \
  /usr/include/c++/13.2.1/bits/stream_iterator.h \
@@ -279,5 +282,4 @@ CMakeFiles/hpc.dir/main.cpp.o: /home/dpadron/Documentos/hpc/main.cpp \
  /usr/include/assert.h /usr/include/c++/13.2.1/numeric \
  /usr/include/c++/13.2.1/bits/stl_numeric.h \
  /usr/include/c++/13.2.1/pstl/glue_numeric_defs.h \
- /usr/include/c++/13.2.1/any /home/dpadron/Documentos/hpc/include/Grafo.h \
- /home/dpadron/Documentos/hpc/include/Nodo.h
+ /usr/include/c++/13.2.1/any /home/dpadron/Documentos/hpc/include/Grafo.h

@@ -20,7 +20,7 @@ using namespace std;
 class Calle {
 
 private:
-    unsigned int nodo_inicial, nodo_final;
+    long nodo_inicial, nodo_final;
     float largo;
     unsigned int numero_carriles;
     float velocidad_maxima;
@@ -35,10 +35,11 @@ private:
     vector<Vehiculo*> vehculos_ordenados_en_calle;
 
     function<Calle*(string)> obtenerCallePorIdFn;
+    function<void()> doneFn;
 
 
 public:
-    Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn);
+    Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn,  function<void()>& doneFn);
 
     void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
 

@@ -9,7 +9,7 @@ using namespace std;
 
 class Nodo {
 private:
-    int id;
+    long id;
     vector<pair<Nodo*, float>> nodos_vecinos;
 public:
     Nodo(int id){

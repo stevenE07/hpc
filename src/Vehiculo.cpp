@@ -36,13 +36,7 @@ void Vehiculo::setEpocaFinal(unsigned long epocaFinal) {
     epoca_final = epocaFinal;
 }
 
-const std::vector<unsigned int> &Vehiculo::getRuta() const {
-    return ruta;
-}
 
-void Vehiculo::setRuta(const std::vector<unsigned int> &ruta) {
-    Vehiculo::ruta = ruta;
-}
 
 float Vehiculo::getVelocidad() const {
     return velocidad;
@@ -72,3 +66,13 @@ bool Vehiculo::isEsperandoTrasladoEntreCalles() const {
 void Vehiculo::setEsperandoTrasladoEntreCalles(bool esperandoTrasladoEntreCalles) {
     esperando_traslado_entre_calles = esperandoTrasladoEntreCalles;
 }
+
+const vector<long> &Vehiculo::getRuta() const {
+    return ruta;
+}
+
+void Vehiculo::setRuta(const vector<long> &ruta) {
+    Vehiculo::ruta = ruta;
+}
+
+

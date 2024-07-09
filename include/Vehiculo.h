@@ -15,7 +15,7 @@ private:
     unsigned long epoca_final;
 
     //Dirrecion
-    std::vector<unsigned int> ruta;
+    std::vector<long> ruta;
     unsigned int indice_calle_recorrida; //Es 0 cuando esta en su primera calle
 
     //Aspectos temporales
@@ -25,7 +25,7 @@ private:
 
 public:
 
-    Vehiculo(int id,unsigned long epoca_inicial,float velocidad );
+    Vehiculo(int id,unsigned long epoca_inicial,float velocidad);
 
     unsigned int getId() const;
 
@@ -38,10 +38,6 @@ public:
     unsigned long getEpocaFinal() const;
 
     void setEpocaFinal(unsigned long epocaFinal);
-
-    const std::vector<unsigned int> &getRuta() const;
-
-    void setRuta(const std::vector<unsigned int> &ruta);
 
     float getVelocidad() const;
 
@@ -57,7 +53,9 @@ public:
 
     void setEsperandoTrasladoEntreCalles(bool esperandoTrasladoEntreCalles);
 
+    const vector<long> &getRuta() const;
 
+    void setRuta(const vector<long> &ruta);
 };
 
 

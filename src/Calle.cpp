@@ -3,13 +3,14 @@
 #include "cmath"
 #include "iostream"
 
-Calle::Calle(unsigned int id_nodo_inicial, unsigned int id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn){
+Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn, function<void()>& doneFn){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
    this->numero_carriles = numero_carriles;
    this->velocidad_maxima = velocidad_maxima;
    this->obtenerCallePorIdFn = obtenerCallePorIdFn;
+   this->doneFn = doneFn;
 }
 
 void Calle::insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo){
@@ -78,7 +79,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
         if(nuevaCarilPosicion.second >= largo){
            if(!v->isEsperandoTrasladoEntreCalles()){
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
-                   LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino";
+                  LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino";
+                  doneFn();
                   posiciones_vehiculos_en_calle.erase(v->getId());
                   continue;
                } else {
@@ -128,6 +130,11 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 }
 
 void Calle::mostrarEstado(){
+
+    if(vehculos_ordenados_en_calle.empty()){
+        return;
+    }
+
     string idCalle = Calle::getIdCalle(this);
 
     LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle;

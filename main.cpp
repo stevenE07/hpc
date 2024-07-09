@@ -25,6 +25,8 @@ map<string, Calle*> todas_calles;
 
 
 void ejecutar_epoca(int numero_epoca){
+
+    cout << " ========  Epoca  "<< numero_epoca << " ==========" << endl;
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
     for(auto calle: todas_calles){
         calle.second->ejecutarEpoca(TIEMPO_EPOCA_MS);
@@ -50,7 +52,7 @@ void pruebaDijkstra(){
     graf->agregarArista(id_2, id_4, 2.f);
     graf->agregarArista(id_3, id_4, 1.f);
 
-    vector<int> camino =  graf->computarCaminoMasCorto(id_0, id_4);
+    vector<long> camino =  graf->computarCaminoMasCorto(id_0, id_4);
 
     for(int id: camino){
         cout << id << " ";
@@ -78,45 +80,39 @@ int main() {
 
     LOG(INFO) << "------------COMIENZO--------------";
 
-    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/calles_montevideo.json"));
-    /*
-    vector<Vehiculo*> vec;
-
     auto getCalle = std::function<Calle*(string)>{};
     getCalle = [=] (string idCalle) -> Calle* {return todas_calles[idCalle];};
 
-    auto calle_01 = new Calle(0,1,100,2,45, getCalle);
-    for(int j = 0; j<8;j++){
-        vector<unsigned int > ruta1 ;
-        ruta1.push_back(0);
-        ruta1.push_back(1);
-        ruta1.push_back(2);
-        auto v = new Vehiculo(j, 0, 45);
-        v->setRuta(ruta1);
-        vec.push_back(v);
-        calle_01->insertarSolicitudTranspaso(nullptr, v);
+    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/calles_montevideo.json"));
+    auto grafoMapa = new Grafo();
+
+    long numeroVehiculosPendientes = 1;
+
+    auto notificarFinalizacion = std::function<void()>{};
+    notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
+
+    c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
+
+    vector<long> camino = grafoMapa->computarCaminoMasCorto(20, 219);
+    for(long c: camino){
+        cout << c << endl;
     }
 
-    auto calle_31 = new Calle(3,1,100,2,45, getCalle);
-    for(int j = 0; j<8;j++){
-        vector<unsigned int > ruta2 ;
-        ruta2.push_back(3);
-        ruta2.push_back(1);
-        ruta2.push_back(2);
-        auto v = new Vehiculo(j + 101, 0, 45);
-        v->setRuta(ruta2);
-        vec.push_back(v);
-        calle_31->insertarSolicitudTranspaso(nullptr, v);
-    }
+    vector<Vehiculo*> vec;
 
-    todas_calles[Calle::getIdCalle(calle_01)] = calle_01;
-    todas_calles[Calle::getIdCalle(calle_31)] = calle_31;
+    auto v = new Vehiculo(0, 0, 45);
+    v->setRuta(camino);
+    vec.push_back(v);
 
-    auto calle2 = new Calle(1,2,100,2,45, getCalle);
-    todas_calles[Calle::getIdCalle(calle2)] = calle2;
+    long id_camino_primer_nodo = camino[0];
+    long id_camino_segundo_nodo = camino[1];
+    Calle* primeraCalle = todas_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
+    primeraCalle->insertarSolicitudTranspaso(nullptr, v);
 
-    for(int i = 0; i < 500; i++){
-        ejecutar_epoca(i);
+    int cont = 1;
+    while(numeroVehiculosPendientes > 0){
+        ejecutar_epoca(cont);
+        cont++;
     }
 
     for (auto c : todas_calles){
@@ -126,7 +122,6 @@ int main() {
     for (Vehiculo* v: vec){
         delete v;
     }
-*/
     return 0;
 
 }
