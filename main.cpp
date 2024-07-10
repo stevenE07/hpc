@@ -35,7 +35,7 @@ void ejecutar_epoca(int numero_epoca){
 }
 
 
-void pruebaDijkstra(){
+/*void pruebaDijkstra(){
     auto graf = new Grafo;
 
     int id_0 = graf->agregarNodo();
@@ -59,7 +59,7 @@ void pruebaDijkstra(){
     }
 
     delete graf;
-}
+}*/
 
 int main() {
 
@@ -93,7 +93,7 @@ int main() {
 
     c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
 
-    vector<long> camino = grafoMapa->computarCaminoMasCorto(20, 219);
+    vector<long> camino = grafoMapa->computarCaminoMasCorto(423982608, 917307699);
     for(long c: camino){
         cout << c << endl;
     }

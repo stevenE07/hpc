@@ -9,15 +9,18 @@ using namespace std;
 
 class Grafo {
 private:
-    long sigNumeroId;
     map<long, Nodo*> nodos;
 
 public:
     Grafo();
-    long agregarNodo();
+    void agregarNodo(long id);
     void agregarArista(long id_entrada, long id_salida, float peso);
 
     vector<long> computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_final);
+
+    bool existeNodo(long clave){
+        return this->nodos.find(clave) != this->nodos.end();
+    }
 
     Nodo* getNodo(long clave);
 

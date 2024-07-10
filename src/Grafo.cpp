@@ -1,17 +1,13 @@
 #include "../include/Grafo.h"
 #include "algorithm"
 #include "set"
+#include "iostream"
 
-Grafo::Grafo() {
-    sigNumeroId = 0;
-}
+Grafo::Grafo() {}
 
-long Grafo::agregarNodo(){
-    long id = sigNumeroId;
-    sigNumeroId++;
+void Grafo::agregarNodo(long id){
     auto nuevo_nodo = new Nodo(id);
     nodos[id] = nuevo_nodo;
-    return id;
 }
 
 void Grafo::agregarArista(long id_entrada, long id_salida, float peso){
@@ -28,8 +24,8 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
     }
 
     set<long> nodos_pendientes;
-    auto pesos = new double[nodos.size()];
-    auto nodo_anterior = new long[nodos.size()];
+    map<long, double> pesos;
+    map<long, long> nodo_anterior;
 
     for(auto a: nodos){
         Nodo* nodo = a.second;
@@ -50,6 +46,9 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
 
     while (id_ultimo_nodo_agregado != id_nodo_final){
         Nodo* ultimo_nodo_revisado = nodos[id_ultimo_nodo_agregado];
+        if(ultimo_nodo_revisado == nullptr){
+            std::cout << id_ultimo_nodo_agregado << endl;
+        }
         if(!ultimo_nodo_revisado->getNodosVecinos().empty()){
             for (auto nodo_peso_vecino: ultimo_nodo_revisado->getNodosVecinos()){
                 float peso_cantidado = pesos[id_ultimo_nodo_agregado] + nodo_peso_vecino.second;
@@ -89,9 +88,6 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
     }
 
     reverse(camino.begin(), camino.end());
-
-    delete[] pesos;
-    delete[] nodo_anterior;
 
     return camino;
 }

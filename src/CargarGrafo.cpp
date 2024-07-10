@@ -14,24 +14,21 @@ CargarGrafo::CargarGrafo(std::string file) {
 
 void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles, function<Calle*(string)> & obtenerCallePorIdFn, std::function<void()>& doneFn){
 
-    map<long, long> mapeo_id_datos_id_nodos_grafos;
-
     for (size_t i = 0; i < data["nodes"].size(); ++i) {
-        long id_nodo = grafo->agregarNodo();
         long id_nodo_archivo = data["nodes"][i]["id"];
-
-        mapeo_id_datos_id_nodos_grafos[id_nodo_archivo] = id_nodo;
-        if (id_nodo == 20){
-            cout << id_nodo_archivo << endl;
-        }
+        grafo->agregarNodo(id_nodo_archivo);
     }
 
     for (size_t i = 0; i < data["links"].size(); ++i) {
         long id_src = data["links"][i]["source"];
         long id_dst = data["links"][i]["target"];
 
+        if(!grafo->existeNodo(id_src) || !grafo->existeNodo(id_dst)){
+            continue;
+        }
+
         bool invertido = false;
-        bool doble = false;
+        bool doble = true;
 
         if(data["links"][i].contains("oneway")){
             doble = !data["links"][i]["oneway"];
@@ -71,15 +68,11 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
 
         int numeroCarriles = 1; //ToDo pendiente de leer
 
-
-        long id_nodo_src = mapeo_id_datos_id_nodos_grafos[id_src];
-        long id_nodo_dst = mapeo_id_datos_id_nodos_grafos[id_dst];
-
         if(doble){
-            grafo->agregarArista(id_nodo_src, id_nodo_dst, largo);
+            grafo->agregarArista(id_src, id_dst, largo);
 
-            auto calle1 = new Calle(id_nodo_src,
-                                   id_nodo_dst,
+            auto calle1 = new Calle(id_src,
+                                    id_dst,
                                    largo,
                                    numeroCarriles,
                                    stof(velocidad_max),
@@ -87,10 +80,10 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
                                     doneFn);
             calles[Calle::getIdCalle(calle1)] = calle1;
 
-            grafo->agregarArista(id_nodo_dst, id_nodo_src, largo);
+            grafo->agregarArista(id_dst, id_src, largo);
 
-            auto calle2 = new Calle(id_nodo_dst,
-                                    id_nodo_src,
+            auto calle2 = new Calle(id_dst,
+                                    id_src,
                                    largo,
                                    numeroCarriles,
                                    stof(velocidad_max),
@@ -98,10 +91,10 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
                                     doneFn);
             calles[Calle::getIdCalle(calle2)] = calle2;
         } else {
-            grafo->agregarArista(id_nodo_src, id_nodo_dst, largo);
+            grafo->agregarArista(id_src, id_dst, largo);
 
-            auto calle = new Calle(id_nodo_src,
-                                   id_nodo_dst,
+            auto calle = new Calle(id_src,
+                                   id_dst,
                                    largo,
                                    numeroCarriles,
                                    stof(velocidad_max),
