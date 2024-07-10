@@ -1,6 +1,7 @@
 #include "map"
 #include "vector"
 #include "Nodo.h"
+#include "iostream"
 
 #ifndef GRAFO_H
 #define GRAFO_H
@@ -23,6 +24,16 @@ public:
     }
 
     Nodo* getNodo(long clave);
+
+    void printGrafo(){
+        for(auto n: nodos){
+            std::cout << n.second->getId() << " : ";
+            for(auto v: n.second->getNodosVecinos()){
+                std::cout << v.first->getId() << " ";
+            }
+            std::cout << endl;
+        }
+    }
 
     ~Grafo();
 };

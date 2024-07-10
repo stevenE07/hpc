@@ -16,12 +16,18 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
 
     for (size_t i = 0; i < data["nodes"].size(); ++i) {
         long id_nodo_archivo = data["nodes"][i]["id"];
+        if(id_nodo_archivo < 0){
+            cout << id_nodo_archivo << endl;
+        }
         grafo->agregarNodo(id_nodo_archivo);
     }
 
     for (size_t i = 0; i < data["links"].size(); ++i) {
         long id_src = data["links"][i]["source"];
         long id_dst = data["links"][i]["target"];
+
+
+
 
         if(!grafo->existeNodo(id_src) || !grafo->existeNodo(id_dst)){
             continue;
@@ -30,7 +36,7 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
         bool invertido = false;
         bool doble = true;
 
-        if(data["links"][i].contains("oneway")){
+        /*if(data["links"][i].contains("oneway")){
             doble = !data["links"][i]["oneway"];
         }
 
@@ -43,7 +49,7 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
                 }
 
             }
-        }
+        }*/
 
 
         if(invertido){

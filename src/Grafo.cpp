@@ -44,7 +44,8 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
 
     long id_ultimo_nodo_agregado = id_nodo_inicio;
 
-    while (id_ultimo_nodo_agregado != id_nodo_final){
+    while (!nodos_pendientes.empty()){
+    //while (id_ultimo_nodo_agregado != id_nodo_final){
         Nodo* ultimo_nodo_revisado = nodos[id_ultimo_nodo_agregado];
         if(ultimo_nodo_revisado == nullptr){
             std::cout << id_ultimo_nodo_agregado << endl;
@@ -62,7 +63,7 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
 
 
         long min_nodo_peso = -1;
-        for (int id_nodo_pendiente : nodos_pendientes){
+        for (long id_nodo_pendiente : nodos_pendientes){
             if(pesos[id_nodo_pendiente] != -1){
                 if(min_nodo_peso == -1 || pesos[id_nodo_pendiente] < pesos[min_nodo_peso]){
                     min_nodo_peso = id_nodo_pendiente;

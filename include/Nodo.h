@@ -12,7 +12,7 @@ private:
     long id;
     vector<pair<Nodo*, float>> nodos_vecinos;
 public:
-    Nodo(int id){
+    Nodo(long id){
         this->id = id;
     }
     void conectarNodo(Nodo* nodo, float peso){
@@ -22,11 +22,11 @@ public:
         nodos_vecinos.push_back(arista);
     }
 
-    int getId() const {
+    long getId() const {
         return id;
     }
 
-    void setId(int id) {
+    void setId(long id) {
         Nodo::id = id;
     }
 
