@@ -73,6 +73,13 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
 
         if(min_nodo_peso == -1){
             vector<long> emptyVector;
+
+            cout << "NODOS PENDIENTES" << endl;
+
+            for(long l: nodos_pendientes){
+                cout << l << endl;
+            }
+
             return emptyVector;
         }
 

@@ -93,7 +93,8 @@ int main() {
 
     c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
     //grafoMapa->printGrafo();
-    vector<long> camino = grafoMapa->computarCaminoMasCorto(423982608, 917307699);
+    //vector<long> camino = grafoMapa->computarCaminoMasCorto(917308376, 917320347);
+    vector<long> camino = grafoMapa->computarCaminoMasCorto(917308376, 917320347);
     for(long c: camino){
         cout << c << endl;
     }
