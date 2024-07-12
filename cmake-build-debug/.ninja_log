@@ -1,7 +1,0 @@
-# ninja log v6
-224	275	1719091453533305013	hpc	b961c29cf62a1919
-1	35	1719091453309300275	CMakeFiles/hpc.dir/src/Grafo.cpp.o	be9cb3cb88107c6e
-1	224	1719091453309300275	CMakeFiles/hpc.dir/src/main.cpp.o	6c1317324b3228ce
-1	7	1719088744939083032	CMakeFiles/hpc.dir/src/Calle.cpp.o	a5194c147ca14bfb
-1	35	1719091453309300275	CMakeFiles/hpc.dir/src/Vehiculo.cpp.o	d68398811f8f0714
-0	14	1719091835785329573	build.ninja	8157e75972ff8acd

@@ -1,19 +1,25 @@
 #include "easylogging++.h"
 #include <iostream>
-#include <functional>
 #include "map"
 #include "vector"
 #include "include/Calle.h"
-#include "iostream"
 #include <filesystem>
 #include "include/CargarGrafo.h"
 #include "include/Grafo.h"
+
+#include <ctime>
+#include "chrono"
 
 INITIALIZE_EASYLOGGINGPP
 
 #include "json.hpp"
 #define TIEMPO_EPOCA_MS 100 //En ms
 
+using Clock = std::chrono::steady_clock;
+using chrono::time_point;
+using chrono::duration_cast;
+using chrono::milliseconds;
+using chrono::seconds;
 
 
 using namespace std;
@@ -24,9 +30,11 @@ map<string, Calle*> todas_calles;
 
 
 
-void ejecutar_epoca(int numero_epoca){
+void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
-    cout << " ========  Epoca  "<< numero_epoca << " ==========" << endl;
+    if(numero_epoca % 1000 == 0){
+        cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
+    }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
     for(auto calle: todas_calles){
         calle.second->ejecutarEpoca(TIEMPO_EPOCA_MS);
@@ -35,36 +43,9 @@ void ejecutar_epoca(int numero_epoca){
 }
 
 
-void pruebaDijkstra(){
-    auto graf = new Grafo;
-
-    int id_0 = graf->agregarNodo();
-    int id_1 = graf->agregarNodo();
-    int id_2 = graf->agregarNodo();
-    int id_3 = graf->agregarNodo();
-    int id_4 = graf->agregarNodo();
-
-    graf->agregarArista(id_0, id_1, 1.f);
-    graf->agregarArista(id_0, id_2, 3.f);
-    graf->agregarArista(id_1, id_2, 1.f);
-    graf->agregarArista(id_1, id_3, 1.f);
-    graf->agregarArista(id_2, id_3, 4.f);
-    graf->agregarArista(id_2, id_4, 2.f);
-    graf->agregarArista(id_3, id_4, 1.f);
-
-    vector<long> camino =  graf->computarCaminoMasCorto(id_0, id_4);
-
-    for(int id: camino){
-        cout << id << " ";
-    }
-
-    delete graf;
-}
-
 int main() {
 
-    //pruebaDijkstra();
-    //return 0;
+    // ---- Configuraciones
 
     el::Configurations defaultConf;
     defaultConf.setToDefault();
@@ -80,40 +61,56 @@ int main() {
 
     LOG(INFO) << "------------COMIENZO--------------";
 
+    // ---- Funciones de notificacion
+
     auto getCalle = std::function<Calle*(string)>{};
     getCalle = [=] (string idCalle) -> Calle* {return todas_calles[idCalle];};
 
-    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/calles_montevideo.json"));
-    auto grafoMapa = new Grafo();
-
-    long numeroVehiculosPendientes = 1;
+    long numeroVehiculosPendientes = 100;
 
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
 
-    c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
+    // ---- Cargar mapa
 
-    vector<long> camino = grafoMapa->computarCaminoMasCorto(20, 219);
-    for(long c: camino){
-        cout << c << endl;
-    }
+    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo.json"));
+    auto grafoMapa = new Grafo();
+    c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
 
     vector<Vehiculo*> vec;
 
-    auto v = new Vehiculo(0, 0, 45);
-    v->setRuta(camino);
-    vec.push_back(v);
+    for(int i = 0 ; i < numeroVehiculosPendientes; i++){
 
-    long id_camino_primer_nodo = camino[0];
-    long id_camino_segundo_nodo = camino[1];
-    Calle* primeraCalle = todas_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
-    primeraCalle->insertarSolicitudTranspaso(nullptr, v);
+        long src = grafoMapa->idNodoAletorio();
+        long dst = grafoMapa->idNodoAletorio();
 
-    int cont = 1;
-    while(numeroVehiculosPendientes > 0){
-        ejecutar_epoca(cont);
-        cont++;
+        auto camino = grafoMapa->computarCaminoMasCorto(src,dst);
+        while(camino.empty()){
+            src = grafoMapa->idNodoAletorio();
+            dst = grafoMapa->idNodoAletorio();
+            cout << i <<" - Fallo" << endl;
+            camino = grafoMapa->computarCaminoMasCorto(grafoMapa->idNodoAletorio(),grafoMapa->idNodoAletorio());
+        }
+        auto v = new Vehiculo(i, 0, 45);
+        v->setRuta(camino);
+        vec.push_back(v);
+        long id_camino_primer_nodo = camino[0];
+        long id_camino_segundo_nodo = camino[1];
+        Calle * calle = todas_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
+        calle->insertarSolicitudTranspaso(nullptr, v);
+
     }
+
+    time_point<Clock> inicioTiempo = Clock::now();
+
+    int contador_numero_epoca = 1;
+    while(numeroVehiculosPendientes > 0){
+        ejecutar_epoca(contador_numero_epoca, numeroVehiculosPendientes);
+        contador_numero_epoca++;
+    }
+
+    milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
+    printf("----- Tiempo transcurido = %.2f seg \n", (float)miliseconds.count() / 1000.f);
 
     for (auto c : todas_calles){
         delete c.second;

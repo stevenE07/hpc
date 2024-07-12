@@ -1,95 +1,122 @@
 #include "../include/Grafo.h"
 #include "algorithm"
 #include "set"
+#include "queue"
+#include "iostream"
 
-Grafo::Grafo() {
-    sigNumeroId = 0;
+Grafo::Grafo() {}
+
+void Grafo::agregarNodo(long id_ext){
+    int id_int = sigIdNodo;
+    sigIdNodo++;
+
+    auto nuevo_nodo = new Nodo(id_int, id_ext);
+    nodos_id_int[id_int] = nuevo_nodo;
+    nodos_id_ext[id_ext] = nuevo_nodo;
+
+    id_int_to_ext[id_int] = id_ext;
+    id_ext_to_int[id_ext] = id_int;
 }
 
-long Grafo::agregarNodo(){
-    long id = sigNumeroId;
-    sigNumeroId++;
-    auto nuevo_nodo = new Nodo(id);
-    nodos[id] = nuevo_nodo;
-    return id;
-}
-
-void Grafo::agregarArista(long id_entrada, long id_salida, float peso){
-    Nodo* nodo_entrada = nodos[id_entrada];
-    Nodo* nodo_salida  = nodos[id_salida];
+void Grafo::agregarArista(long id_ext_entrada, long id_ext_salida, float peso){
+    Nodo* nodo_entrada = nodos_id_ext[id_ext_entrada];
+    Nodo* nodo_salida  = nodos_id_ext[id_ext_salida];
     nodo_entrada->conectarNodo(nodo_salida, peso);
 }
 
-vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_final){
 
-    if(id_nodo_inicio == id_nodo_final){
+
+struct elemento_cola{
+    float peso;
+    Nodo* nodo;
+};
+
+bool operator<(const elemento_cola& left, const elemento_cola& right)
+{
+    return (left.peso > right.peso);
+}
+
+vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final){
+    if(id_ext_nodo_inicio == id_ext_nodo_final){
         vector<long> emptyVector;
         return emptyVector;
     }
 
-    set<long> nodos_pendientes;
-    auto pesos = new double[nodos.size()];
-    auto nodo_anterior = new long[nodos.size()];
+    priority_queue<elemento_cola> cola_pesos_a_evaluar;
 
-    for(auto a: nodos){
+    auto nodos_pendientes = new int[sigIdNodo];
+    auto pesos = new float[sigIdNodo];
+    auto nodo_anterior = new int[sigIdNodo];
+
+    for(auto a: nodos_id_ext){
         Nodo* nodo = a.second;
-        long id_nodo = nodo->getId();
+        long id_ext = nodo->getIdExt();
+        int id_int = nodo->getIdInt();
 
-        if(id_nodo == id_nodo_inicio){
-            pesos[id_nodo] = 0;
+        if(id_ext == id_ext_nodo_inicio){
+            nodos_pendientes[id_int] = 0;
+            pesos[id_int] = 0;
         } else {
-            nodos_pendientes.insert(id_nodo);
-            pesos[id_nodo] = -1;
+            nodos_pendientes[id_int] = 1;
+            pesos[id_int] = -1;
         }
 
-        nodo_anterior[id_nodo] = -1;
-
+        nodo_anterior[id_int] = -1;
     }
 
-    long id_ultimo_nodo_agregado = id_nodo_inicio;
+    int id_int_inicio = id_ext_to_int[id_ext_nodo_inicio];
+    int id_int_fin = id_ext_to_int[id_ext_nodo_final];
 
-    while (id_ultimo_nodo_agregado != id_nodo_final){
-        Nodo* ultimo_nodo_revisado = nodos[id_ultimo_nodo_agregado];
+    int id_ultimo_nodo_agregado = id_int_inicio;
+
+    while (id_ultimo_nodo_agregado != id_int_fin){
+        Nodo* ultimo_nodo_revisado = nodos_id_int[id_ultimo_nodo_agregado];
         if(!ultimo_nodo_revisado->getNodosVecinos().empty()){
             for (auto nodo_peso_vecino: ultimo_nodo_revisado->getNodosVecinos()){
                 float peso_cantidado = pesos[id_ultimo_nodo_agregado] + nodo_peso_vecino.second;
-                float peso_actual_vecino = pesos[nodo_peso_vecino.first->getId()];
+                float peso_actual_vecino = pesos[nodo_peso_vecino.first->getIdInt()];
                 if (peso_actual_vecino == -1 ||  peso_cantidado < peso_actual_vecino){
-                    pesos[nodo_peso_vecino.first->getId()] = peso_cantidado;
-                    nodo_anterior[nodo_peso_vecino.first->getId()] = id_ultimo_nodo_agregado;
+                    pesos[nodo_peso_vecino.first->getIdInt()] = peso_cantidado;
+                    cola_pesos_a_evaluar.push({peso_cantidado, nodo_peso_vecino.first});
+                    nodo_anterior[nodo_peso_vecino.first->getIdInt()] = id_ultimo_nodo_agregado;
                 }
             }
         }
 
 
-        long min_nodo_peso = -1;
-        for (int id_nodo_pendiente : nodos_pendientes){
-            if(pesos[id_nodo_pendiente] != -1){
-                if(min_nodo_peso == -1 || pesos[id_nodo_pendiente] < pesos[min_nodo_peso]){
-                    min_nodo_peso = id_nodo_pendiente;
-                }
+
+        bool encontrado = false;
+        while(!encontrado && !cola_pesos_a_evaluar.empty()){
+            elemento_cola elemento = cola_pesos_a_evaluar.top();
+            cola_pesos_a_evaluar.pop();
+
+            Nodo* nodo = elemento.nodo;
+
+            if(nodos_pendientes[elemento.nodo->getIdInt()] == 1){ // El nodo esta pendiente
+                nodos_pendientes[nodo->getIdInt()] = 0;
+                id_ultimo_nodo_agregado = nodo->getIdInt();
+                encontrado = true;
             }
         }
 
-        if(min_nodo_peso == -1){
+        if(cola_pesos_a_evaluar.empty() && !encontrado){
             vector<long> emptyVector;
             return emptyVector;
         }
 
-        nodos_pendientes.erase(min_nodo_peso);
-        id_ultimo_nodo_agregado = min_nodo_peso;
     }
 
     vector<long> camino;
-    camino.push_back(id_nodo_final);
-    long ultimo_nodo_camino = id_nodo_final;
-    while(ultimo_nodo_camino != id_nodo_inicio){
+    camino.push_back(id_int_to_ext[id_ultimo_nodo_agregado]);
+    int ultimo_nodo_camino = id_ultimo_nodo_agregado;
+    while(ultimo_nodo_camino != id_int_inicio){
         ultimo_nodo_camino = nodo_anterior[ultimo_nodo_camino];
-        camino.push_back(ultimo_nodo_camino);
+        camino.push_back(id_int_to_ext[ultimo_nodo_camino]);
     }
 
     reverse(camino.begin(), camino.end());
 
+    delete[] nodos_pendientes;
     delete[] pesos;
     delete[] nodo_anterior;
 
@@ -97,12 +124,63 @@ vector<long> Grafo::computarCaminoMasCorto(long id_nodo_inicio, long id_nodo_fin
 }
 
 
+
+/*
+
+
+vector<long> Grafo::bfs(long id_ext_nodo_inicial, float peso_minimo, float peso_maximo, float random){
+
+    set<int> ya_recorrido;
+    set<int> en_cola;
+    map<int, float> pesos;
+    map<int, int> anterior;
+
+    Nodo* nodo_inicial = nodos_id_ext[id_ext_nodo_inicial];
+    pesos[nodo_inicial->getIdInt()] = 0.f;
+
+    queue<Nodo*> nodos_pendientes;
+    nodos_pendientes.push(nodo_inicial);
+
+
+    while(!nodos_pendientes.empty()){
+       Nodo* ultimoNodo = nodos_pendientes.front();
+
+
+
+       ya_recorrido.insert(ultimoNodo->getIdInt());
+       nodos_pendientes.pop();
+       float pesoActualNodo = pesos[ultimoNodo->getIdInt()];
+
+
+
+       for(auto vecinos: ultimoNodo->getNodosVecinos()){
+           if(ya_recorrido.find(vecinos.first->getIdInt()) != ya_recorrido.begin()){
+               float pesoActualVecino = pesos[vecinos.first->getIdInt()];
+               if(pesoActualVecino > pesoActualNodo + vecinos.second){
+                   pesos[vecinos.first->getIdInt()] = pesoActualNodo + vecinos.second;
+                   anterior[vecinos.first->getIdInt()] = ultimoNodo->getIdInt();
+               }
+               if(en_cola.find(vecinos.first->getIdInt()) != en_cola.begin()){
+                   en_cola.insert(vecinos.first->getIdInt());
+                   nodos_pendientes.push(vecinos.first);
+               }
+           }
+       }
+    }
+
+
+
+    vector<long> empty;
+    return empty;
+
+
+
+}*/
+
+
 Grafo::~Grafo() {
-    for (auto n: nodos){
+    for (auto n: nodos_id_ext){
         delete(n.second);
     }
 }
 
-Nodo* Grafo::getNodo(long clave){
-    return nodos[clave];
-}

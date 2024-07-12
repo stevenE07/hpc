@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/hpc.dir/main.cpp.o CMakeFiles/hpc.dir/src/Calle.cpp.o CMakeFiles/hpc.dir/src/Vehiculo.cpp.o CMakeFiles/hpc.dir/src/Grafo.cpp.o CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o -o hpc  /home/dpadron/Documentos/hpc/external/easyloggingpp/src/easylogging++.cc /usr/lib/libgomp.so /usr/lib/libpthread.a 

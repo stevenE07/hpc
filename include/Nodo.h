@@ -1,7 +1,3 @@
-//
-// Created by dpadron on 07/07/24.
-//
-
 #ifndef HPC_NODO_H
 #define HPC_NODO_H
 
@@ -9,11 +5,13 @@ using namespace std;
 
 class Nodo {
 private:
-    long id;
+    int id_int;
+    long id_ext;
     vector<pair<Nodo*, float>> nodos_vecinos;
 public:
-    Nodo(int id){
-        this->id = id;
+    Nodo(int id_int, long id_ext){
+        this->id_int = id_int;
+        this->id_ext = id_ext;
     }
     void conectarNodo(Nodo* nodo, float peso){
         pair<Nodo*, float> arista;
@@ -22,12 +20,20 @@ public:
         nodos_vecinos.push_back(arista);
     }
 
-    int getId() const {
-        return id;
+    int getIdInt() const {
+        return id_int;
     }
 
-    void setId(int id) {
-        Nodo::id = id;
+    void setIdInt(int idInt) {
+        id_int = idInt;
+    }
+
+    long getIdExt() const {
+        return id_ext;
+    }
+
+    void setIdExt(long idExt) {
+        id_ext = idExt;
     }
 
     const vector<pair<Nodo *, float>> &getNodosVecinos() const {
