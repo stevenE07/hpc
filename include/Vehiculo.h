@@ -1,3 +1,4 @@
+#include "easylogging++.h"
 #include "vector"
 #include "string"
 
@@ -56,6 +57,8 @@ public:
     const vector<long> &getRuta() const;
 
     void setRuta(const vector<long> &ruta);
+
+    void imprimirRuta();
 };
 
 

@@ -109,7 +109,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                 pair<Calle*, Vehiculo*> solicitud = solicitudes_traspaso_calle.front();
                 solicitudes_traspaso_calle.pop();
 
-
                 pair<int, float> carrilPosicion;
                 carrilPosicion.first = num_carril;
                 carrilPosicion.second = 0.f;
@@ -131,20 +130,22 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
 void Calle::mostrarEstado(){
 
-    if(vehculos_ordenados_en_calle.empty()){
+    if(vehculos_ordenados_en_calle.empty() && solicitudes_traspaso_calle.size() == 0){
         return;
     }
 
     string idCalle = Calle::getIdCalle(this);
 
-    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle;
+    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo ;
 
 
     for( Vehiculo* v: vehculos_ordenados_en_calle){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
 
         LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-        << " | posicion= " << carrilPosicion.second  << " | velocidad = " << v->getVelocidad() << "Km";
+        << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
     }
+
+    LOG(INFO) << " >>>>>>>>>>>  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
 
 }

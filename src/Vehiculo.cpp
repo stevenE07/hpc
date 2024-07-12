@@ -75,4 +75,13 @@ void Vehiculo::setRuta(const vector<long> &ruta) {
     Vehiculo::ruta = ruta;
 }
 
+void Vehiculo::imprimirRuta() {
+        std::cout << "id_vehiculo: " << this->getId() << std::endl;
+    for (const auto & r: ruta) {
+        std::cout << r << " |  ";
+    }
+    std::cout << std::endl;
+
+}
+
 

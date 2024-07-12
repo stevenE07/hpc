@@ -6,9 +6,6 @@
 CargarGrafo::CargarGrafo(std::string file) {
     std::ifstream f(file);
     data = json::parse(f);
-
-
-
 }
 
 
@@ -60,6 +57,9 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
 
         float largo = data["links"][i]["length"];
 
+        if (largo < LARGO_VEHICULO) {
+            largo = LARGO_VEHICULO + 1.f;
+        }
         string velocidad_max;
         if( data["links"][i].contains("maxspeed")){
 

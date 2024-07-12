@@ -32,13 +32,16 @@ map<string, Calle*> todas_calles;
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
-    if(numero_epoca % 1000 == 0){
+    if(numero_epoca % 1 == 0){
         cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
     }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
     for(auto calle: todas_calles){
         calle.second->ejecutarEpoca(TIEMPO_EPOCA_MS);
-        calle.second->mostrarEstado();
+        if(numero_epoca % 10 == 0){
+            calle.second->mostrarEstado();
+        }
+
     }
 }
 
@@ -66,7 +69,7 @@ int main() {
     auto getCalle = std::function<Calle*(string)>{};
     getCalle = [=] (string idCalle) -> Calle* {return todas_calles[idCalle];};
 
-    long numeroVehiculosPendientes = 100;
+    long numeroVehiculosPendientes = 25000;
 
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
@@ -93,6 +96,7 @@ int main() {
         }
         auto v = new Vehiculo(i, 0, 45);
         v->setRuta(camino);
+        //v->imprimirRuta();
         vec.push_back(v);
         long id_camino_primer_nodo = camino[0];
         long id_camino_segundo_nodo = camino[1];
