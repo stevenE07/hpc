@@ -44,34 +44,12 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
         }
 
         if(!doble){
-            if(data["links"][i].contains("geometry")){
-
-                if(data["links"][i]["geometry"]["type"] != "LineString"){
-                    cout<< "No soportado" << endl;
-                    exit(3);
-                }
-
-                float x_i = data["links"][i]["geometry"]["coordinates"][0][0];
-                float y_i = data["links"][i]["geometry"]["coordinates"][0][1];
-
-                auto corr_nodo_src = corr_nodos[id_src];
-
-                if ( x_i != corr_nodo_src.first || y_i != corr_nodo_src.second){
-
-                    auto corr_nodo_dst = corr_nodos[id_dst];
-                    if ( x_i != corr_nodo_dst.first || y_i != corr_nodo_dst.second){
-                        cout<< "Error en las corr" << endl;
-                        exit(10);
-                    }
-                    invertido = true;
-                }
-            } else if(data["links"][i].contains("reversed")){
+            if(data["links"][i].contains("reversed")){
                 if (data["links"][i]["reversed"].is_array()) {
                     doble = true;
                 } else {
                     invertido = data["links"][i]["reversed"];
                 }
-
             }
         }
 

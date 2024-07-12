@@ -54,7 +54,7 @@ public:
         return to_string(calle->nodo_inicial) + "-" + to_string(calle->nodo_final);
     }
 
-    static string getIdCalle(unsigned int nodo_inicial, unsigned int nodo_final){
+    static string getIdCalle(long nodo_inicial, long nodo_final){
         return to_string(nodo_inicial)+ "-" + to_string(nodo_final);
     }
 
