@@ -11,8 +11,6 @@ if (OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-find_package(MPI REQUIRED)
-
 # Directorio donde se encuentra Easylogging++
 set(EASYLOGGINGPP_DIR ${CMAKE_SOURCE_DIR}/external/easyloggingpp/src)
 include_directories(${EASYLOGGINGPP_DIR})
@@ -37,5 +35,5 @@ add_executable(hpc
 target_link_libraries(hpc
         OpenMP::OpenMP_CXX
         ${EASYLOGGINGPP_DIR}/easylogging++.cc  # Agrega el archivo .cc de Easylogging++
-        PUBLIC MPI::MPI_CXX
+
 )
