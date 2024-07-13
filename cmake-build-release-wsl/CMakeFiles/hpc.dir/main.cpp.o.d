@@ -285,4 +285,5 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/include/c++/9/cassert /usr/include/assert.h \
  /usr/include/c++/9/numeric /usr/include/c++/9/bits/stl_numeric.h \
  /usr/include/c++/9/pstl/glue_numeric_defs.h /usr/include/c++/9/any \
- /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h
+ /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
+ /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h

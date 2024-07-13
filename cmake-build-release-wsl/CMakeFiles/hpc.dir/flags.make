@@ -6,5 +6,5 @@ CXX_DEFINES = -DPROJECT_BASE_DIR=\"/mnt/c/Users/Steven/Desktop/hpc\"
 
 CXX_INCLUDES = -I/mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src -I/mnt/c/Users/Steven/Desktop/hpc/external/nlohmann
 
-CXX_FLAGS = -O3 -DNDEBUG -std=gnu++17 -fdiagnostics-color=always -fopenmp
+CXX_FLAGS =  -fopenmp -O3 -DNDEBUG -std=gnu++17 -fdiagnostics-color=always -fopenmp
 

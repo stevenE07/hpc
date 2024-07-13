@@ -364,6 +364,7 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
   /usr/include/x86_64-linux-gnu/sys/time.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
   /usr/lib/gcc/x86_64-linux-gnu/9/include/stdarg.h \
   /usr/lib/gcc/x86_64-linux-gnu/9/include/stddef.h \
   /usr/lib/gcc/x86_64-linux-gnu/9/include/stdint.h
@@ -2002,6 +2003,8 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 /usr/include/c++/9/bits/invoke.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h:
 
 /usr/include/c++/9/bits/stl_pair.h:
 

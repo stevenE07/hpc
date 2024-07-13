@@ -6,7 +6,7 @@
 #include <filesystem>
 #include "include/CargarGrafo.h"
 #include "include/Grafo.h"
-
+#include <omp.h>
 #include <ctime>
 #include "chrono"
 
@@ -36,18 +36,20 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
     }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
-    for(auto calle: todas_calles){
-        calle.second->ejecutarEpoca(TIEMPO_EPOCA_MS);
-        if(numero_epoca % 10 == 0){
-            calle.second->mostrarEstado();
+    #pragma omp parallel for shared(todas_calles)
+    for (int i = 0; i < todas_calles.size(); ++i) {
+        auto it = std::next(todas_calles.begin(), i); // Obtener el iterador para la calle en la posición i
+        Calle* calle = it->second; // Obtener el puntero a la Calle
+        calle->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
+        if (numero_epoca % 10 == 0) {
+            //calle->mostrarEstado(); // Mostrar el estado cada 10 épocas
         }
-
     }
 }
 
 
 int main() {
-
+    omp_set_num_threads(10);
     // ---- Configuraciones
 
     el::Configurations defaultConf;
@@ -62,7 +64,9 @@ int main() {
     conf.setGlobally(el::ConfigurationType::Filename, loogingFile);
     el::Loggers::reconfigureLogger("default", conf);
 
+
     LOG(INFO) << "------------COMIENZO--------------";
+
 
     // ---- Funciones de notificacion
 
@@ -82,8 +86,10 @@ int main() {
 
     vector<Vehiculo*> vec;
 
+    #pragma omp parallel for
     for(int i = 0 ; i < numeroVehiculosPendientes; i++){
-
+        int thread_id = omp_get_thread_num();
+        printf("Thread %d is processing calle %d\n", thread_id, i);
         long src = grafoMapa->idNodoAletorio();
         long dst = grafoMapa->idNodoAletorio();
 
