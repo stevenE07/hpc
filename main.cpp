@@ -32,7 +32,7 @@ map<string, Calle*> todas_calles;
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
-    if(numero_epoca % 1 == 0){
+    if(numero_epoca % 50 == 1){
         cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
     }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
@@ -86,7 +86,9 @@ int main() {
 
     vector<Vehiculo*> vec;
 
-    #pragma omp parallel for
+
+    time_point<Clock> inicioTiempoDJ = Clock::now();
+    #pragma omp parallel for schedule(dynamic)
     for(int i = 0 ; i < numeroVehiculosPendientes; i++){
         int thread_id = omp_get_thread_num();
         printf("Thread %d is processing calle %d\n", thread_id, i);
@@ -110,6 +112,10 @@ int main() {
         calle->insertarSolicitudTranspaso(nullptr, v);
 
     }
+    milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
+    printf("----- Tiempo transcurido = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
+
+
 
     time_point<Clock> inicioTiempo = Clock::now();
 
