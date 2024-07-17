@@ -2,6 +2,7 @@
 #include "vector"
 #include "Nodo.h"
 #include "iostream"
+#include "random"
 
 #ifndef GRAFO_H
 #define GRAFO_H
@@ -30,8 +31,10 @@ public:
         return this->nodos_id_ext.find(id_ext) != this->nodos_id_ext.end();
     }
 
-    long idNodoAletorio(){
-        return id_int_to_ext[rand() % sigIdNodo]; //ToDO sacar
+    long idNodoAletorio(std::mt19937& rnd){
+
+        std::uniform_int_distribution<int> dist(1, 100);
+        return id_int_to_ext[dist(rnd)]; //ToDO sacar
     }
 
     ~Grafo();

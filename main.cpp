@@ -7,7 +7,7 @@
 #include "include/CargarGrafo.h"
 #include "include/Grafo.h"
 #include <omp.h>
-#include <ctime>
+#include <random>
 #include "chrono"
 
 INITIALIZE_EASYLOGGINGPP
@@ -26,30 +26,31 @@ using namespace std;
 
 
 
-map<string, Calle*> todas_calles;
+map<string, Calle*> mapa_calles;
+vector<Calle *> calles;
 
 
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
-    if(numero_epoca % 50 == 1){
+    if(numero_epoca % 500 == 1){
         cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
     }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
-    #pragma omp parallel for shared(todas_calles)
-    for (int i = 0; i < todas_calles.size(); ++i) {
-        auto it = std::next(todas_calles.begin(), i); // Obtener el iterador para la calle en la posición i
-        Calle* calle = it->second; // Obtener el puntero a la Calle
-        calle->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
+    #pragma omp parallel for shared(calles)
+    for (int i = 0; i < calles.size(); ++i) {
+        auto it = calles[i];
+        it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
         if (numero_epoca % 10 == 0) {
-            //calle->mostrarEstado(); // Mostrar el estado cada 10 épocas
+            #pragma omp critical
+            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
         }
     }
 }
 
 
 int main() {
-    omp_set_num_threads(10);
+    omp_set_num_threads(6);
     // ---- Configuraciones
 
     el::Configurations defaultConf;
@@ -64,6 +65,8 @@ int main() {
     conf.setGlobally(el::ConfigurationType::Filename, loogingFile);
     el::Loggers::reconfigureLogger("default", conf);
 
+    // ---- random
+    std::mt19937 rng(2024);
 
     LOG(INFO) << "------------COMIENZO--------------";
 
@@ -71,9 +74,9 @@ int main() {
     // ---- Funciones de notificacion
 
     auto getCalle = std::function<Calle*(string)>{};
-    getCalle = [=] (string idCalle) -> Calle* {return todas_calles[idCalle];};
+    getCalle = [=] (string idCalle) -> Calle* {return mapa_calles[idCalle];};
 
-    long numeroVehiculosPendientes = 25000;
+    long numeroVehiculosPendientes = 50000;
 
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
@@ -82,40 +85,56 @@ int main() {
 
     CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo.json"));
     auto grafoMapa = new Grafo();
-    c.leerDatos(grafoMapa, todas_calles, getCalle, notificarFinalizacion);
+    c.leerDatos(grafoMapa, mapa_calles, getCalle, notificarFinalizacion);
 
-    vector<Vehiculo*> vec;
+    for(const auto& calle_id_calle: mapa_calles){
+        calles.push_back(calle_id_calle.second);
+    }
 
 
+    vector<Vehiculo*> todos_vehiculos;
+
+    long* nodo_inicial = new long[numeroVehiculosPendientes];
+    long* nodo_final   = new long[numeroVehiculosPendientes];
+    for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
+        nodo_inicial[i] = grafoMapa->idNodoAletorio(rng);
+        nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+    }
+
+
+
+    cout << "Calculando caminos" << endl;
     time_point<Clock> inicioTiempoDJ = Clock::now();
+
+    int numeroVehiculosFallo = 0;
+
     #pragma omp parallel for schedule(dynamic)
     for(int i = 0 ; i < numeroVehiculosPendientes; i++){
         int thread_id = omp_get_thread_num();
-        printf("Thread %d is processing calle %d\n", thread_id, i);
-        long src = grafoMapa->idNodoAletorio();
-        long dst = grafoMapa->idNodoAletorio();
+        long src = nodo_inicial[i];
+        long dst = nodo_final[i];
 
         auto camino = grafoMapa->computarCaminoMasCorto(src,dst);
-        while(camino.empty()){
-            src = grafoMapa->idNodoAletorio();
-            dst = grafoMapa->idNodoAletorio();
-            cout << i <<" - Fallo" << endl;
-            camino = grafoMapa->computarCaminoMasCorto(grafoMapa->idNodoAletorio(),grafoMapa->idNodoAletorio());
+        if(camino.empty()){
+            #pragma omp atomic
+            numeroVehiculosFallo++;
+        } else {
+            auto v = new Vehiculo(i, 0, 45);
+            v->setRuta(camino);
+            todos_vehiculos.push_back(v);
+            long id_camino_primer_nodo = camino[0];
+            long id_camino_segundo_nodo = camino[1];
+            Calle * calle = mapa_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
+            calle->insertarSolicitudTranspaso(nullptr, v);
         }
-        auto v = new Vehiculo(i, 0, 45);
-        v->setRuta(camino);
-        //v->imprimirRuta();
-        vec.push_back(v);
-        long id_camino_primer_nodo = camino[0];
-        long id_camino_segundo_nodo = camino[1];
-        Calle * calle = todas_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
-        calle->insertarSolicitudTranspaso(nullptr, v);
-
     }
     milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
     printf("----- Tiempo transcurido = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
 
+    numeroVehiculosPendientes -= numeroVehiculosFallo;
 
+    delete[] nodo_inicial;
+    delete[] nodo_final;
 
     time_point<Clock> inicioTiempo = Clock::now();
 
@@ -128,11 +147,11 @@ int main() {
     milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
     printf("----- Tiempo transcurido = %.2f seg \n", (float)miliseconds.count() / 1000.f);
 
-    for (auto c : todas_calles){
+    for (auto c : mapa_calles){
         delete c.second;
     }
 
-    for (Vehiculo* v: vec){
+    for (Vehiculo* v: todos_vehiculos){
         delete v;
     }
     return 0;

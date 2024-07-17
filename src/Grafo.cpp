@@ -124,60 +124,6 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
 }
 
 
-
-/*
-
-
-vector<long> Grafo::bfs(long id_ext_nodo_inicial, float peso_minimo, float peso_maximo, float random){
-
-    set<int> ya_recorrido;
-    set<int> en_cola;
-    map<int, float> pesos;
-    map<int, int> anterior;
-
-    Nodo* nodo_inicial = nodos_id_ext[id_ext_nodo_inicial];
-    pesos[nodo_inicial->getIdInt()] = 0.f;
-
-    queue<Nodo*> nodos_pendientes;
-    nodos_pendientes.push(nodo_inicial);
-
-
-    while(!nodos_pendientes.empty()){
-       Nodo* ultimoNodo = nodos_pendientes.front();
-
-
-
-       ya_recorrido.insert(ultimoNodo->getIdInt());
-       nodos_pendientes.pop();
-       float pesoActualNodo = pesos[ultimoNodo->getIdInt()];
-
-
-
-       for(auto vecinos: ultimoNodo->getNodosVecinos()){
-           if(ya_recorrido.find(vecinos.first->getIdInt()) != ya_recorrido.begin()){
-               float pesoActualVecino = pesos[vecinos.first->getIdInt()];
-               if(pesoActualVecino > pesoActualNodo + vecinos.second){
-                   pesos[vecinos.first->getIdInt()] = pesoActualNodo + vecinos.second;
-                   anterior[vecinos.first->getIdInt()] = ultimoNodo->getIdInt();
-               }
-               if(en_cola.find(vecinos.first->getIdInt()) != en_cola.begin()){
-                   en_cola.insert(vecinos.first->getIdInt());
-                   nodos_pendientes.push(vecinos.first);
-               }
-           }
-       }
-    }
-
-
-
-    vector<long> empty;
-    return empty;
-
-
-
-}*/
-
-
 Grafo::~Grafo() {
     for (auto n: nodos_id_ext){
         delete(n.second);

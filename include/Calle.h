@@ -8,7 +8,7 @@
 #include "vector"
 #include "string"
 #include "set"
-
+#include "omp.h"
 
 
 
@@ -25,7 +25,7 @@ private:
     unsigned int numero_carriles;
     float velocidad_maxima;
 
-    queue<pair<Calle*, Vehiculo*>> solicitudes_traspaso_calle;
+    vector<pair<Calle*, Vehiculo*>> solicitudes_traspaso_calle;
     set<unsigned int>notificaciones_traslado_calle_realizado;
 
     //Dado un id_vehiculo se guarda el numero de carril y su pociion dentro del caril, donde la posicion es el frente del vehiculo dado que 0 es el inicio de la calle
@@ -37,6 +37,8 @@ private:
     function<Calle*(string)> obtenerCallePorIdFn;
     function<void()> doneFn;
 
+    omp_lock_t lock_solicitud;
+    omp_lock_t lock_notificacion;
 
 public:
     Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn,  function<void()>& doneFn);
@@ -58,7 +60,7 @@ public:
         return to_string(nodo_inicial)+ "-" + to_string(nodo_final);
     }
 
-
+    ~Calle();
 
 
 };
