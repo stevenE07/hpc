@@ -11,6 +11,13 @@ if (OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+find_package(MPI REQUIRED)
+if (MPI_CXX_FOUND)
+    include_directories(${MPI_INCLUDE_PATH})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_CXX_LINK_FLAGS}")
+endif()
+
 # Directorio donde se encuentra Easylogging++
 set(EASYLOGGINGPP_DIR ${CMAKE_SOURCE_DIR}/external/easyloggingpp/src)
 include_directories(${EASYLOGGINGPP_DIR})
@@ -19,6 +26,7 @@ set(NLOHMANN_JSON_DIR ${CMAKE_SOURCE_DIR}/external/nlohmann)
 include_directories(${NLOHMANN_JSON_DIR})
 
 add_definitions(-DPROJECT_BASE_DIR="${PROJECT_BASE_DIR}")
+
 
 # Agregar ejecutable
 add_executable(hpc
@@ -34,6 +42,6 @@ add_executable(hpc
 # Enlazar bibliotecas necesarias (como OpenMP, Boost, etc.)
 target_link_libraries(hpc
         OpenMP::OpenMP_CXX
-        ${EASYLOGGINGPP_DIR}/easylogging++.cc  # Agrega el archivo .cc de Easylogging++
-
+        ${EASYLOGGINGPP_DIR}/easylogging++.cc
+        MPI::MPI_CXX
 )

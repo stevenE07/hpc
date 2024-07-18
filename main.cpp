@@ -9,11 +9,12 @@
 #include <omp.h>
 #include <random>
 #include "chrono"
+#include <mpi.h>
 
 INITIALIZE_EASYLOGGINGPP
 
 #include "json.hpp"
-#define TIEMPO_EPOCA_MS 100 //En ms
+#define TIEMPO_EPOCA_MS 10 //En ms
 
 using Clock = std::chrono::steady_clock;
 using chrono::time_point;
@@ -42,14 +43,14 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         auto it = calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
         if (numero_epoca % 10 == 0) {
-            #pragma omp critical
-            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
+            //#pragma omp critical
+            //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
         }
     }
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
     omp_set_num_threads(6);
     // ---- Configuraciones
 
@@ -76,17 +77,41 @@ int main() {
     auto getCalle = std::function<Calle*(string)>{};
     getCalle = [=] (string idCalle) -> Calle* {return mapa_calles[idCalle];};
 
-    long numeroVehiculosPendientes = 50000;
+    long numeroVehiculosPendientes = 1000;
 
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
 
     // ---- Cargar mapa
 
-    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo.json"));
+    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
     auto grafoMapa = new Grafo();
     c.leerDatos(grafoMapa, mapa_calles, getCalle, notificarFinalizacion);
 
+
+    //---- MPI
+
+     int rank, size;
+
+    // Inicializar MPI
+    MPI_Init(&argc, &argv);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+
+    char processor_name[MPI_MAX_PROCESSOR_NAME];
+    int name_len;
+    MPI_Get_processor_name(processor_name, &name_len);
+
+    printf("Hello world from process %d of %d on processor %s\n", rank, size, processor_name);
+    // Finalizar MPI
+    MPI_Finalize();
+
+    return 0;
+
+    /*
     for(const auto& calle_id_calle: mapa_calles){
         calles.push_back(calle_id_calle.second);
     }
@@ -147,6 +172,8 @@ int main() {
     milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
     printf("----- Tiempo transcurido = %.2f seg \n", (float)miliseconds.count() / 1000.f);
 
+
+
     for (auto c : mapa_calles){
         delete c.second;
     }
@@ -154,6 +181,8 @@ int main() {
     for (Vehiculo* v: todos_vehiculos){
         delete v;
     }
+    */
+
     return 0;
 
 }
