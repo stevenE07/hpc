@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="fc649ce8-a838-4d9f-99ef-a6ec911e885b" name="fing">
+        <fileTransfer rootFolder="/ens/home01/e/edison.estramil" accessType="SFTP" host="lulu.fing.edu.uy" port="22" sshConfigId="1238f0aa-1b52-411a-ad53-886c252663ea" sshConfig="edison.estramil@lulu.fing.edu.uy:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="lulu.fing.edu.uy" id="1238f0aa-1b52-411a-ad53-886c252663ea" keyPath="$USER_HOME$/.ssh/id_rsa" port="22" nameFormat="DESCRIPTIVE" username="edison.estramil" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>

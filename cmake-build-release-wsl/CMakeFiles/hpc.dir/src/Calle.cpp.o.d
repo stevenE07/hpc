@@ -230,6 +230,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Vehiculo.h \
  /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
  /usr/include/c++/9/bits/stl_multiset.h \
+ /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
  /usr/include/c++/9/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
