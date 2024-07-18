@@ -1,4 +1,7 @@
 
 venv/
+env/
 
 cmake-build-debug/
+
+cache/
