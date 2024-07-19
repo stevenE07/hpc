@@ -54,9 +54,9 @@ void Vehiculo::setNumeroCalleRecorrida(unsigned int numeroCalleRecorrida) {
     indice_calle_recorrida = numeroCalleRecorrida;
 }
 
-string Vehiculo::sigCalleARecorrer(){
+long Vehiculo::sigNodoARecorrer(){
     indice_calle_recorrida ++;
-    return to_string(ruta[indice_calle_recorrida]) + "-" +  to_string(ruta[indice_calle_recorrida + 1]);
+    return ruta[indice_calle_recorrida + 1];
 }
 
 bool Vehiculo::isEsperandoTrasladoEntreCalles() const {
@@ -82,6 +82,14 @@ void Vehiculo::imprimirRuta() {
     }
     std::cout << std::endl;
 
+}
+
+long Vehiculo::nodo_destino(){
+    return ruta.back();
+}
+
+long Vehiculo::nodo_actual() {
+    return ruta[indice_calle_recorrida];
 }
 
 

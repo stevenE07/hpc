@@ -18,9 +18,13 @@ private:
     map<int, long> id_int_to_ext;
     map<long, int> id_ext_to_int;
 
+
+
+
+
 public:
     Grafo();
-    void agregarNodo(long id_ext);
+    void agregarNodo(long id_ext, long seccion);
     void agregarArista(long id_ext_entrada, long id_ext_salida, float peso);
 
     vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final);
@@ -30,6 +34,8 @@ public:
     bool existeNodo(long id_ext){
         return this->nodos_id_ext.find(id_ext) != this->nodos_id_ext.end();
     }
+
+    Nodo* obtenerNodo(long id_ext_nodo);
 
     long idNodoAletorio(std::mt19937& rnd){
 

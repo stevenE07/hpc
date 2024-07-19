@@ -48,7 +48,7 @@ public:
 
     void setNumeroCalleRecorrida(unsigned int numeroCalleRecorrida);
 
-    std::string sigCalleARecorrer();
+    long sigNodoARecorrer();
 
     bool isEsperandoTrasladoEntreCalles() const;
 
@@ -58,7 +58,11 @@ public:
 
     void setRuta(const vector<long> &ruta);
 
+    long nodo_destino();
+
     void imprimirRuta();
+
+    long nodo_actual();
 };
 
 

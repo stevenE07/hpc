@@ -31,6 +31,7 @@ add_definitions(-DPROJECT_BASE_DIR="${PROJECT_BASE_DIR}")
 # Agregar ejecutable
 add_executable(hpc
         main.cpp
+        src/Barrio.cpp
         src/Calle.cpp
         src/Vehiculo.cpp
         src/Grafo.cpp

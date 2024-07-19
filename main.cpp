@@ -27,10 +27,8 @@ using namespace std;
 
 
 
-map<string, Calle*> mapa_calles;
-vector<Calle *> calles;
-
-
+map<long, Barrio*> mapa_barios;
+vector<Calle*> todas_calles;
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
@@ -38,19 +36,30 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         cout << " ========  Epoca  "<< numero_epoca << " | "<< num_vehioculo << " ==========" << endl;
     }
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
-    #pragma omp parallel for shared(calles)
-    for (int i = 0; i < calles.size(); ++i) {
-        auto it = calles[i];
+
+    #pragma omp parallel for
+    for (int i = 0; i < todas_calles.size(); ++i) {
+        auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
-        if (numero_epoca % 10 == 0) {
+        //if (numero_epoca % 10 == 0) {
             //#pragma omp critical
             //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
-        }
+        //}
+    }
+
+}
+
+
+void cargar_todas_calles(){
+    for(auto id_y_barrio : mapa_barios){
+
     }
 }
 
 
 int main(int argc, char* argv[]) {
+
+
     omp_set_num_threads(6);
     // ---- Configuraciones
 
@@ -74,9 +83,6 @@ int main(int argc, char* argv[]) {
 
     // ---- Funciones de notificacion
 
-    auto getCalle = std::function<Calle*(string)>{};
-    getCalle = [=] (string idCalle) -> Calle* {return mapa_calles[idCalle];};
-
     long numeroVehiculosPendientes = 1000;
 
     auto notificarFinalizacion = std::function<void()>{};
@@ -84,13 +90,10 @@ int main(int argc, char* argv[]) {
 
     // ---- Cargar mapa
 
-    CargarGrafo c = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
-    auto grafoMapa = new Grafo();
-    c.leerDatos(grafoMapa, mapa_calles, getCalle, notificarFinalizacion);
+
 
 
     //---- MPI
-
      int rank, size;
 
     // Inicializar MPI
@@ -100,20 +103,34 @@ int main(int argc, char* argv[]) {
 
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
+
+    vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
+
+    set<long> mis_barrios;
+    map<long, int> asignacion_barrios;
+
+    for(int i = 0; i < barrios.size(); i++){
+        asignacion_barrios[barrios[i].first] = i % size;
+        if(rank == i % size){
+            mis_barrios.insert(barrios[i].first);
+        }
+    }
+
+
+    auto grafoMapa = new Grafo();
+    loadData.FormarGrafo(grafoMapa, mapa_barios, notificarFinalizacion,asignacion_barrios);
+
 
     char processor_name[MPI_MAX_PROCESSOR_NAME];
     int name_len;
     MPI_Get_processor_name(processor_name, &name_len);
 
-    printf("Hello world from process %d of %d on processor %s\n", rank, size, processor_name);
-    // Finalizar MPI
-    MPI_Finalize();
+    printf("processor %s\n", processor_name);
 
-    return 0;
 
-    /*
-    for(const auto& calle_id_calle: mapa_calles){
-        calles.push_back(calle_id_calle.second);
+    for(const auto& id_bario_y_barrio: mapa_barios){
+        id_bario_y_barrio.second->addCalles(todas_calles);
     }
 
 
@@ -149,7 +166,10 @@ int main(int argc, char* argv[]) {
             todos_vehiculos.push_back(v);
             long id_camino_primer_nodo = camino[0];
             long id_camino_segundo_nodo = camino[1];
-            Calle * calle = mapa_calles[Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo)];
+
+            string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
+            Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
+            Calle * calle = mapa_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
             calle->insertarSolicitudTranspaso(nullptr, v);
         }
     }
@@ -174,14 +194,19 @@ int main(int argc, char* argv[]) {
 
 
 
-    for (auto c : mapa_calles){
-        delete c.second;
+    // Limpieza
+
+    for (auto barrios : mapa_barios){
+        delete barrios.second;
     }
 
     for (Vehiculo* v: todos_vehiculos){
         delete v;
     }
-    */
+
+
+    MPI_Finalize();
+
 
     return 0;
 

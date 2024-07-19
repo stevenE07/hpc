@@ -1,5 +1,4 @@
-#ifndef CALLE_H
-#define CALLE_H
+
 
 #include "easylogging++.h"
 #include "queue"
@@ -9,14 +8,18 @@
 #include "string"
 #include "set"
 #include "omp.h"
-
-
+#include "Grafo.h"
 
 #include "Constantes.h"
 
 
 
+#ifndef CALLE_H
+#define CALLE_H
+
 using namespace std;
+
+class Barrio;
 class Calle {
 
 private:
@@ -24,6 +27,7 @@ private:
     float largo;
     unsigned int numero_carriles;
     float velocidad_maxima;
+    Grafo g;
 
     vector<pair<Calle*, Vehiculo*>> solicitudes_traspaso_calle;
     set<unsigned int>notificaciones_traslado_calle_realizado;
@@ -34,14 +38,18 @@ private:
     // Lista de vehiculos dentro de la calle, ordenadados por posicion (de mayor a menor), se actualizan en este orden.
     vector<Vehiculo*> vehculos_ordenados_en_calle;
 
-    function<Calle*(string)> obtenerCallePorIdFn;
     function<void()> doneFn;
+
+    Grafo* grafo;
+    map<long, Barrio*> mapa_barrio;
+    map<long, int> asignacion_barrios;
 
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
 
 public:
-    Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn,  function<void()>& doneFn);
+    Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles,
+          float velocidad_maxima, map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int> asignacion_barrios );
 
     void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
 
@@ -65,6 +73,7 @@ public:
 
 };
 
-
+#include "Barrio.h"
 
 #endif //CALLE_H
+

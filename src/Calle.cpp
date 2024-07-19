@@ -2,15 +2,18 @@
 #include "../include/Calle.h"
 #include "cmath"
 #include "iostream"
+#include <mpi.h>
 
-Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima, function<Calle*(string)> & obtenerCallePorIdFn, function<void()>& doneFn){
+Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,  map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int> asignacion_barrios ){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
    this->numero_carriles = numero_carriles;
    this->velocidad_maxima = velocidad_maxima;
-   this->obtenerCallePorIdFn = obtenerCallePorIdFn;
+   this->mapa_barrio = mapa_barrio;
    this->doneFn = doneFn;
+   this->grafo = grafo;
+   this->asignacion_barrios = asignacion_barrios;
    omp_init_lock(&lock_solicitud);
    omp_init_lock(&lock_notificacion);
 }
@@ -87,6 +90,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
         if(nuevaCarilPosicion.second >= largo){
            if(!v->isEsperandoTrasladoEntreCalles()){
+
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
 
                   #pragma omp critical
@@ -96,9 +100,25 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                   posiciones_vehiculos_en_calle.erase(v->getId());
                   continue;
                } else {
-                  v->setEsperandoTrasladoEntreCalles(true);
-                  Calle* sigCalle = obtenerCallePorIdFn(v->sigCalleARecorrer());
-                  sigCalle->insertarSolicitudTranspaso(this, v);
+
+                   v->setEsperandoTrasladoEntreCalles(true);
+
+                   long idBarrioActualCalle = grafo->obtenerNodo(nodo_inicial)->getSeccion();
+                   long idBarrioSigCalle = grafo->obtenerNodo(nodo_final)->getSeccion();
+                   long idSiguienteNodo = v->sigNodoARecorrer();
+
+                   string codigoSiguienteCalle = Calle::getIdCalle(nodo_final, idSiguienteNodo);
+                   //si el barrio pertenece al mismo barrio que el nodo actual entoneces lo gestiona el mismo nodo mpi.
+                   if (asignacion_barrios[idBarrioActualCalle] ==
+                       asignacion_barrios[idBarrioSigCalle]) { //Si el nodo MPI encargado de la solictud es el mismo
+                       Calle *sigCalle = mapa_barrio[idBarrioSigCalle]->obtenerCalle(codigoSiguienteCalle);
+                       sigCalle->insertarSolicitudTranspaso(this, v);
+                   } else {
+                       //aca se envia la informacion desde el nodo mpi del barrio actual al siguiente.
+                       int nodo_mpi_sig = asignacion_barrios[idBarrioSigCalle];
+                       long data_to_send[4] = {v->getId(), nodo_final, idSiguienteNodo, v->nodo_destino()};
+                       MPI_Send(data_to_send, 4, MPI_LONG, nodo_mpi_sig, 0, MPI_COMM_WORLD);
+                   }
                }
            }
         }
@@ -116,6 +136,14 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
     // 3- aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
     omp_set_lock(&lock_solicitud);
+    /*
+    long data_received[4];
+    MPI_Request request;
+    MPI_Irecv(data_received, 4, MPI_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
+    MPI_Status status;
+    int flag;
+    MPI_Test(&request, &flag, &status);
+     */
     for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
         if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
             if(!solicitudes_traspaso_calle.empty()){

@@ -6,11 +6,11 @@
 
 Grafo::Grafo() {}
 
-void Grafo::agregarNodo(long id_ext){
+void Grafo::agregarNodo(long id_ext, long seccion){
     int id_int = sigIdNodo;
     sigIdNodo++;
 
-    auto nuevo_nodo = new Nodo(id_int, id_ext);
+    auto nuevo_nodo = new Nodo(id_int, id_ext,seccion);
     nodos_id_int[id_int] = nuevo_nodo;
     nodos_id_ext[id_ext] = nuevo_nodo;
 
@@ -123,6 +123,9 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
     return camino;
 }
 
+Nodo* Grafo::obtenerNodo(long id_ext_nodo){
+    return nodos_id_ext[id_ext_nodo];
+}
 
 Grafo::~Grafo() {
     for (auto n: nodos_id_ext){

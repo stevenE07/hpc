@@ -3,31 +3,60 @@
 
 #include <iostream>
 
-CargarGrafo::CargarGrafo(std::string file) {
+CargarGrafo::CargarGrafo(string file) {
     std::ifstream f(file);
     data = json::parse(f);
 }
 
 
-void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles, function<Calle*(string)> & obtenerCallePorIdFn, std::function<void()>& doneFn){
+vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
+    vector<pair<long, string>> barrios;
 
-    map<long, pair<float, float>> corr_nodos;
+    for (size_t i = 0; i < data["suburb"].size(); ++i){
+        pair<long, string> barrio;
+
+        barrio.first = data["suburb"][i]["id"];
+        barrio.second = data["suburb"][i]["name"];
+
+        barrios.push_back(barrio);
+    }
+
+    return barrios;
+}
+
+
+
+void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int> asignacion_barrios ){
+
+    map<long, pair<float, float>> mapa_corr_por_nodo;
+    map<long, long> mapa_barios_por_nodo;
 
     for (size_t i = 0; i < data["nodes"].size(); ++i) {
         long id_nodo_archivo = data["nodes"][i]["id"];
-        grafo->agregarNodo(id_nodo_archivo);
+        long barrio_id = data["nodes"][i]["suburb_id"];
+
+        grafo->agregarNodo(id_nodo_archivo, barrio_id);
+        mapa_barios_por_nodo[id_nodo_archivo] = barrio_id;
+
+        if(barrios.find(barrio_id) == barrios.end()){
+            auto barrio = new Barrio(barrio_id);
+            barrios[barrio_id] = barrio;
+        }
 
         pair<double, double> corr;
         corr.first = data["nodes"][i]["x"];
         corr.second = data["nodes"][i]["y"];
 
-        corr_nodos[id_nodo_archivo] = corr;
+        mapa_corr_por_nodo[id_nodo_archivo] = corr;
     }
+
 
     for (size_t i = 0; i < data["links"].size(); ++i) {
         long id_src = data["links"][i]["source"];
         long id_dst = data["links"][i]["target"];
 
+        long id_barrio_src = mapa_barios_por_nodo[id_src];
+        long id_barrio_dst = mapa_barios_por_nodo[id_dst];
 
         if(!grafo->existeNodo(id_src) || !grafo->existeNodo(id_dst)){
             continue;
@@ -50,7 +79,6 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
             }
         }
 
-
         if(invertido){
             swap(id_src, id_dst);
         }
@@ -60,6 +88,7 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
         if (largo < LARGO_VEHICULO) {
             largo = LARGO_VEHICULO + 1.f;
         }
+
         string velocidad_max;
         if( data["links"][i].contains("maxspeed")){
 
@@ -74,41 +103,67 @@ void CargarGrafo::leerDatos(Grafo* grafo, std::map<std::string, Calle*>& calles,
             velocidad_max = "45";
         }
 
-        int numeroCarriles = 1; //ToDo pendiente de leer
+        int numeroCarriles =  1; // data["links"][i]["lanes"];
 
         if(doble){
-            grafo->agregarArista(id_src, id_dst, largo);
 
-            auto calle1 = new Calle(id_src,
-                                    id_dst,
-                                   largo,
-                                   numeroCarriles,
-                                   stof(velocidad_max),
-                                   obtenerCallePorIdFn,
-                                    doneFn);
-            calles[Calle::getIdCalle(calle1)] = calle1;
+            //Cargo la primera arista
+            Barrio* barrio1 = barrios[id_barrio_src];
 
-            grafo->agregarArista(id_dst, id_src, largo);
+            //No agregamos aristas repetidas
+            if(!barrio1->isCalleEnBarrio(id_src,id_dst)){
+                grafo->agregarArista(id_src, id_dst, largo);
 
-            auto calle2 = new Calle(id_dst,
-                                    id_src,
-                                   largo,
-                                   numeroCarriles,
-                                   stof(velocidad_max),
-                                   obtenerCallePorIdFn,
-                                    doneFn);
-            calles[Calle::getIdCalle(calle2)] = calle2;
+
+                auto calle1 = new Calle(id_src,
+                                        id_dst,
+                                        largo,
+                                        numeroCarriles,
+                                        stof(velocidad_max),
+                                        barrios,
+                                        doneFn,
+                                        grafo,
+                                        asignacion_barrios);
+                barrio1->agregarCalle(calle1);
+            }
+
+
+
+            //Cargo la segunda arista
+            Barrio* barrio2 = barrios[id_barrio_dst];
+
+            if(!barrio2->isCalleEnBarrio(id_dst,id_src)){
+                grafo->agregarArista(id_dst, id_src, largo);
+
+                auto calle2 = new Calle(id_dst,
+                                        id_src,
+                                        largo,
+                                        numeroCarriles,
+                                        stof(velocidad_max),
+                                        barrios,
+                                        doneFn,
+                                        grafo,
+                                        asignacion_barrios);
+                barrio2->agregarCalle(calle2);
+            }
+
+
         } else {
-            grafo->agregarArista(id_src, id_dst, largo);
+            Barrio* barrio = barrios[id_barrio_src];
+            if(!barrio->isCalleEnBarrio(id_src,id_dst)){
+                grafo->agregarArista(id_src, id_dst, largo);
 
-            auto calle = new Calle(id_src,
-                                   id_dst,
-                                   largo,
-                                   numeroCarriles,
-                                   stof(velocidad_max),
-                                   obtenerCallePorIdFn,
-                                   doneFn);
-            calles[Calle::getIdCalle(calle)] = calle;
+                auto calle = new Calle(id_src,
+                                       id_dst,
+                                       largo,
+                                       numeroCarriles,
+                                       stof(velocidad_max),
+                                       barrios,
+                                       doneFn,
+                                       grafo,
+                                       asignacion_barrios);
+                barrio->agregarCalle(calle);
+            }
         }
     }
 }
