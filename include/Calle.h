@@ -42,14 +42,14 @@ private:
 
     Grafo* grafo;
     map<long, Barrio*> mapa_barrio;
-    map<long, int> asignacion_barrios;
+    map<long, int> * asignacion_barrios;
 
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
 
 public:
     Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles,
-          float velocidad_maxima, map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int> asignacion_barrios );
+          float velocidad_maxima, map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int> * asignacion_barrios );
 
     void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
 

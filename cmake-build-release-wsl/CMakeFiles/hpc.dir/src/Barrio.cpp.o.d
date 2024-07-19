@@ -1,8 +1,7 @@
-CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
- /mnt/c/Users/Steven/Desktop/hpc/src/CargarGrafo.cpp \
+CMakeFiles/hpc.dir/src/Barrio.cpp.o: \
+ /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp \
  /usr/include/stdc-predef.h \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/CargarGrafo.h \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/Grafo.h \
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h \
  /usr/include/c++/9/map /usr/include/c++/9/bits/stl_tree.h \
  /usr/include/c++/9/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/c++config.h \
@@ -143,53 +142,6 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/include/c++/9/bits/stl_uninitialized.h \
  /usr/include/c++/9/bits/stl_vector.h \
  /usr/include/c++/9/bits/stl_bvector.h /usr/include/c++/9/bits/vector.tcc \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
- /usr/include/c++/9/iostream /usr/include/c++/9/ostream \
- /usr/include/c++/9/ios /usr/include/c++/9/bits/ios_base.h \
- /usr/include/c++/9/bits/locale_classes.h \
- /usr/include/c++/9/bits/locale_classes.tcc \
- /usr/include/c++/9/system_error \
- /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
- /usr/include/c++/9/streambuf /usr/include/c++/9/bits/streambuf.tcc \
- /usr/include/c++/9/bits/basic_ios.h \
- /usr/include/c++/9/bits/locale_facets.h /usr/include/c++/9/cwctype \
- /usr/include/wctype.h /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/ctype_base.h \
- /usr/include/c++/9/bits/streambuf_iterator.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/ctype_inline.h \
- /usr/include/c++/9/bits/locale_facets.tcc \
- /usr/include/c++/9/bits/basic_ios.tcc \
- /usr/include/c++/9/bits/ostream.tcc /usr/include/c++/9/istream \
- /usr/include/c++/9/bits/istream.tcc /usr/include/c++/9/random \
- /usr/include/c++/9/cmath /usr/include/math.h \
- /usr/include/x86_64-linux-gnu/bits/math-vector.h \
- /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
- /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
- /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
- /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
- /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
- /usr/include/x86_64-linux-gnu/bits/mathinline.h \
- /usr/include/c++/9/bits/specfun.h /usr/include/c++/9/tr1/gamma.tcc \
- /usr/include/c++/9/tr1/special_function_util.h \
- /usr/include/c++/9/tr1/bessel_function.tcc \
- /usr/include/c++/9/tr1/beta_function.tcc \
- /usr/include/c++/9/tr1/ell_integral.tcc \
- /usr/include/c++/9/tr1/exp_integral.tcc \
- /usr/include/c++/9/tr1/hypergeometric.tcc \
- /usr/include/c++/9/tr1/legendre_function.tcc \
- /usr/include/c++/9/tr1/modified_bessel_func.tcc \
- /usr/include/c++/9/tr1/poly_hermite.tcc \
- /usr/include/c++/9/tr1/poly_laguerre.tcc \
- /usr/include/c++/9/tr1/riemann_zeta.tcc /usr/include/c++/9/bits/random.h \
- /usr/include/c++/9/bits/uniform_int_dist.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
- /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
- /usr/include/c++/9/bits/stl_numeric.h \
- /usr/include/c++/9/pstl/glue_numeric_defs.h \
- /usr/include/c++/9/pstl/execution_defs.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Calle.h \
  /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
  /usr/include/c++/9/ctime /usr/include/c++/9/cstring \
@@ -239,14 +191,31 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/include/c++/9/bits/stl_algo.h \
  /usr/include/c++/9/bits/algorithmfwd.h \
  /usr/include/c++/9/bits/stl_heap.h /usr/include/c++/9/bits/stl_tempbuf.h \
- /usr/include/c++/9/algorithm \
- /usr/include/c++/9/pstl/glue_algorithm_defs.h /usr/include/c++/9/fstream \
+ /usr/include/c++/9/bits/uniform_int_dist.h /usr/include/c++/9/algorithm \
+ /usr/include/c++/9/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/9/pstl/execution_defs.h /usr/include/c++/9/fstream \
+ /usr/include/c++/9/istream /usr/include/c++/9/ios \
+ /usr/include/c++/9/bits/ios_base.h \
+ /usr/include/c++/9/bits/locale_classes.h \
+ /usr/include/c++/9/bits/locale_classes.tcc \
+ /usr/include/c++/9/system_error \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
+ /usr/include/c++/9/streambuf /usr/include/c++/9/bits/streambuf.tcc \
+ /usr/include/c++/9/bits/basic_ios.h \
+ /usr/include/c++/9/bits/locale_facets.h /usr/include/c++/9/cwctype \
+ /usr/include/wctype.h /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/ctype_base.h \
+ /usr/include/c++/9/bits/streambuf_iterator.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/ctype_inline.h \
+ /usr/include/c++/9/bits/locale_facets.tcc \
+ /usr/include/c++/9/bits/basic_ios.tcc /usr/include/c++/9/ostream \
+ /usr/include/c++/9/bits/ostream.tcc /usr/include/c++/9/bits/istream.tcc \
  /usr/include/c++/9/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/c++io.h \
- /usr/include/c++/9/bits/fstream.tcc /usr/include/c++/9/sstream \
- /usr/include/c++/9/bits/sstream.tcc /usr/include/c++/9/memory \
- /usr/include/c++/9/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/9/bits/fstream.tcc /usr/include/c++/9/iostream \
+ /usr/include/c++/9/sstream /usr/include/c++/9/bits/sstream.tcc \
+ /usr/include/c++/9/memory /usr/include/c++/9/bits/stl_raw_storage_iter.h \
  /usr/include/c++/9/ext/concurrence.h \
  /usr/include/c++/9/bits/unique_ptr.h \
  /usr/include/c++/9/bits/shared_ptr.h \
@@ -263,31 +232,34 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
  /usr/include/c++/9/bits/stl_multiset.h \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Grafo.h \
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
+ /usr/include/c++/9/random /usr/include/c++/9/cmath /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
+ /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
+ /usr/include/x86_64-linux-gnu/bits/mathinline.h \
+ /usr/include/c++/9/bits/specfun.h /usr/include/c++/9/tr1/gamma.tcc \
+ /usr/include/c++/9/tr1/special_function_util.h \
+ /usr/include/c++/9/tr1/bessel_function.tcc \
+ /usr/include/c++/9/tr1/beta_function.tcc \
+ /usr/include/c++/9/tr1/ell_integral.tcc \
+ /usr/include/c++/9/tr1/exp_integral.tcc \
+ /usr/include/c++/9/tr1/hypergeometric.tcc \
+ /usr/include/c++/9/tr1/legendre_function.tcc \
+ /usr/include/c++/9/tr1/modified_bessel_func.tcc \
+ /usr/include/c++/9/tr1/poly_hermite.tcc \
+ /usr/include/c++/9/tr1/poly_laguerre.tcc \
+ /usr/include/c++/9/tr1/riemann_zeta.tcc /usr/include/c++/9/bits/random.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
+ /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
+ /usr/include/c++/9/bits/stl_numeric.h \
+ /usr/include/c++/9/pstl/glue_numeric_defs.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h \
- /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
- /usr/include/c++/9/cstddef /usr/include/c++/9/iterator \
- /usr/include/c++/9/bits/stream_iterator.h \
- /usr/include/c++/9/forward_list /usr/include/c++/9/bits/forward_list.h \
- /usr/include/c++/9/bits/forward_list.tcc /usr/include/c++/9/valarray \
- /usr/include/c++/9/bits/valarray_array.h \
- /usr/include/c++/9/bits/valarray_array.tcc \
- /usr/include/c++/9/bits/valarray_before.h \
- /usr/include/c++/9/bits/slice_array.h \
- /usr/include/c++/9/bits/valarray_after.h \
- /usr/include/c++/9/bits/gslice.h /usr/include/c++/9/bits/gslice_array.h \
- /usr/include/c++/9/bits/mask_array.h \
- /usr/include/c++/9/bits/indirect_array.h /usr/include/c++/9/version \
- /usr/include/c++/9/cassert /usr/include/assert.h \
- /usr/include/c++/9/filesystem /usr/include/c++/9/bits/fs_fwd.h \
- /usr/include/c++/9/chrono /usr/include/c++/9/ratio \
- /usr/include/c++/9/bits/parse_numbers.h \
- /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
- /usr/include/c++/9/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
- /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
- /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/codecvt \
- /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
- /usr/include/c++/9/any
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h

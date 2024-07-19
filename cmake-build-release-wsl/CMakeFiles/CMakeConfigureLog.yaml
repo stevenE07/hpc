@@ -1017,3 +1017,416 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_22133/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_22133.dir/build.make CMakeFiles/cmTC_22133.dir/build
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL'
+        Building C object CMakeFiles/cmTC_22133.dir/test_mpi.c.o
+        /usr/bin/cc   -fdiagnostics-color=always -o CMakeFiles/cmTC_22133.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL/test_mpi.c
+        \x1b[01m\x1b[K/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL/test_mpi.c:1:10:\x1b[m\x1b[K \x1b[01;31m\x1b[Kfatal error: \x1b[m\x1b[Kmpi.h: No such file or directory
+            1 | #include \x1b[01;31m\x1b[K<mpi.h>\x1b[m\x1b[K
+              |          \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K
+        compilation terminated.
+        make[1]: *** [CMakeFiles/cmTC_22133.dir/build.make:78: CMakeFiles/cmTC_22133.dir/test_mpi.c.o] Error 1
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2jVUkL'
+        make: *** [Makefile:127: cmTC_22133/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_3188a/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_3188a.dir/build.make CMakeFiles/cmTC_3188a.dir/build
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL'
+        Building CXX object CMakeFiles/cmTC_3188a.dir/test_mpi.cpp.o
+        /usr/bin/c++   -fopenmp  -std=gnu++17 -fdiagnostics-color=always -o CMakeFiles/cmTC_3188a.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL/test_mpi.cpp
+        \x1b[01m\x1b[K/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL/test_mpi.cpp:1:10:\x1b[m\x1b[K \x1b[01;31m\x1b[Kfatal error: \x1b[m\x1b[Kmpi.h: No such file or directory
+            1 | #include \x1b[01;31m\x1b[K<mpi.h>\x1b[m\x1b[K
+              |          \x1b[01;31m\x1b[K^~~~~~~\x1b[m\x1b[K
+        compilation terminated.
+        make[1]: *** [CMakeFiles/cmTC_3188a.dir/build.make:78: CMakeFiles/cmTC_3188a.dir/test_mpi.cpp.o] Error 1
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-1lT4zL'
+        make: *** [Makefile:127: cmTC_3188a/fast] Error 2
+        
+      exitCode: 2
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_712e0/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq'
+        /usr/bin/make  -f CMakeFiles/cmTC_712e0.dir/build.make CMakeFiles/cmTC_712e0.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq'
+        Building C object CMakeFiles/cmTC_712e0.dir/test_mpi.c.o
+        /usr/bin/cc    -o CMakeFiles/cmTC_712e0.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq/test_mpi.c
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_712e0.dir/build.make:78: CMakeFiles/cmTC_712e0.dir/test_mpi.c.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq'
+        make[1]: *** [Makefile:127: cmTC_712e0/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-MCr7Cq'
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_e7960/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq'
+        /usr/bin/make  -f CMakeFiles/cmTC_e7960.dir/build.make CMakeFiles/cmTC_e7960.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq'
+        Building CXX object CMakeFiles/cmTC_e7960.dir/test_mpi.cpp.o
+        /usr/bin/c++   -fopenmp  -std=gnu++17 -o CMakeFiles/cmTC_e7960.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq/test_mpi.cpp
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_e7960.dir/build.make:78: CMakeFiles/cmTC_e7960.dir/test_mpi.cpp.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq'
+        make[1]: *** [Makefile:127: cmTC_e7960/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-UdhWCq'
+        
+      exitCode: 2
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_a4222/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa'
+        /usr/bin/make  -f CMakeFiles/cmTC_a4222.dir/build.make CMakeFiles/cmTC_a4222.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa'
+        Building C object CMakeFiles/cmTC_a4222.dir/test_mpi.c.o
+        /usr/bin/cc    -o CMakeFiles/cmTC_a4222.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa/test_mpi.c
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_a4222.dir/build.make:78: CMakeFiles/cmTC_a4222.dir/test_mpi.c.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa'
+        make[1]: *** [Makefile:127: cmTC_a4222/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-iY2qYa'
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_35515/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8'
+        /usr/bin/make  -f CMakeFiles/cmTC_35515.dir/build.make CMakeFiles/cmTC_35515.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8'
+        Building CXX object CMakeFiles/cmTC_35515.dir/test_mpi.cpp.o
+        /usr/bin/c++   -fopenmp  -std=gnu++17 -o CMakeFiles/cmTC_35515.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8/test_mpi.cpp
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_35515.dir/build.make:78: CMakeFiles/cmTC_35515.dir/test_mpi.cpp.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8'
+        make[1]: *** [Makefile:127: cmTC_35515/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-5g1uR8'
+        
+      exitCode: 2
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_83020/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7'
+        /usr/bin/make  -f CMakeFiles/cmTC_83020.dir/build.make CMakeFiles/cmTC_83020.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7'
+        Building C object CMakeFiles/cmTC_83020.dir/test_mpi.c.o
+        /usr/bin/cc    -o CMakeFiles/cmTC_83020.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7/test_mpi.c
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_83020.dir/build.make:78: CMakeFiles/cmTC_83020.dir/test_mpi.c.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7'
+        make[1]: *** [Makefile:127: cmTC_83020/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-uPFpm7'
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_374f5/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8'
+        /usr/bin/make  -f CMakeFiles/cmTC_374f5.dir/build.make CMakeFiles/cmTC_374f5.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8'
+        Building CXX object CMakeFiles/cmTC_374f5.dir/test_mpi.cpp.o
+        /usr/bin/c++   -fopenmp  -std=gnu++17 -o CMakeFiles/cmTC_374f5.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8/test_mpi.cpp
+        /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+            1 | #include <mpi.h>
+              |          ^~~~~~~
+        compilation terminated.
+        make[2]: *** [CMakeFiles/cmTC_374f5.dir/build.make:78: CMakeFiles/cmTC_374f5.dir/test_mpi.cpp.o] Error 1
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8'
+        make[1]: *** [Makefile:127: cmTC_374f5/fast] Error 2
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-xALxX8'
+        
+      exitCode: 2
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_55cfa/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM'
+        /usr/bin/make  -f CMakeFiles/cmTC_55cfa.dir/build.make CMakeFiles/cmTC_55cfa.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM'
+        Building C object CMakeFiles/cmTC_55cfa.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -pthread -o CMakeFiles/cmTC_55cfa.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM/test_mpi.c
+        Linking C executable cmTC_55cfa
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_55cfa.dir/link.txt --verbose=1
+        /usr/bin/cc -pthread CMakeFiles/cmTC_55cfa.dir/test_mpi.c.o -o cmTC_55cfa  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-RuYinM'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_daad9/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL'
+        /usr/bin/make  -f CMakeFiles/cmTC_daad9.dir/build.make CMakeFiles/cmTC_daad9.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL'
+        Building CXX object CMakeFiles/cmTC_daad9.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -fopenmp  -std=gnu++17 -pthread -o CMakeFiles/cmTC_daad9.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL/test_mpi.cpp
+        Linking CXX executable cmTC_daad9
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_daad9.dir/link.txt --verbose=1
+        /usr/bin/c++  -fopenmp  -pthread CMakeFiles/cmTC_daad9.dir/test_mpi.cpp.o -o cmTC_daad9  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-Nz8KCL'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_376e2/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK'
+        /usr/bin/make  -f CMakeFiles/cmTC_376e2.dir/build.make CMakeFiles/cmTC_376e2.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK'
+        Building CXX object CMakeFiles/cmTC_376e2.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -fopenmp  -std=gnu++17 -pthread -o CMakeFiles/cmTC_376e2.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK/test_mpi.cpp
+        Linking CXX executable cmTC_376e2
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_376e2.dir/link.txt --verbose=1
+        /usr/bin/c++  -fopenmp  -pthread CMakeFiles/cmTC_376e2.dir/test_mpi.cpp.o -o cmTC_376e2  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-BiCagK'
+        
+      exitCode: 0
+...

@@ -26,7 +26,7 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 
 
 
-void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int> asignacion_barrios ){
+void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int> *  asignacion_barrios ){
 
     map<long, pair<float, float>> mapa_corr_por_nodo;
     map<long, long> mapa_barios_por_nodo;

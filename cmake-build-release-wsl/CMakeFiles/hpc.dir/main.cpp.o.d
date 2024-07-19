@@ -231,19 +231,6 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
  /usr/include/c++/9/bits/stl_multiset.h \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
- /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
- /usr/include/c++/9/filesystem /usr/include/c++/9/bits/fs_fwd.h \
- /usr/include/c++/9/chrono /usr/include/c++/9/ratio \
- /usr/include/c++/9/bits/parse_numbers.h \
- /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
- /usr/include/c++/9/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
- /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
- /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/codecvt \
- /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
- /mnt/c/Users/Steven/Desktop/hpc/include/CargarGrafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h /usr/include/c++/9/random \
  /usr/include/c++/9/cmath /usr/include/math.h \
@@ -273,7 +260,21 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
  /usr/include/c++/9/bits/stl_numeric.h \
  /usr/include/c++/9/pstl/glue_numeric_defs.h \
+ /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
+ /mnt/c/Users/Steven/Desktop/hpc/include/Barrio.h \
  /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h \
+ /usr/include/c++/9/filesystem /usr/include/c++/9/bits/fs_fwd.h \
+ /usr/include/c++/9/chrono /usr/include/c++/9/ratio \
+ /usr/include/c++/9/bits/parse_numbers.h \
+ /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
+ /usr/include/c++/9/bits/locale_facets_nonio.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
+ /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/codecvt \
+ /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
+ /mnt/c/Users/Steven/Desktop/hpc/include/CargarGrafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
  /usr/include/c++/9/cstddef /usr/include/c++/9/iterator \
  /usr/include/c++/9/bits/stream_iterator.h \
@@ -288,4 +289,37 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/include/c++/9/bits/mask_array.h \
  /usr/include/c++/9/bits/indirect_array.h /usr/include/c++/9/version \
  /usr/include/c++/9/cassert /usr/include/assert.h /usr/include/c++/9/any \
- /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h
+ /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/mpi.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/mpi_portable_platform.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/mpicxx.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/constants.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/functions.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/datatype.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/exception.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/op.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/status.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/request.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/group.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/comm.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/win.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/file.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/errhandler.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intracomm.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/topology.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intercomm.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/info.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/datatype_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/functions_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/request_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/comm_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intracomm_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/topology_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intercomm_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/group_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/op_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/errhandler_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/status_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/info_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/win_inln.h \
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/file_inln.h

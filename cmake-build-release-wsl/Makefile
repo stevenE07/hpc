@@ -153,6 +153,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hpc.dir/build.make CMakeFiles/hpc.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/Barrio.o: src/Barrio.cpp.o
+.PHONY : src/Barrio.o
+
+# target to build an object file
+src/Barrio.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hpc.dir/build.make CMakeFiles/hpc.dir/src/Barrio.cpp.o
+.PHONY : src/Barrio.cpp.o
+
+src/Barrio.i: src/Barrio.cpp.i
+.PHONY : src/Barrio.i
+
+# target to preprocess a source file
+src/Barrio.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hpc.dir/build.make CMakeFiles/hpc.dir/src/Barrio.cpp.i
+.PHONY : src/Barrio.cpp.i
+
+src/Barrio.s: src/Barrio.cpp.s
+.PHONY : src/Barrio.s
+
+# target to generate assembly for a file
+src/Barrio.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hpc.dir/build.make CMakeFiles/hpc.dir/src/Barrio.cpp.s
+.PHONY : src/Barrio.cpp.s
+
 src/Calle.o: src/Calle.cpp.o
 .PHONY : src/Calle.o
 
@@ -261,6 +285,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/Barrio.o"
+	@echo "... src/Barrio.i"
+	@echo "... src/Barrio.s"
 	@echo "... src/Calle.o"
 	@echo "... src/Calle.i"
 	@echo "... src/Calle.s"

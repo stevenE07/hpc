@@ -83,10 +83,24 @@ CMakeFiles/hpc.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hpc.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/Steven/Desktop/hpc/main.cpp -o CMakeFiles/hpc.dir/main.cpp.s
 
+CMakeFiles/hpc.dir/src/Barrio.cpp.o: CMakeFiles/hpc.dir/flags.make
+CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp
+CMakeFiles/hpc.dir/src/Barrio.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hpc.dir/src/Barrio.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/Barrio.cpp.o -MF CMakeFiles/hpc.dir/src/Barrio.cpp.o.d -o CMakeFiles/hpc.dir/src/Barrio.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp
+
+CMakeFiles/hpc.dir/src/Barrio.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hpc.dir/src/Barrio.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp > CMakeFiles/hpc.dir/src/Barrio.cpp.i
+
+CMakeFiles/hpc.dir/src/Barrio.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hpc.dir/src/Barrio.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp -o CMakeFiles/hpc.dir/src/Barrio.cpp.s
+
 CMakeFiles/hpc.dir/src/Calle.cpp.o: CMakeFiles/hpc.dir/flags.make
 CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cpp
 CMakeFiles/hpc.dir/src/Calle.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hpc.dir/src/Calle.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hpc.dir/src/Calle.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/Calle.cpp.o -MF CMakeFiles/hpc.dir/src/Calle.cpp.o.d -o CMakeFiles/hpc.dir/src/Calle.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cpp
 
 CMakeFiles/hpc.dir/src/Calle.cpp.i: cmake_force
@@ -100,7 +114,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.s: cmake_force
 CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: CMakeFiles/hpc.dir/flags.make
 CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehiculo.cpp
 CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hpc.dir/src/Vehiculo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hpc.dir/src/Vehiculo.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/Vehiculo.cpp.o -MF CMakeFiles/hpc.dir/src/Vehiculo.cpp.o.d -o CMakeFiles/hpc.dir/src/Vehiculo.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/src/Vehiculo.cpp
 
 CMakeFiles/hpc.dir/src/Vehiculo.cpp.i: cmake_force
@@ -114,7 +128,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.s: cmake_force
 CMakeFiles/hpc.dir/src/Grafo.cpp.o: CMakeFiles/hpc.dir/flags.make
 CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cpp
 CMakeFiles/hpc.dir/src/Grafo.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hpc.dir/src/Grafo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hpc.dir/src/Grafo.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/Grafo.cpp.o -MF CMakeFiles/hpc.dir/src/Grafo.cpp.o.d -o CMakeFiles/hpc.dir/src/Grafo.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cpp
 
 CMakeFiles/hpc.dir/src/Grafo.cpp.i: cmake_force
@@ -128,7 +142,7 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.s: cmake_force
 CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: CMakeFiles/hpc.dir/flags.make
 CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/CargarGrafo.cpp
 CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: CMakeFiles/hpc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o -MF CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o.d -o CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/src/CargarGrafo.cpp
 
 CMakeFiles/hpc.dir/src/CargarGrafo.cpp.i: cmake_force
@@ -142,6 +156,7 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.s: cmake_force
 # Object files for target hpc
 hpc_OBJECTS = \
 "CMakeFiles/hpc.dir/main.cpp.o" \
+"CMakeFiles/hpc.dir/src/Barrio.cpp.o" \
 "CMakeFiles/hpc.dir/src/Calle.cpp.o" \
 "CMakeFiles/hpc.dir/src/Vehiculo.cpp.o" \
 "CMakeFiles/hpc.dir/src/Grafo.cpp.o" \
@@ -151,6 +166,7 @@ hpc_OBJECTS = \
 hpc_EXTERNAL_OBJECTS =
 
 hpc: CMakeFiles/hpc.dir/main.cpp.o
+hpc: CMakeFiles/hpc.dir/src/Barrio.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Calle.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Vehiculo.cpp.o
 hpc: CMakeFiles/hpc.dir/src/Grafo.cpp.o
@@ -159,8 +175,10 @@ hpc: CMakeFiles/hpc.dir/build.make
 hpc: /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.cc
 hpc: /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so
 hpc: /usr/lib/x86_64-linux-gnu/libpthread.so
+hpc: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
+hpc: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 hpc: CMakeFiles/hpc.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable hpc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable hpc"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hpc.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
