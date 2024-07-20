@@ -94,22 +94,41 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
         nuevaCarilPosicion.second = nuevaPosicion;
 
         if(nuevaCarilPosicion.second >= largo){
-           if(!v->isEsperandoTrasladoEntreCalles()){
-               if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
-                  #pragma omp critical
-                  LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
-                   //if(v.get)
-                  doneFn();
-                  posiciones_vehiculos_en_calle.erase(v->getId());
-                  continue;
-               } else {
+           if(!v->isEsperandoTrasladoEntreCalles()) {
+               if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1) {
+                   // termino de computar la ultima calle dentro del barrio.
+                   #pragma omp critical
+                   LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
+                   if(v->get_is_segmento_final()) { // si el segmento es final.
+                       //si es la ultima el ultimo segmento por transitar.
+                       doneFn();
+                       posiciones_vehiculos_en_calle.erase(v->getId());
+                       continue;
+                   }else { // tengo que cambiar de barrio.
+                       long idBarrioActualCalle = grafo->obtenerNodo(nodo_inicial)->getSeccion();
+                       long idBarrioSig = grafo->obtenerNodo(nodo_final)->getSeccion();
+                       long idSiguienteNodo = v->sigNodoARecorrer();
+                       string codigoSiguienteCalle = Calle::getIdCalle(nodo_final, idSiguienteNodo);
+                       if (asignacion_barrios[idBarrioActualCalle] == asignacion_barrios[idBarrioSig]) { // si el barrio es del mismo nodo mpi.
+                           Calle *sigCalle = mapa_barrio[idBarrioSig]->obtenerCalle(codigoSiguienteCalle);
+                           sigCalle->insertarSolicitudTranspaso(this, v);
+                       }else {
+                           SolicitudTranspaso solicitudTranspaso;
+                           solicitudTranspaso.id_vehiculo = v->getId();
+                           solicitudTranspaso.id_barrio = idBarrioSig;
+                           solicitudTranspaso.id_nodo_inicial_calle_anterior = nodo_inicial;
 
+                           #pragma omp critical
+                           this->enviarSolicitudFn(solicitudTranspaso);
+
+                           printf("SOLICITUD!!!!");
+                           exit(1);
+                       }
+                   }
+               }else { // continua computando calles dentro del mismo barrio.
                    v->setEsperandoTrasladoEntreCalles(true);
-
-                   long idBarrioActualCalle = grafo->obtenerNodo(nodo_inicial)->getSeccion();
-                   long idBarrioSigCalle = grafo->obtenerNodo(nodo_final)->getSeccion();
+                   long idBarrio = grafo->obtenerNodo(nodo_final)->getSeccion();
                    long idSiguienteNodo = v->sigNodoARecorrer();
-
                    string codigoSiguienteCalle = Calle::getIdCalle(nodo_final, idSiguienteNodo);
                    //si el barrio pertenece al mismo barrio que el nodo actual entoneces lo gestiona el mismo nodo mpi.
                    if (asignacion_barrios[idBarrioActualCalle] ==
