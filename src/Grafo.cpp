@@ -16,6 +16,8 @@ void Grafo::agregarNodo(long id_ext, long seccion){
 
     id_int_to_ext[id_int] = id_ext;
     id_ext_to_int[id_ext] = id_int;
+
+    nodos_por_seccion[seccion].push_back(nuevo_nodo);
 }
 
 void Grafo::agregarArista(long id_ext_entrada, long id_ext_salida, float peso){

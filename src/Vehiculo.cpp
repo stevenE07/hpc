@@ -4,7 +4,7 @@
 
 #include "../include/Vehiculo.h"
 
-Vehiculo::Vehiculo(int id,unsigned long epoca_inicial,float velocidad ){
+Vehiculo::Vehiculo(int id, long epoca_inicial,float velocidad ){
     this->id = id;
     this-> epoca_inicial = epoca_inicial;
     this->velocidad = velocidad;

@@ -10,10 +10,10 @@ using namespace std;
 class Vehiculo {
 private:
     //Propiedades del vehiculo
-    unsigned int id;
+    int id;
 
-    unsigned long epoca_inicial;
-    unsigned long epoca_final;
+    long epoca_inicial;
+    long epoca_final;
 
     //Dirrecion
     std::vector<long> ruta;
@@ -26,7 +26,7 @@ private:
 
 public:
 
-    Vehiculo(int id,unsigned long epoca_inicial,float velocidad);
+    Vehiculo(int id, long epoca_inicial,float velocidad);
 
     unsigned int getId() const;
 

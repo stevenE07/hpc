@@ -38,6 +38,7 @@ add_executable(hpc
         include/Constantes.h
         src/CargarGrafo.cpp
         include/CargarGrafo.h
+        include/Utils.h
 )
 
 # Enlazar bibliotecas necesarias (como OpenMP, Boost, etc.)

@@ -11,6 +11,10 @@
 #include "chrono"
 #include <mpi.h>
 #include <numeric>
+#include "include/Utils.h"
+
+#include <stdio.h>
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -26,37 +30,58 @@ using chrono::seconds;
 
 using namespace std;
 
-// ----------- Struct Auxiliares
-
-struct cuatros_longs {
-    long a;
-    long b;
-    long c;
-    long d;
-};
-
-struct VehiculoData {
-    long id_vehiculo;
-    long id_inicio;
-    long id_fin;
-    long id_barrio;
-};
 
 
 // ----------- Tipos MPI
+MPI_Datatype MPI_SegmentoTrayectoVehculoEnBarrio;
+MPI_Datatype MPI_SolicitudTranspaso;
+MPI_Datatype MPI_NotificacionTranspaso;
 
-MPI_Datatype MPI_VehiculoData;
 
+// ----------- Variables Globales
+map<long, Barrio*> mapa_mis_barios;
+vector<long> mis_barrios;
+vector<Calle*> todas_calles;
 
+map<pair<int, long>, SegmentoTrayectoVehculoEnBarrio> segmentos_a_recorrer_por_barrio_por_vehiculo;
+
+vector<SolicitudTranspaso> solicitudes_transpaso_entre_nodos_mpi;
 
 
 void create_mpi_types() {
-    MPI_Type_contiguous(4, MPI_LONG, &MPI_VehiculoData);
-    MPI_Type_commit(&MPI_VehiculoData);
+
+    // ----- Creacion de MPI_SegmentoTrayectoVehculoEnBarrio
+    const int nitems_segmento=2;
+    int blocklengths_segmento[2] = {1, 3};
+    MPI_Datatype types_segmento[2] = {MPI_INT, MPI_LONG};
+    MPI_Aint     offsets_segmento[2];
+
+    offsets_segmento[0] = offsetof(SegmentoTrayectoVehculoEnBarrio, id_vehiculo);
+    offsets_segmento[1] = offsetof(SegmentoTrayectoVehculoEnBarrio, id_inicio);
+
+    MPI_Type_create_struct(nitems_segmento, blocklengths_segmento, offsets_segmento, types_segmento, &MPI_SegmentoTrayectoVehculoEnBarrio);
+    MPI_Type_commit(&MPI_SegmentoTrayectoVehculoEnBarrio);
+
+
+    const int nitems_solicitud=2;
+    int blocklengths_solicitud[2] = {1, 3};
+    MPI_Datatype types_solicitud[2] = {MPI_INT, MPI_LONG};
+    MPI_Aint     offsets_solicitud[2];
+
+    offsets_solicitud[0] = offsetof(SolicitudTranspaso, id_vehiculo);
+    offsets_solicitud[1] = offsetof(SolicitudTranspaso, id_nodo_inicial_calle_anterior);
+
+    MPI_Type_create_struct(nitems_solicitud, blocklengths_solicitud, offsets_solicitud, types_solicitud, &MPI_SolicitudTranspaso);
+    MPI_Type_commit(&MPI_SolicitudTranspaso);
+
 }
 
-map<long, Barrio*> mapa_mis_barios;
-vector<Calle*> todas_calles;
+void intercambiar_vehiculos_entre_nodos(){
+
+    map< //Obtener lista con los nodos con los que me tengo que comunir y enviarle su parte del array solicitudes_transpaso_entre_nodos_mpi
+        // son la 4 am ya no me funciona mas el cerebo, sigo mañana...
+
+}
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
@@ -75,10 +100,9 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         //}
     }
 
+    intercambiar_vehiculos_entre_nodos();
+
 }
-
-
-
 
 void initConfig(){
     omp_set_num_threads(6);
@@ -98,18 +122,13 @@ void initConfig(){
 
 }
 
-
 void initMpi(int argc, char* argv[], int & rank, int & size){
     MPI_Init(&argc, &argv);
-
     create_mpi_types();
-
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
 }
-
-
 
 int main(int argc, char* argv[]) {
 
@@ -131,24 +150,31 @@ int main(int argc, char* argv[]) {
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
 
 
+    auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
+    ingresarSolicitudTranspaso = [&] (SolicitudTranspaso& solicitud) -> void {solicitudes_transpaso_entre_nodos_mpi.push_back(solicitud);};
+
+
+
     CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
 
-    set<long> mis_barrios;
+
     map<long, int> asignacion_barrios;
 
-    //Funcion de asignacion //ToDO Cambiar
+    // ----- Funcion de asignacion de barrios a nodos MPI //ToDO cambiar
     for(int i = 0; i < barrios.size(); i++){
         asignacion_barrios[barrios[i].first] = i % size;
         if(rank == i % size){
-            mis_barrios.insert(barrios[i].first);
+            mis_barrios.push_back(barrios[i].first);
         }
     }
 
 
 
     auto grafoMapa = new Grafo();
-    loadData.FormarGrafo(grafoMapa, mapa_mis_barios, notificarFinalizacion, asignacion_barrios, rank);
+    loadData.FormarGrafo(grafoMapa, mapa_mis_barios,
+                         notificarFinalizacion, ingresarSolicitudTranspaso,
+                         asignacion_barrios, rank);
 
 
     //Formar un unico arreglo de Calles para todos los barrios del
@@ -162,12 +188,7 @@ int main(int argc, char* argv[]) {
 
     vector<Vehiculo*> todos_vehiculos;
 
-    long* nodo_inicial = new long[numeroVehiculosPendientes];
-    long* nodo_final   = new long[numeroVehiculosPendientes];
-    for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
-        nodo_inicial[i] = grafoMapa->idNodoAletorio(rng);
-        nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
-    }
+
 
 
     time_point<Clock> inicioTiempoDJ = Clock::now();
@@ -175,17 +196,29 @@ int main(int argc, char* argv[]) {
 
 
 
+    if (rank == 0){ //ToDo sacar la limitante que solo el nodo 0 genere los vehiculos
 
-    if (rank == 0){
+        // --- Genero el inicio y final de cada nodo
 
+        long* nodo_inicial = new long[numeroVehiculosPendientes];
+        long* nodo_final   = new long[numeroVehiculosPendientes];
+
+        std::uniform_int_distribution<int> dist(0, (int)mis_barrios.size()-1);
+        for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
+
+            //Genero unicamente vehiculos cuyas ubicaciones comiencen en el nodo
+
+            long id_barrio = mis_barrios[dist(rng)];
+            nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
+            nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+        }
 
         //   ----  CALCULAR CAMINOS
+
         cout << "Calculando caminos" << endl;
 
-
-
-        //dado un barrio tiene un vector que contiene datos del tipo (id_vehiculo, nodo_inicial, nodo_final)
-        map<long, vector<cuatros_longs>> nodos_a_enviar_mpi_por_barrio;
+        //Dado un barrio tiene un vector que contiene datos del tipo (id_vehiculo, nodo_inicial, nodo_final)
+        map<long, vector<SegmentoTrayectoVehculoEnBarrio>> nodos_a_enviar_mpi_por_barrio;
 
         //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
         #pragma omp parallel for schedule(dynamic)
@@ -198,46 +231,60 @@ int main(int argc, char* argv[]) {
             auto camino = grafoMapa->computarCaminoMasCorto(src,dst);
 
 
-            for(auto c : camino) {
-                cout << grafoMapa->obtenerNodo(c)->getSeccion()<< "-" <<c << "  ";
-            }
-            cout << endl;
-
-            long barrio_actual = grafoMapa->obtenerNodo(src)->getSeccion();
-            auto nodo_inicial_barrio = camino.front();
-            for (size_t j = 0; j < camino.size(); ++j) {
-                int barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
-                if(barrio != barrio_actual) {
-                    cuatros_longs cuatro{};
-                    cuatro.a = (long)id_vehiculo;
-                    cuatro.b = nodo_inicial_barrio;
-                    cuatro.c = camino[j];
-                    cuatro.d = barrio_actual;
-
-                    nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(cuatro);
-
-                    barrio_actual = barrio;
-                    nodo_inicial_barrio = camino[j];
-                }
-            }
-            /*
             if(camino.empty()){
                 #pragma omp atomic
                 numeroVehiculosFallo++;
             } else {
+
+                long barrio_actual = grafoMapa->obtenerNodo(src)->getSeccion();
+                auto nodo_inicial_barrio = camino.front();
+
+                for (size_t j = 0; j < camino.size(); ++j) {
+                    int barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
+                    if(barrio != barrio_actual) {
+
+                        SegmentoTrayectoVehculoEnBarrio segmento{};
+                        segmento.id_vehiculo = id_vehiculo;
+                        segmento.id_inicio = nodo_inicial_barrio;
+                        segmento.id_fin = camino[j];
+                        segmento.id_barrio = barrio_actual;
+
+                        if (std::find(mis_barrios.begin(), mis_barrios.end(), barrio_actual) == mis_barrios.end() ){ //El barrio no es parte de mi barrio
+                            nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(segmento);
+                        } else {
+                            // Si el segmento es para el nodo que calcula, se lo guarda para si mismo
+                            pair<int, long> clave;
+                            clave.first = id_vehiculo;
+                            clave.second = barrio_actual;
+                            segmentos_a_recorrer_por_barrio_por_vehiculo[clave] = segmento;
+                        }
+
+
+                        barrio_actual = barrio;
+                        nodo_inicial_barrio = camino[j];
+                    }
+                }
+
                 auto v = new Vehiculo(id_vehiculo, 0, 45);
                 v->setRuta(camino);
                 todos_vehiculos.push_back(v);
                 long id_camino_primer_nodo = camino[0];
                 long id_camino_segundo_nodo = camino[1];
 
+                cout << id_camino_primer_nodo << " " << id_camino_segundo_nodo << endl;
+
                 string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
                 Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
                 Calle * calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
                 calle->insertarSolicitudTranspaso(nullptr, v);
+
             }
-            */
         }
+
+
+
+        delete[] nodo_inicial;
+        delete[] nodo_final;
 
         //enviar para cada nodo mpi la informacion que le corresponde.
         for(int rank_nodo_a_enviar = 1; rank_nodo_a_enviar < size; rank_nodo_a_enviar ++) {
@@ -248,50 +295,47 @@ int main(int argc, char* argv[]) {
                     cantidad_mensajes_a_enviar += nodos_a_enviar_mpi_por_barrio[par.first].size();
 
 
+
             //computo por cada barrio los vehiculos que le corresponden y lo agrego a la estructura de data_vehiculo_a_enviar.
 
-            auto data_vehiculo_a_enviar = new long[cantidad_mensajes_a_enviar*4];
+            auto data_vehiculo_a_enviar = new SegmentoTrayectoVehculoEnBarrio[cantidad_mensajes_a_enviar];
             int cont = 0;
 
             for (auto bb: asignacion_barrios) {
                 long idBarrio = bb.first;
                 if (bb.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[idBarrio].empty()) {
-
                     for (auto &m: nodos_a_enviar_mpi_por_barrio[idBarrio]) {
-                        data_vehiculo_a_enviar[cont] =  m.a;
-                        data_vehiculo_a_enviar[cont+1] =  m.b;
-                        data_vehiculo_a_enviar[cont+2] =  m.c;
-                        data_vehiculo_a_enviar[cont+3] =  m.d;
-                        cont+=4;
-
+                        data_vehiculo_a_enviar[cont] =  m;
+                        cont++;
                     }
                 }
             }
 
-
-
+            printf("Cantidad segmentos a enviar nodo %d: %d\n", rank_nodo_a_enviar, cantidad_mensajes_a_enviar);
             MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, 0, MPI_COMM_WORLD);
 
-            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar * 4, MPI_LONG, rank_nodo_a_enviar, 0,
+            printf("Cantidad segmentos a enviar datos a  nodo %d:\n", rank_nodo_a_enviar);
+            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, 0,
                      MPI_COMM_WORLD);
+
+            printf("Envio de segmentos de nodo %d a nodo %d COMPLETADO\n", rank, rank_nodo_a_enviar);
 
             delete[] data_vehiculo_a_enviar;
         }
-    }else {
+    } else {
         MPI_Status status;
         int cantidad_vehiculos_barrios;
 
-        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+        printf("Nodo %d, esperando numero caminos\n", rank);
+        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        printf("CANTIDAD: %d \n", cantidad_vehiculos_barrios);
+        printf("Nodo %d, esperando %d segmentos\n", rank, cantidad_vehiculos_barrios);
+        auto inicio_fin_vehculos_nodo = new SegmentoTrayectoVehculoEnBarrio[cantidad_vehiculos_barrios];
 
-        VehiculoData * inicio_fin_vehculos_nodo = new VehiculoData[cantidad_vehiculos_barrios];
+        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios * 4,MPI_LONG,0,0,MPI_COMM_WORLD,&status);
-        for(int i =0; i < cantidad_vehiculos_barrios; i ++) {
-            std::cout <<"Barrio:" << inicio_fin_vehculos_nodo[i].id_barrio << " Id_vehiculo:" << inicio_fin_vehculos_nodo[i].id_vehiculo << " I: " << inicio_fin_vehculos_nodo[i].id_inicio << "F: " << inicio_fin_vehculos_nodo[i].id_fin << "\n";
-        }
-        cout << std::endl;
+        printf("Nodo %d, recibio %d trayectos", rank, cantidad_vehiculos_barrios);
+
     }
 
     milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
@@ -299,8 +343,10 @@ int main(int argc, char* argv[]) {
 
     numeroVehiculosPendientes -= numeroVehiculosFallo;
 
-    delete[] nodo_inicial;
-    delete[] nodo_final;
+
+
+
+
 
     time_point<Clock> inicioTiempo = Clock::now();
 
@@ -312,7 +358,6 @@ int main(int argc, char* argv[]) {
 
     milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
     printf("----- Tiempo transcurido = %.2f seg \n", (float)miliseconds.count() / 1000.f);
-
 
 
     // Limpieza

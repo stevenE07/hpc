@@ -18,7 +18,7 @@ private:
     map<int, long> id_int_to_ext;
     map<long, int> id_ext_to_int;
 
-
+    map<long, vector<Nodo*>> nodos_por_seccion;
 
 
 
@@ -29,18 +29,20 @@ public:
 
     vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final);
 
-    //vector<long> bfs(long id_ext_nodo_inicial, float peso_minimo, float peso_maximo, float random);
-
     bool existeNodo(long id_ext){
         return this->nodos_id_ext.find(id_ext) != this->nodos_id_ext.end();
     }
 
     Nodo* obtenerNodo(long id_ext_nodo);
 
-    long idNodoAletorio(std::mt19937& rnd){
+    long idNodoAletorio(std::mt19937& rnd, long seccion){
+        std::uniform_int_distribution<int> dist(0, (int)nodos_por_seccion[seccion].size()-1);
+        return nodos_por_seccion[seccion][dist(rnd)]->getIdExt();
+    }
 
-        std::uniform_int_distribution<int> dist(1, 100);
-        return id_int_to_ext[dist(rnd)]; //ToDO sacar
+    long idNodoAletorio(std::mt19937& rnd){
+        std::uniform_int_distribution<int> dist(0, sigIdNodo);
+        return id_int_to_ext[dist(rnd)];
     }
 
     bool existeArista(long id_ext_src, long id_ext_dst){

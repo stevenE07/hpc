@@ -29,6 +29,7 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 void CargarGrafo::FormarGrafo(Grafo* grafo,
                               map<long, Barrio*>& barrios,
                               std::function<void()>& doneFn,
+                              function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
                               map<long, int> & asignacion_barrios,
                               int my_rank){
 
@@ -120,6 +121,11 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
 
                 if(asignacion_barrios[id_barrio_src] == my_rank){
                     Barrio* barrio1 = barrios[id_barrio_src];
+
+                    if(id_barrio_src != id_barrio_dst){
+                        barrio1->agregarBarrioVecino(id_barrio_dst);
+                    }
+
                     auto calle1 = new Calle(id_src,
                                             id_dst,
                                             largo,
@@ -127,6 +133,7 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
                                             stof(velocidad_max),
                                             barrios,
                                             doneFn,
+                                            enviarSolicitudFn,
                                             grafo,
                                             asignacion_barrios);
 
@@ -140,6 +147,11 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
                 grafo->agregarArista(id_dst, id_src, largo);
                 if(asignacion_barrios[id_barrio_dst] == my_rank) {
                     Barrio* barrio2 = barrios[id_barrio_dst];
+
+                    if(id_barrio_src != id_barrio_dst){
+                        barrio2->agregarBarrioVecino(id_barrio_src);
+                    }
+
                     auto calle2 = new Calle(id_dst,
                                             id_src,
                                             largo,
@@ -147,6 +159,7 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
                                             stof(velocidad_max),
                                             barrios,
                                             doneFn,
+                                            enviarSolicitudFn,
                                             grafo,
                                             asignacion_barrios);
                     barrio2->agregarCalle(calle2);
@@ -161,6 +174,11 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
                 grafo->agregarArista(id_src, id_dst, largo);
                 if(asignacion_barrios[id_barrio_src] == my_rank){
                     Barrio* barrio = barrios[id_barrio_src];
+
+                    if(id_barrio_src != id_barrio_dst){
+                        barrio->agregarBarrioVecino(id_barrio_dst);
+                    }
+
                     auto calle = new Calle(id_src,
                                            id_dst,
                                            largo,
@@ -168,6 +186,7 @@ void CargarGrafo::FormarGrafo(Grafo* grafo,
                                            stof(velocidad_max),
                                            barrios,
                                            doneFn,
+                                           enviarSolicitudFn,
                                            grafo,
                                            asignacion_barrios);
                     barrio->agregarCalle(calle);

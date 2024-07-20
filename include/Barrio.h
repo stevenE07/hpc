@@ -1,6 +1,7 @@
 #include "map"
 #include "string"
 #include "vector"
+#include "set"
 
 #ifndef HPC_BARRIO_H
 #define HPC_BARRIO_H
@@ -16,6 +17,7 @@ private:
     long id;
     //string nombre;
     map<string, Calle*> mapa_calles;
+    set<long> barriosVecinos;
 
 public:
     Barrio(long id);
@@ -23,6 +25,10 @@ public:
     void agregarCalle(Calle*);
 
     bool isCalleEnBarrio(long id_src, long id_dst);
+
+    void agregarBarrioVecino(long id_barrio){
+        barriosVecinos.insert(id_barrio);
+    }
 
     Calle* obtenerCalle(string & idCalle);
 
