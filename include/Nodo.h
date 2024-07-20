@@ -22,6 +22,15 @@ public:
         nodos_vecinos.push_back(arista);
     }
 
+    bool isConectadoCon(long id_nodo){
+        for (auto nood_peso: nodos_vecinos){
+            if (nood_peso.first->id_ext == id_nodo){
+               return true;
+            }
+        }
+        return false;
+    }
+
     int getIdInt() const {
         return id_int;
     }

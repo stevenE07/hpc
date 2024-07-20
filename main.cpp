@@ -26,30 +26,36 @@ using chrono::seconds;
 
 using namespace std;
 
-struct tres_longs {
+// ----------- Struct Auxiliares
+
+struct cuatros_longs {
     long a;
     long b;
     long c;
     long d;
 };
 
-
-typedef struct {
+struct VehiculoData {
     long id_vehiculo;
     long id_inicio;
     long id_fin;
     long id_barrio;
-} VehiculoData;
+};
 
+
+// ----------- Tipos MPI
 
 MPI_Datatype MPI_VehiculoData;
+
+
+
 
 void create_mpi_types() {
     MPI_Type_contiguous(4, MPI_LONG, &MPI_VehiculoData);
     MPI_Type_commit(&MPI_VehiculoData);
 }
 
-map<long, Barrio*> mapa_barios;
+map<long, Barrio*> mapa_mis_barios;
 vector<Calle*> todas_calles;
 
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
@@ -72,16 +78,9 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 }
 
 
-void cargar_todas_calles(){
-    for(auto id_y_barrio : mapa_barios){
-
-    }
-}
 
 
-int main(int argc, char* argv[]) {
-
-
+void initConfig(){
     omp_set_num_threads(6);
     // ---- Configuraciones
 
@@ -89,7 +88,7 @@ int main(int argc, char* argv[]) {
     defaultConf.setToDefault();
     // Values are always std::string
     defaultConf.set(el::Level::Info,
-             el::ConfigurationType::Format, "%datetime %level %msg");
+                    el::ConfigurationType::Format, "%datetime %level %msg");
     std::string loogingFile =  PROJECT_BASE_DIR + std::string("/logs/logs.log");
     std::string configFilePath = PROJECT_BASE_DIR + std::string("/configuraciones/logging.ini");
 
@@ -97,10 +96,31 @@ int main(int argc, char* argv[]) {
     conf.setGlobally(el::ConfigurationType::Filename, loogingFile);
     el::Loggers::reconfigureLogger("default", conf);
 
-    // ---- random
-    std::mt19937 rng(2024);
+}
 
-    LOG(INFO) << "------------COMIENZO--------------";
+
+void initMpi(int argc, char* argv[], int & rank, int & size){
+    MPI_Init(&argc, &argv);
+
+    create_mpi_types();
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+}
+
+
+
+int main(int argc, char* argv[]) {
+
+    initConfig();
+
+    int rank, size;
+    initMpi(argc, argv, rank, size);
+
+
+    std::mt19937 rng(2024); // Semilia random
+
 
 
     // ---- Funciones de notificacion
@@ -110,48 +130,29 @@ int main(int argc, char* argv[]) {
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
 
-    // ---- Cargar mapa
-
-    //---- MPI
-     int rank, size;
-
-    // Inicializar MPI
-    MPI_Init(&argc, &argv);
-
-    create_mpi_types();
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
 
     CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
-
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
 
     set<long> mis_barrios;
-    map<long, int> * asignacion_barrios = new std::map<long, int>();
+    map<long, int> asignacion_barrios;
 
+    //Funcion de asignacion //ToDO Cambiar
     for(int i = 0; i < barrios.size(); i++){
-        (*asignacion_barrios)[barrios[i].first] = i % size;
+        asignacion_barrios[barrios[i].first] = i % size;
         if(rank == i % size){
             mis_barrios.insert(barrios[i].first);
         }
     }
 
 
+
     auto grafoMapa = new Grafo();
-    loadData.FormarGrafo(grafoMapa, mapa_barios, notificarFinalizacion,asignacion_barrios);
+    loadData.FormarGrafo(grafoMapa, mapa_mis_barios, notificarFinalizacion, asignacion_barrios, rank);
 
 
-    char processor_name[MPI_MAX_PROCESSOR_NAME];
-    int name_len;
-    MPI_Get_processor_name(processor_name, &name_len);
-
-    printf("processor %s\n", processor_name);
-
-
-    for(const auto& id_bario_y_barrio: mapa_barios){
+    //Formar un unico arreglo de Calles para todos los barrios del
+    for(const auto& id_bario_y_barrio: mapa_mis_barios){
         id_bario_y_barrio.second->addCalles(todas_calles);
     }
 
@@ -168,79 +169,63 @@ int main(int argc, char* argv[]) {
         nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
     }
 
+
     time_point<Clock> inicioTiempoDJ = Clock::now();
     int numeroVehiculosFallo = 0;
+
+
+
+
     if (rank == 0){
+
+
+        //   ----  CALCULAR CAMINOS
         cout << "Calculando caminos" << endl;
 
 
 
-
         //dado un barrio tiene un vector que contiene datos del tipo (id_vehiculo, nodo_inicial, nodo_final)
-        map<long, vector<tres_longs>> nodos_a_enviar_mpi_por_barrio;
+        map<long, vector<cuatros_longs>> nodos_a_enviar_mpi_por_barrio;
 
         //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
         #pragma omp parallel for schedule(dynamic)
-        for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
+        for(int id_vehiculo = 0 ; id_vehiculo < numeroVehiculosPendientes; id_vehiculo++) {
+
             int thread_id = omp_get_thread_num();
-            long src = nodo_inicial[i];
-            long dst = nodo_final[i];
+            long src = nodo_inicial[id_vehiculo];
+            long dst = nodo_final[id_vehiculo];
 
             auto camino = grafoMapa->computarCaminoMasCorto(src,dst);
-            long barrio_actual = grafoMapa->obtenerNodo(camino.front())->getSeccion();
-            auto nodo_inicial_barrio = camino.front();
+
+
             for(auto c : camino) {
                 cout << grafoMapa->obtenerNodo(c)->getSeccion()<< "-" <<c << "  ";
             }
             cout << endl;
+
+            long barrio_actual = grafoMapa->obtenerNodo(src)->getSeccion();
+            auto nodo_inicial_barrio = camino.front();
             for (size_t j = 0; j < camino.size(); ++j) {
                 int barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
                 if(barrio != barrio_actual) {
-                    nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back({i,nodo_inicial_barrio,camino[j],barrio_actual});
+                    cuatros_longs cuatro{};
+                    cuatro.a = (long)id_vehiculo;
+                    cuatro.b = nodo_inicial_barrio;
+                    cuatro.c = camino[j];
+                    cuatro.d = barrio_actual;
+
+                    nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(cuatro);
+
                     barrio_actual = barrio;
                     nodo_inicial_barrio = camino[j];
                 }
-            }
-            //enviar para cada nodo mpi la informacion que le corresponde.
-            for(int i = 0; i< size; i ++) {
-                std::vector<std::pair<long, long>> barrio_y_cantidad_vehiculos;
-                for (const auto& par : *asignacion_barrios) {
-                    if(par.second == i && nodos_a_enviar_mpi_por_barrio.find(par.first) != nodos_a_enviar_mpi_por_barrio.end()) {
-                        barrio_y_cantidad_vehiculos.push_back({par.first,nodos_a_enviar_mpi_por_barrio[par.first].size()});
-                    }
-                }
-                int cant_barrios_para_el_nodo = barrio_y_cantidad_vehiculos.size();
-
-                //determinar la cantidad de vehiculos que van para el nodo mpi.
-                int cantidad_total_vehiculos = 0;
-                for(int i = 0; i < cant_barrios_para_el_nodo; i++) {
-                    cantidad_total_vehiculos += barrio_y_cantidad_vehiculos[i].second;
-                }
-
-                //computo por cada barrio los vehiculos que le corresponden y lo agrego a la estructura de data_vehiculo_a_enviar.
-                VehiculoData data_vehiculo_a_enviar[cantidad_total_vehiculos];
-                for(int i = 0; i < cant_barrios_para_el_nodo; i++) {
-                    for(int m = 0; m < nodos_a_enviar_mpi_por_barrio[barrio_y_cantidad_vehiculos[i].first].size(); m++ ) {
-                        data_vehiculo_a_enviar->id_vehiculo = nodos_a_enviar_mpi_por_barrio[barrio_y_cantidad_vehiculos[i].first][0].a;
-                        data_vehiculo_a_enviar->id_inicio = nodos_a_enviar_mpi_por_barrio[barrio_y_cantidad_vehiculos[i].first][0].b;
-                        data_vehiculo_a_enviar->id_fin = nodos_a_enviar_mpi_por_barrio[barrio_y_cantidad_vehiculos[i].first][0].c;
-                    }
-                }
-                MPI_Send(&cantidad_total_vehiculos, 1, MPI_LONG, i , 0, MPI_COMM_WORLD);
-                MPI_Send(data_vehiculo_a_enviar, cantidad_total_vehiculos, MPI_VehiculoData, i , 0, MPI_COMM_WORLD);
-
-
-
-                /*for(auto i : barrio_y_cantidad_vehiculos) {
-                    cout << i.first << ":" << i.second;
-                }*/
             }
             /*
             if(camino.empty()){
                 #pragma omp atomic
                 numeroVehiculosFallo++;
             } else {
-                auto v = new Vehiculo(i, 0, 45);
+                auto v = new Vehiculo(id_vehiculo, 0, 45);
                 v->setRuta(camino);
                 todos_vehiculos.push_back(v);
                 long id_camino_primer_nodo = camino[0];
@@ -248,20 +233,63 @@ int main(int argc, char* argv[]) {
 
                 string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
                 Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
-                Calle * calle = mapa_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
+                Calle * calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
                 calle->insertarSolicitudTranspaso(nullptr, v);
             }
             */
         }
+
+        //enviar para cada nodo mpi la informacion que le corresponde.
+        for(int rank_nodo_a_enviar = 1; rank_nodo_a_enviar < size; rank_nodo_a_enviar ++) {
+            int cantidad_mensajes_a_enviar = 0;
+
+            for (const auto &par: asignacion_barrios)
+                if (par.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[par.first].empty())
+                    cantidad_mensajes_a_enviar += nodos_a_enviar_mpi_por_barrio[par.first].size();
+
+
+            //computo por cada barrio los vehiculos que le corresponden y lo agrego a la estructura de data_vehiculo_a_enviar.
+
+            auto data_vehiculo_a_enviar = new long[cantidad_mensajes_a_enviar*4];
+            int cont = 0;
+
+            for (auto bb: asignacion_barrios) {
+                long idBarrio = bb.first;
+                if (bb.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[idBarrio].empty()) {
+
+                    for (auto &m: nodos_a_enviar_mpi_por_barrio[idBarrio]) {
+                        data_vehiculo_a_enviar[cont] =  m.a;
+                        data_vehiculo_a_enviar[cont+1] =  m.b;
+                        data_vehiculo_a_enviar[cont+2] =  m.c;
+                        data_vehiculo_a_enviar[cont+3] =  m.d;
+                        cont+=4;
+
+                    }
+                }
+            }
+
+
+
+            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, 0, MPI_COMM_WORLD);
+
+            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar * 4, MPI_LONG, rank_nodo_a_enviar, 0,
+                     MPI_COMM_WORLD);
+
+            delete[] data_vehiculo_a_enviar;
+        }
     }else {
         MPI_Status status;
-        long cantidad_vehiculos_barrios;
+        int cantidad_vehiculos_barrios;
 
-        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_LONG, 0, 0, MPI_COMM_WORLD, &status);
-        VehiculoData data_vehiculo_a_recibir[cantidad_vehiculos_barrios];
-        MPI_Recv(data_vehiculo_a_recibir,cantidad_vehiculos_barrios,MPI_VehiculoData,0,0,MPI_COMM_WORLD,&status);
+        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+
+        printf("CANTIDAD: %d \n", cantidad_vehiculos_barrios);
+
+        VehiculoData * inicio_fin_vehculos_nodo = new VehiculoData[cantidad_vehiculos_barrios];
+
+        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios * 4,MPI_LONG,0,0,MPI_COMM_WORLD,&status);
         for(int i =0; i < cantidad_vehiculos_barrios; i ++) {
-            std::cout <<"b:" << data_vehiculo_a_recibir[i].id_barrio << " id_v:" << data_vehiculo_a_recibir[i].id_vehiculo << " i: " << data_vehiculo_a_recibir[i].id_inicio << "f: " << data_vehiculo_a_recibir[i].id_fin;
+            std::cout <<"Barrio:" << inicio_fin_vehculos_nodo[i].id_barrio << " Id_vehiculo:" << inicio_fin_vehculos_nodo[i].id_vehiculo << " I: " << inicio_fin_vehculos_nodo[i].id_inicio << "F: " << inicio_fin_vehculos_nodo[i].id_fin << "\n";
         }
         cout << std::endl;
     }
@@ -289,7 +317,7 @@ int main(int argc, char* argv[]) {
 
     // Limpieza
 
-    for (auto barrios : mapa_barios){
+    for (auto barrios : mapa_mis_barios){
         delete barrios.second;
     }
 

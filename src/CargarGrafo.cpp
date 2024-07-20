@@ -26,7 +26,11 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 
 
 
-void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int> *  asignacion_barrios ){
+void CargarGrafo::FormarGrafo(Grafo* grafo,
+                              map<long, Barrio*>& barrios,
+                              std::function<void()>& doneFn,
+                              map<long, int> & asignacion_barrios,
+                              int my_rank){
 
     map<long, pair<float, float>> mapa_corr_por_nodo;
     map<long, long> mapa_barios_por_nodo;
@@ -38,7 +42,8 @@ void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::fu
         grafo->agregarNodo(id_nodo_archivo, barrio_id);
         mapa_barios_por_nodo[id_nodo_archivo] = barrio_id;
 
-        if(barrios.find(barrio_id) == barrios.end()){
+        // Solo cargo los barrios de el nodo actual
+        if(barrios.find(barrio_id) == barrios.end() && asignacion_barrios[barrio_id] == my_rank){
             auto barrio = new Barrio(barrio_id);
             barrios[barrio_id] = barrio;
         }
@@ -107,63 +112,68 @@ void CargarGrafo::FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::fu
 
         if(doble){
 
-            //Cargo la primera arista
-            Barrio* barrio1 = barrios[id_barrio_src];
+            //--- Cargo la primera arista
 
-            //No agregamos aristas repetidas
-            if(!barrio1->isCalleEnBarrio(id_src,id_dst)){
+
+            if(!grafo->existeArista(id_src, id_dst)){ //No agregamos aristas repetidas
                 grafo->agregarArista(id_src, id_dst, largo);
 
+                if(asignacion_barrios[id_barrio_src] == my_rank){
+                    Barrio* barrio1 = barrios[id_barrio_src];
+                    auto calle1 = new Calle(id_src,
+                                            id_dst,
+                                            largo,
+                                            numeroCarriles,
+                                            stof(velocidad_max),
+                                            barrios,
+                                            doneFn,
+                                            grafo,
+                                            asignacion_barrios);
 
-                auto calle1 = new Calle(id_src,
-                                        id_dst,
-                                        largo,
-                                        numeroCarriles,
-                                        stof(velocidad_max),
-                                        barrios,
-                                        doneFn,
-                                        grafo,
-                                        asignacion_barrios);
-                barrio1->agregarCalle(calle1);
+                    barrio1->agregarCalle(calle1);
+                }
             }
 
+            //--- Cargo la segunda arista
 
-
-            //Cargo la segunda arista
-            Barrio* barrio2 = barrios[id_barrio_dst];
-
-            if(!barrio2->isCalleEnBarrio(id_dst,id_src)){
+            if(!grafo->existeArista(id_dst, id_src)) { //No agregamos aristas repetidas
                 grafo->agregarArista(id_dst, id_src, largo);
-
-                auto calle2 = new Calle(id_dst,
-                                        id_src,
-                                        largo,
-                                        numeroCarriles,
-                                        stof(velocidad_max),
-                                        barrios,
-                                        doneFn,
-                                        grafo,
-                                        asignacion_barrios);
-                barrio2->agregarCalle(calle2);
+                if(asignacion_barrios[id_barrio_dst] == my_rank) {
+                    Barrio* barrio2 = barrios[id_barrio_dst];
+                    auto calle2 = new Calle(id_dst,
+                                            id_src,
+                                            largo,
+                                            numeroCarriles,
+                                            stof(velocidad_max),
+                                            barrios,
+                                            doneFn,
+                                            grafo,
+                                            asignacion_barrios);
+                    barrio2->agregarCalle(calle2);
+                }
             }
+
 
 
         } else {
-            Barrio* barrio = barrios[id_barrio_src];
-            if(!barrio->isCalleEnBarrio(id_src,id_dst)){
-                grafo->agregarArista(id_src, id_dst, largo);
 
-                auto calle = new Calle(id_src,
-                                       id_dst,
-                                       largo,
-                                       numeroCarriles,
-                                       stof(velocidad_max),
-                                       barrios,
-                                       doneFn,
-                                       grafo,
-                                       asignacion_barrios);
-                barrio->agregarCalle(calle);
+            if(!grafo->existeArista(id_src, id_dst)) { //No agregamos aristas repetidas
+                grafo->agregarArista(id_src, id_dst, largo);
+                if(asignacion_barrios[id_barrio_src] == my_rank){
+                    Barrio* barrio = barrios[id_barrio_src];
+                    auto calle = new Calle(id_src,
+                                           id_dst,
+                                           largo,
+                                           numeroCarriles,
+                                           stof(velocidad_max),
+                                           barrios,
+                                           doneFn,
+                                           grafo,
+                                           asignacion_barrios);
+                    barrio->agregarCalle(calle);
+                }
             }
+
         }
     }
 }

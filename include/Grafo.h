@@ -43,6 +43,17 @@ public:
         return id_int_to_ext[dist(rnd)]; //ToDO sacar
     }
 
+    bool existeArista(long id_ext_src, long id_ext_dst){
+        if(nodos_id_ext.find(id_ext_src) != nodos_id_ext.end()){
+            Nodo* nodoSrc = nodos_id_ext[id_ext_src];
+            return nodoSrc->isConectadoCon(id_ext_dst);
+        } else {
+            //No exite el nodo src
+            return false;
+        }
+
+    }
+
     ~Grafo();
 };
 

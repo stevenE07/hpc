@@ -4,7 +4,7 @@
 #include "iostream"
 #include <mpi.h>
 
-Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,  map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int> * asignacion_barrios ){
+Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,  map<long, Barrio*> & mapa_barrio, function<void()>& doneFn, Grafo* grafo,map<long, int>& asignacion_barrios ){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
@@ -115,7 +115,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                        sigCalle->insertarSolicitudTranspaso(this, v);
                    } else {
                        //aca se envia la informacion desde el nodo mpi del barrio actual al siguiente.
-                       int nodo_mpi_sig = (*asignacion_barrios)[idBarrioSigCalle];
+                       int nodo_mpi_sig = asignacion_barrios[idBarrioSigCalle];
                        long data_to_send[4] = {v->getId(), nodo_final, idSiguienteNodo, v->nodo_destino()};
                        MPI_Send(data_to_send, 4, MPI_LONG, nodo_mpi_sig, 0, MPI_COMM_WORLD);
                    }

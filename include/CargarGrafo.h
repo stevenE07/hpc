@@ -22,7 +22,7 @@ public:
 
     vector<pair<long, string>> obtenerBarrios();
 
-    void FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int> *  asignacion_barrios );
+    void FormarGrafo(Grafo* grafo, map<long, Barrio*>& barrios, std::function<void()>& doneFn, map<long, int>&  asignacion_barrios, int my_rank );
 };
 
 
