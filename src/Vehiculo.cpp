@@ -9,6 +9,7 @@ Vehiculo::Vehiculo(int id, long epoca_inicial,float velocidad ){
     this-> epoca_inicial = epoca_inicial;
     this->velocidad = velocidad;
     this->indice_calle_recorrida = 0;
+    this->is_segmento_final = 0;
     this->esperando_traslado_entre_calles = false;
 }
 
@@ -18,6 +19,13 @@ unsigned int Vehiculo::getId() const {
 
 void Vehiculo::setId(unsigned int id) {
     Vehiculo::id = id;
+}
+unsigned char Vehiculo::get_is_segmento_final() {
+    return this->is_segmento_final;
+}
+
+void Vehiculo::set_is_segmento_final(unsigned char valor) {
+    Vehiculo::is_segmento_final = valor;
 }
 
 unsigned long Vehiculo::getEpocaInicial() const {

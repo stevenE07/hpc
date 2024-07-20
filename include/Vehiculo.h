@@ -18,7 +18,7 @@ private:
     //Dirrecion
     std::vector<long> ruta;
     unsigned int indice_calle_recorrida; //Es 0 cuando esta en su primera calle
-
+    unsigned char is_segmento_final;
     //Aspectos temporales
     float velocidad;
 
@@ -56,6 +56,8 @@ public:
 
     const vector<long> &getRuta() const;
 
+    unsigned char get_is_segmento_final();
+    void set_is_segmento_final(unsigned char valor);
     void setRuta(const vector<long> &ruta);
 
     long nodo_destino();

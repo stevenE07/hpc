@@ -95,12 +95,10 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
         if(nuevaCarilPosicion.second >= largo){
            if(!v->isEsperandoTrasladoEntreCalles()){
-
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1){
-
                   #pragma omp critical
-                  LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino";
-
+                  LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
+                   //if(v.get)
                   doneFn();
                   posiciones_vehiculos_en_calle.erase(v->getId());
                   continue;

@@ -35,3 +35,11 @@ Barrio::~Barrio(){
         delete m.second;
     }
 }
+
+const set<long> &Barrio::getBarriosVecinos() const {
+    return barriosVecinos;
+}
+
+void Barrio::setBarriosVecinos(const set<long> &barriosVecinos) {
+    Barrio::barriosVecinos = barriosVecinos;
+}

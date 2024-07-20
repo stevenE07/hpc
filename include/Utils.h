@@ -10,6 +10,7 @@ typedef struct {
     long id_inicio;
     long id_fin;
     long id_barrio;
+    char is_segmento_final;
 }SegmentoTrayectoVehculoEnBarrio;
 
 typedef struct {

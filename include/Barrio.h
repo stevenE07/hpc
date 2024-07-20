@@ -30,6 +30,10 @@ public:
         barriosVecinos.insert(id_barrio);
     }
 
+    const set<long> &getBarriosVecinos() const;
+
+    void setBarriosVecinos(const set<long> &barriosVecinos);
+
     Calle* obtenerCalle(string & idCalle);
 
     long getId() const;
