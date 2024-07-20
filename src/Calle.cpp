@@ -128,7 +128,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                        this->enviarSolicitudFn(solicitudTranspaso);
 
                        printf("SOLICITUD!!!!");
-                       exit(1);
+                       //exit(1);
 
                    }
                }
