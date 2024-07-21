@@ -96,7 +96,7 @@ void create_mpi_types() {
 
 }
 
-void intercambiar_vehiculos_entre_nodos(){
+void intercambiar_solicitudes(){
 
     map<int, vector<SolicitudTranspaso>> solicitudes_por_nodos;
 
@@ -118,14 +118,16 @@ void intercambiar_vehiculos_entre_nodos(){
         solicitudes_por_nodos[nodo_encargado].push_back(solicitud);
     }
 
-    auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
+    solicitudes_transpaso_entre_nodos_mpi.clear();
 
-    int cont = 0;
+    //auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
+
+    /*int cont = 0;
     for(auto nodo_vecino: nodos_mpi_vecinos){
 
         MPI_Isend(&total_solicitudes_por_nodo[nodo_vecino], 1, MPI_INT, nodo_vecino, 1, MPI_COMM_WORLD, &requests[cont]);
         cont++;
-    }
+    }*/
 
     int size_buffer = total_solicitudes * sizeof(SolicitudTranspaso) + MPI_BSEND_OVERHEAD;
 
@@ -151,8 +153,6 @@ void intercambiar_vehiculos_entre_nodos(){
 
     }
 
-
-
     /*
     int max_numero_solicitudes_por_nodo = 0;
     for(auto nodo_vecino: nodos_mpi_vecinos) {
@@ -175,14 +175,13 @@ void intercambiar_vehiculos_entre_nodos(){
         MPI_Get_count(&status, MPI_SolicitudTranspaso, &cantidad_solicitudes_recividas);
 
         if(cantidad_solicitudes_recividas > 0){
-            printf("Nodo %d recivio %d soliciutdes", my_rank, cantidad_solicitudes_recividas);
+            printf("Nodo %d recivio %d soliciutdes\n", my_rank, cantidad_solicitudes_recividas);
             for(int i = 0; i < cantidad_solicitudes_recividas; i++){
-                printf("SOLICITUD: id_barrio = %ld, id_vehiculo = %d, id_nodo_anterior = %ld ",   buffResepcion[i].id_barrio, buffResepcion[i].id_vehiculo, buffResepcion[i].id_nodo_inicial_calle_anterior);
+                printf("SOLICITUD: id_barrio = %ld, id_vehiculo = %d, id_nodo_anterior = %ld \n",   buffResepcion[i].id_barrio, buffResepcion[i].id_vehiculo, buffResepcion[i].id_nodo_inicial_calle_anterior);
             }
-            exit(1);
+
+            //exit(1);
         }
-
-
     }
 
     delete [] buffResepcion;
@@ -202,12 +201,12 @@ void intercambiar_vehiculos_entre_nodos(){
 
 }
 
+
+time_point<Clock> inicioTiempoEp;
+
 void ejecutar_epoca(int numero_epoca, long num_vehioculo){
 
-    time_point<Clock> inicioTiempoEp = Clock::now();
-    ;
-
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
@@ -217,14 +216,13 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         //}
     }
 
-    cout<<"Termino epoca" << endl;
-
-    intercambiar_vehiculos_entre_nodos();
-
-    milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
+    intercambiar_solicitudes();
+    //MPI_Barrier(MPI_COMM_WORLD);
 
     if((numero_epoca + 1) % 500 == 1){
-        cout << " ========  Epoca  "<< numero_epoca + 1 << " | Tiempo: " << (float)milisecondsEp.count() / 1000.f  << " ms | numero vehiculos pendientes "<< num_vehioculo << " ==========" << endl;
+        milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
+        cout << " ========  Epoca  "<< numero_epoca + 1 << " | Tiempo: " << ( (float)milisecondsEp.count() / 1000.f) / 500.f  << " ms | numero vehiculos pendientes "<< num_vehioculo << " ==========" << endl;
+        inicioTiempoEp = Clock::now();
     }
 
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
@@ -258,16 +256,9 @@ void initMpi(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
-
     initConfig();
-
-
     initMpi(argc, argv);
-
-
     std::mt19937 rng(2024); // Semilia random
-
-
 
     // ---- Funciones de notificacion
 
@@ -309,6 +300,7 @@ int main(int argc, char* argv[]) {
         id_bario_y_barrio.second->addCalles(todas_calles);
     }
 
+    cout << "Nodo " << my_rank << " tiene " << todas_calles.size() << " calles" << endl;
 
 
     map<int,long,long> nodos_inicio_final_vehiculo;
@@ -462,10 +454,8 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            printf("Cantidad segmentos a enviar nodo %d: %d\n", rank_nodo_a_enviar, cantidad_mensajes_a_enviar);
-            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, 0, MPI_COMM_WORLD);
 
-            printf("Cantidad segmentos a enviar datos a  nodo %d:\n", rank_nodo_a_enviar);
+            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, 0, MPI_COMM_WORLD);
             MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, 0,
                      MPI_COMM_WORLD);
 
@@ -477,35 +467,22 @@ int main(int argc, char* argv[]) {
         MPI_Status status;
         int cantidad_vehiculos_barrios;
 
-        printf("Nodo %d, esperando numero caminos\n", my_rank);
         MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-        printf("Nodo %d, esperando %d segmentos\n", my_rank, cantidad_vehiculos_barrios);
         auto inicio_fin_vehculos_nodo = new SegmentoTrayectoVehculoEnBarrio[cantidad_vehiculos_barrios];
 
         MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-        /*for(int i = 0; i < cantidad_vehiculos_barrios; i++){
-            printf("bb %ld |  bool = %d\n",inicio_fin_vehculos_nodo[i].id_barrio, inicio_fin_vehculos_nodo[i].is_segmento_final);
-        }*/
+
         printf("Nodo %d, recibio %d trayectos", my_rank, cantidad_vehiculos_barrios);
 
         for(int i = 0; i < cantidad_vehiculos_barrios; i++){
             pair<int,long> clave = make_pair(inicio_fin_vehculos_nodo[i].id_vehiculo, inicio_fin_vehculos_nodo[i].id_barrio);
             segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(inicio_fin_vehculos_nodo[i]);
         }
-        cout << endl;
-        for(auto s :  segmentos_a_recorrer_por_barrio_por_vehiculo){
-            cout << "barrio:" << s.first.first << "id_v:" << s.first.second << endl;
-            while(!s.second.empty()){
-                cout << "vehiculo:" << s.second.front().id_vehiculo << " I:" << s.second.front().id_inicio << " F:" << s.second.front().id_fin << endl;
-                s.second.pop();
-            }
-        }
 
     }
 
     milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
-    printf("----- Tiempo transcurido = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
+    printf("----- Tiempo transcurido calculo y distribuccion caminos = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
 
     numeroVehiculosPendientes -= numeroVehiculosFallo;
 
@@ -516,6 +493,8 @@ int main(int argc, char* argv[]) {
 
     time_point<Clock> inicioTiempo = Clock::now();
 
+    inicioTiempoEp = Clock::now();
+
     int contador_numero_epoca = 1;
     while(numeroVehiculosPendientes > 0){
         ejecutar_epoca(contador_numero_epoca, numeroVehiculosPendientes);
@@ -523,7 +502,7 @@ int main(int argc, char* argv[]) {
     }
 
     milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
-    printf("----- Tiempo transcurido = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+    printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
 
 
     // Limpieza

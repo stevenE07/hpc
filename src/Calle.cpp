@@ -135,10 +135,12 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                            solicitudTranspaso.id_barrio = idBarrioSig;
                            solicitudTranspaso.id_nodo_inicial_calle_anterior = nodo_inicial;
 
+                           v->setEsperandoTrasladoEntreCalles(true);
+
                            #pragma omp critical
                            this->enviarSolicitudFn(solicitudTranspaso);
 
-                           printf("SOLICITUD!!!!");
+                           printf("SOLICITUD ENVIADA!!!!\n");
                        }
                    }
                }else { // continua computando calles dentro del mismo barrio.
