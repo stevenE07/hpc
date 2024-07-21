@@ -28,6 +28,7 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 
 void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::function<void()> &doneFn,
                               function<void(SolicitudTranspaso &)> &enviarSolicitudFn,
+                              function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
                               map<long, int> &asignacion_barrios,
                               map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
                               int my_rank) {
@@ -133,6 +134,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             barrios,
                                             doneFn,
                                             enviarSolicitudFn,
+                                            enviarNotificacionFn,
                                             grafo,
                                             asignacion_barrios,
                                             ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
@@ -160,6 +162,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             barrios,
                                             doneFn,
                                             enviarSolicitudFn,
+                                            enviarNotificacionFn,
                                             grafo,
                                             asignacion_barrios,
                                             ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
@@ -188,6 +191,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                            barrios,
                                            doneFn,
                                            enviarSolicitudFn,
+                                           enviarNotificacionFn,
                                            grafo,
                                            asignacion_barrios,
                                            ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
@@ -197,4 +201,5 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
 
         }
     }
-}
+    cout<< "Grafo cargado" <<endl;
+ }

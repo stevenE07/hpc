@@ -12,16 +12,11 @@ private:
     //Propiedades del vehiculo
     int id;
 
-    long epoca_inicial;
-    long epoca_final;
-
     //Dirrecion
     std::vector<long> ruta;
 
     unsigned int indice_calle_recorrida; //Es 0 cuando esta en su primera calle
     unsigned char is_segmento_final;
-
-    unsigned char sss;
 
     //Aspectos temporales
     float velocidad;
@@ -32,7 +27,7 @@ public:
 
 
 
-    Vehiculo(int id, long epoca_inicial,float velocidad);
+    Vehiculo(int id);
 
     unsigned int getId() const;
 

@@ -42,6 +42,10 @@ MPI_Datatype MPI_NotificacionTranspaso;
 
 int my_rank, size_mpi;
 
+long numeroVehiculosPendientes = 1;
+
+Grafo* grafoMapa;
+
 map<long, Barrio*> mapa_mis_barios;
 vector<long> mis_barrios;
 vector<Calle*> todas_calles;
@@ -53,6 +57,10 @@ set<int> nodos_mpi_vecinos;
 map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> segmentos_a_recorrer_por_barrio_por_vehiculo;
 
 vector<SolicitudTranspaso> solicitudes_transpaso_entre_nodos_mpi;
+vector<NotificacionTranspaso> notificaciones_transpaso_entre_nodos_mpi;
+
+
+// ----------- Funciones auxiliares
 
 void calcular_nodos_mpi_vecinos(){
     nodos_mpi_vecinos.clear();
@@ -96,7 +104,38 @@ void create_mpi_types() {
 
 }
 
-void intercambiar_solicitudes(){
+void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRecividas){
+    for(SolicitudTranspaso solicitud: solicitudesRecividas){
+
+        printf("Procesando solicitudes recividas\n");
+
+        pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
+        SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
+
+#pragma omp critical
+        segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
+
+        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+
+        auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
+
+        vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
+        vehiculoIngresado->set_indice_calle_recorrida(0);
+        vehiculoIngresado->setEsperandoTrasladoEntreCalles(false);
+
+        long idBarrioSiguiente = grafoMapa->obtenerNodo(caminoSigBarrio[0])->getSeccion();
+
+
+        string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
+        Calle *sigCalle = mapa_mis_barios[idBarrioSiguiente]->obtenerCalle(idSigCalle);
+
+        sigCalle->insertarSolicitudTranspaso(solicitud.id_nodo_inicial_calle_anterior, caminoSigBarrio[0], vehiculoIngresado);
+
+    }
+}
+
+
+void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
 
     map<int, vector<SolicitudTranspaso>> solicitudes_por_nodos;
 
@@ -177,6 +216,7 @@ void intercambiar_solicitudes(){
         if(cantidad_solicitudes_recividas > 0){
             printf("Nodo %d recivio %d soliciutdes\n", my_rank, cantidad_solicitudes_recividas);
             for(int i = 0; i < cantidad_solicitudes_recividas; i++){
+                (*ptr_solicitudes).push_back(buffResepcion[i]);
                 printf("SOLICITUD: id_barrio = %ld, id_vehiculo = %d, id_nodo_anterior = %ld \n",   buffResepcion[i].id_barrio, buffResepcion[i].id_vehiculo, buffResepcion[i].id_nodo_inicial_calle_anterior);
             }
 
@@ -204,9 +244,9 @@ void intercambiar_solicitudes(){
 
 time_point<Clock> inicioTiempoEp;
 
-void ejecutar_epoca(int numero_epoca, long num_vehioculo){
+void ejecutar_epoca(int numero_epoca){
 
-    //#pragma omp parallel for
+    //#pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
@@ -216,14 +256,22 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
         //}
     }
 
-    intercambiar_solicitudes();
-    //MPI_Barrier(MPI_COMM_WORLD);
+    vector<SolicitudTranspaso> solicitudesRecividas;
+    intercambiar_solicitudes(&solicitudesRecividas);
 
-    if((numero_epoca + 1) % 500 == 1){
-        milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
-        cout << " ========  Epoca  "<< numero_epoca + 1 << " | Tiempo: " << ( (float)milisecondsEp.count() / 1000.f) / 500.f  << " ms | numero vehiculos pendientes "<< num_vehioculo << " ==========" << endl;
-        inicioTiempoEp = Clock::now();
+    // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
+    crear_vehiculos_de_otros_nodos(solicitudesRecividas);
+
+
+
+    if(my_rank == 0){
+        if((numero_epoca + 1) % 500 == 1){
+            milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
+            cout << " ========  Epoca  "<< numero_epoca + 1 << " | Tiempo: " << ( (float)milisecondsEp.count() / 1000.f) / 500.f  << " ms | numero vehiculos pendientes "<< numeroVehiculosPendientes << " ==========" << endl;
+            inicioTiempoEp = Clock::now();
+        }
     }
+
 
     LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
 
@@ -259,14 +307,14 @@ int main(int argc, char* argv[]) {
     std::map<int, int> barrios_con_cantidades;
     std::map<int, double> probabilidad_por_barrio;
     std::map<int, int> asignaciones;
-    bool calculo_por_distribucion_cantidad_barrio = true;
+    bool calculo_por_distribucion_cantidad_barrio = false;
 
     std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
     leerCSVbarrioCantidades( dir ,barrios_con_cantidades);
 
     calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
 
-    long numeroVehiculosPendientes = 1;
+
     asignarCantidades(numeroVehiculosPendientes, probabilidad_por_barrio, asignaciones);
 
     initConfig();
@@ -282,6 +330,9 @@ int main(int argc, char* argv[]) {
 
     auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
     ingresarSolicitudTranspaso = [&] (SolicitudTranspaso& solicitud) -> void {solicitudes_transpaso_entre_nodos_mpi.push_back(solicitud);};
+
+    auto ingresarNotificacionTranspaso = std::function<void(NotificacionTranspaso &)>{};
+    ingresarNotificacionTranspaso = [&] (NotificacionTranspaso & notificacion) -> void {notificaciones_transpaso_entre_nodos_mpi.push_back(notificacion);};
 
 
 
@@ -299,9 +350,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    auto grafoMapa = new Grafo();
-    loadData.FormarGrafo(grafoMapa, mapa_mis_barios,
-                         notificarFinalizacion, ingresarSolicitudTranspaso,
+    grafoMapa = new Grafo();
+    loadData.FormarGrafo(grafoMapa,
+                         mapa_mis_barios,
+                         notificarFinalizacion,
+                         ingresarSolicitudTranspaso,
+                         ingresarNotificacionTranspaso,
                          asignacion_barrios,
                          &segmentos_a_recorrer_por_barrio_por_vehiculo,my_rank);
 
@@ -335,11 +389,13 @@ int main(int argc, char* argv[]) {
         long* nodo_final   = new long[numeroVehiculosPendientes];
 
         if(calculo_por_distribucion_cantidad_barrio) {
+            int contador = 0;
             for(auto cantidad_por_barrio : barrios_con_cantidades) {
                 for(int i = 0; i < cantidad_por_barrio.second; i++) {
-                    long id_barrio = mis_barrios[cantidad_por_barrio.first];
-                    nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
-                    nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+                    long id_barrio = cantidad_por_barrio.first;
+                    nodo_inicial[contador] = grafoMapa->idNodoAletorio(rng, id_barrio);
+                    nodo_final[contador]   = grafoMapa->idNodoAletorio(rng);
+                    contador++;
                 }
             }
         }else {
@@ -379,10 +435,12 @@ int main(int argc, char* argv[]) {
 
                 int size_camino = camino.size();
 
-                /*for (auto c : camino){
+                /*
+                for (auto c : camino){
                     long id_barrio = grafoMapa->obtenerNodo(c)->getSeccion();
                     cout << id_barrio << " --- " << c << endl;
-                }*/
+                }
+                 */
 
                 for (size_t j = 0; j < size_camino; ++j) {
                     int barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
@@ -415,7 +473,7 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                auto v = new Vehiculo(id_vehiculo, 0, 45);
+                auto v = new Vehiculo(id_vehiculo);
 
                 pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
 
@@ -438,7 +496,7 @@ int main(int argc, char* argv[]) {
                 string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
                 Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
                 Calle * calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
-                calle->insertarSolicitudTranspaso(nullptr, v);
+                calle->insertarSolicitudTranspaso(-1, -1, v);
 
             }
         }
@@ -516,7 +574,7 @@ int main(int argc, char* argv[]) {
 
     int contador_numero_epoca = 1;
     while(numeroVehiculosPendientes > 0){
-        ejecutar_epoca(contador_numero_epoca, numeroVehiculosPendientes);
+        ejecutar_epoca(contador_numero_epoca);
         contador_numero_epoca++;
     }
 

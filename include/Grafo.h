@@ -18,7 +18,7 @@ private:
     map<int, long> id_int_to_ext;
     map<long, int> id_ext_to_int;
 
-    map<long, vector<Nodo*>> nodos_por_seccion;
+    map<long, vector<long>> nodos_id_por_seccion;
 
 
 
@@ -36,8 +36,8 @@ public:
     Nodo* obtenerNodo(long id_ext_nodo);
 
     long idNodoAletorio(std::mt19937& rnd, long seccion){
-        std::uniform_int_distribution<int> dist(0, (int)nodos_por_seccion[seccion].size()-1);
-        return nodos_por_seccion[seccion][dist(rnd)]->getIdExt();
+        std::uniform_int_distribution<int> dist(0, (int)nodos_id_por_seccion[seccion].size()-1);
+        return nodos_id_por_seccion[seccion][dist(rnd)];
     }
 
     long idNodoAletorio(std::mt19937& rnd){

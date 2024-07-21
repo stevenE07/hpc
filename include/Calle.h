@@ -27,7 +27,7 @@ private:
     float velocidad_maxima;
     Grafo g;
 
-    vector<pair<Calle*, Vehiculo*>> solicitudes_traspaso_calle;
+    vector<pair<pair<long,long>, Vehiculo*>> solicitudes_traspaso_calle;
     set<unsigned int>notificaciones_traslado_calle_realizado;
 
     //Dado un id_vehiculo se guarda el numero de carril y su pociion dentro del caril, donde la posicion es el frente del vehiculo dado que 0 es el inicio de la calle
@@ -38,6 +38,7 @@ private:
 
     function<void()> doneFn;
     function<void(SolicitudTranspaso&)> enviarSolicitudFn;
+    function<void(NotificacionTranspaso &)> enviarNotificacionFn;
 
     Grafo* grafo;
     map<long, Barrio*> mapa_barrio;
@@ -53,11 +54,12 @@ public:
           map<long, Barrio*> & mapa_barrio,
           function<void()>& doneFn,
           function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
+          function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
           Grafo* grafo,
           map<long, int>& asignacion_barrios,
           map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
 
-    void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
+    void insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id_fin_calle_solicitante, Vehiculo* vehiculo);
 
     void notificarTranspasoCompleto(unsigned int idVehiculo);
 

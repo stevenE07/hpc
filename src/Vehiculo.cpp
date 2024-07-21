@@ -4,10 +4,8 @@
 
 #include "../include/Vehiculo.h"
 
-Vehiculo::Vehiculo(int id, long epoca_inicial,float velocidad ){
+Vehiculo::Vehiculo(int id){
     this->id = id;
-    this-> epoca_inicial = epoca_inicial;
-    this->velocidad = velocidad;
     this->indice_calle_recorrida = 0;
     this->is_segmento_final = 0;
     this->esperando_traslado_entre_calles = false;
@@ -24,22 +22,6 @@ unsigned char Vehiculo::get_is_segmento_final() {
     return this->is_segmento_final;
 }
 
-
-unsigned long Vehiculo::getEpocaInicial() const {
-    return epoca_inicial;
-}
-
-void Vehiculo::setEpocaInicial(unsigned long epocaInicial) {
-    epoca_inicial = epocaInicial;
-}
-
-unsigned long Vehiculo::getEpocaFinal() const {
-    return epoca_final;
-}
-
-void Vehiculo::setEpocaFinal(unsigned long epocaFinal) {
-    epoca_final = epocaFinal;
-}
 
 
 
