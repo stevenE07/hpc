@@ -51,7 +51,7 @@ public:
     void setVelocidad(float velocidad);
 
     unsigned int getNumeroCalleRecorrida() const;
-
+    void  set_indice_calle_recorrida(int valor);
     void setNumeroCalleRecorrida(unsigned int numeroCalleRecorrida);
 
     long sigNodoARecorrer();

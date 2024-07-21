@@ -299,7 +299,8 @@ int main(int argc, char* argv[]) {
     auto grafoMapa = new Grafo();
     loadData.FormarGrafo(grafoMapa, mapa_mis_barios,
                          notificarFinalizacion, ingresarSolicitudTranspaso,
-                         asignacion_barrios, my_rank);
+                         asignacion_barrios,
+                         &segmentos_a_recorrer_por_barrio_por_vehiculo,my_rank);
 
     calcular_nodos_mpi_vecinos(); //Calculo cuales son mis nodos MPI vecinos
 

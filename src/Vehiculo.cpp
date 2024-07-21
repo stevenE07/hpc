@@ -81,6 +81,11 @@ void Vehiculo::setRuta(const vector<long> &ruta, unsigned char is_segmento_final
     this->is_segmento_final = is_segmento_final;
 }
 
+
+void Vehiculo::set_indice_calle_recorrida(int valor){
+    Vehiculo::indice_calle_recorrida = valor;
+}
+
 void Vehiculo::imprimirRuta() {
         std::cout << "id_vehiculo: " << this->getId() << std::endl;
     for (const auto & r: ruta) {
