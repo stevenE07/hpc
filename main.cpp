@@ -19,7 +19,7 @@
 INITIALIZE_EASYLOGGINGPP
 
 #include "json.hpp"
-#define TIEMPO_EPOCA_MS 10 //En ms
+#define TIEMPO_EPOCA_MS 100 //En ms
 
 using Clock = std::chrono::steady_clock;
 using chrono::time_point;
@@ -118,8 +118,6 @@ void intercambiar_vehiculos_entre_nodos(){
         solicitudes_por_nodos[nodo_encargado].push_back(solicitud);
     }
 
-
-    /*
     auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
 
     int cont = 0;
@@ -128,10 +126,6 @@ void intercambiar_vehiculos_entre_nodos(){
         MPI_Isend(&total_solicitudes_por_nodo[nodo_vecino], 1, MPI_INT, nodo_vecino, 1, MPI_COMM_WORLD, &requests[cont]);
         cont++;
     }
-
-     */
-
-
 
     int size_buffer = total_solicitudes * sizeof(SolicitudTranspaso) + MPI_BSEND_OVERHEAD;
 
@@ -188,6 +182,7 @@ void intercambiar_vehiculos_entre_nodos(){
             exit(1);
         }
 
+
     }
 
     delete [] buffResepcion;
@@ -221,6 +216,9 @@ void ejecutar_epoca(int numero_epoca, long num_vehioculo){
             //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
         //}
     }
+
+    cout<<"Termino epoca" << endl;
+
     intercambiar_vehiculos_entre_nodos();
 
     milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
@@ -387,12 +385,15 @@ int main(int argc, char* argv[]) {
 
 
                         if (std::find(mis_barrios.begin(), mis_barrios.end(), barrio_actual) == mis_barrios.end() ){ //El barrio no es parte de mi barrio
+                            #pragma omp critical
                             nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(segmento);
                         } else {
                             // Si el segmento es para el nodo que calcula, se lo guarda para si mismo
                             pair<int, long> clave;
                             clave.first = id_vehiculo;
                             clave.second = barrio_actual;
+
+                            #pragma omp critical
                             segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(segmento);
                         }
 
@@ -403,10 +404,24 @@ int main(int argc, char* argv[]) {
                 }
 
                 auto v = new Vehiculo(id_vehiculo, 0, 45);
-                v->setRuta(camino);
+
+                pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
+
+                SegmentoTrayectoVehculoEnBarrio primerSegmento = segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].front();
+
+                #pragma omp critical
+                segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].pop();
+
+
+                auto caminoPrimerBarrio = grafoMapa->computarCaminoMasCorto(primerSegmento.id_inicio, primerSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+
+                v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
+
+                #pragma omp critical
                 todos_vehiculos.push_back(v);
-                long id_camino_primer_nodo = camino[0];
-                long id_camino_segundo_nodo = camino[1];
+
+                long id_camino_primer_nodo = caminoPrimerBarrio[0];
+                long id_camino_segundo_nodo = caminoPrimerBarrio[1];
 
                 string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
                 Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
@@ -477,10 +492,24 @@ int main(int argc, char* argv[]) {
             pair<int,long> clave = make_pair(inicio_fin_vehculos_nodo[i].id_vehiculo, inicio_fin_vehculos_nodo[i].id_barrio);
             segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(inicio_fin_vehculos_nodo[i]);
         }
+        cout << endl;
+        for(auto s :  segmentos_a_recorrer_por_barrio_por_vehiculo){
+            cout << "barrio:" << s.first.first << "id_v:" << s.first.second << endl;
+            while(!s.second.empty()){
+                cout << "vehiculo:" << s.second.front().id_vehiculo << " I:" << s.second.front().id_inicio << " F:" << s.second.front().id_fin << endl;
+                s.second.pop();
+            }
+        }
+
     }
 
     milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
     printf("----- Tiempo transcurido = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
+
+    numeroVehiculosPendientes -= numeroVehiculosFallo;
+
+
+
 
 
 

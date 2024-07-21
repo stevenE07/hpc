@@ -43,6 +43,8 @@ private:
     map<long, Barrio*> mapa_barrio;
     map<long, int> asignacion_barrios;
 
+    map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo;
+
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
 
@@ -51,7 +53,9 @@ public:
           map<long, Barrio*> & mapa_barrio,
           function<void()>& doneFn,
           function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
-          Grafo* grafo, map<long, int>& asignacion_barrios );
+          Grafo* grafo,
+          map<long, int>& asignacion_barrios,
+          map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
 
     void insertarSolicitudTranspaso(Calle* calleSolicitante, Vehiculo* vehiculo);
 

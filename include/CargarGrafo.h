@@ -27,6 +27,7 @@ public:
                      std::function<void()>& doneFn,
                      function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
                      map<long, int>&  asignacion_barrios,
+                     map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>>* ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
                      int my_rank );
 };
 

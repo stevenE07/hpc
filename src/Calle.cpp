@@ -8,7 +8,9 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
              map<long, Barrio*> & mapa_barrio,
              function<void()>& doneFn,
              function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
-             Grafo* grafo,map<long, int>& asignacion_barrios ){
+             Grafo* grafo,
+             map<long, int>& asignacion_barrios,
+             map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
@@ -19,6 +21,7 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
    this->enviarSolicitudFn = enviarSolicitudFn;
    this->grafo = grafo;
    this->asignacion_barrios = asignacion_barrios;
+   this->ptr_segmentos_a_recorrer_por_barrio_por_vehiculo = ptr_segmentos_a_recorrer_por_barrio_por_vehiculo;
    omp_init_lock(&lock_solicitud);
    omp_init_lock(&lock_notificacion);
 }
@@ -68,6 +71,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
             notificaciones_traslado_calle_realizado.erase(v->getId());
             omp_unset_lock(&lock_notificacion);
 
+            v->setEsperandoTrasladoEntreCalles(false);
+
             posiciones_vehiculos_en_calle.erase(v->getId());
             continue;
         }
@@ -99,18 +104,30 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                    // termino de computar la ultima calle dentro del barrio.
                    #pragma omp critical
                    LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
-                   if(v->get_is_segmento_final()) { // si el segmento es final.
+                   if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
+                       #pragma omp critical
                        doneFn();
                        posiciones_vehiculos_en_calle.erase(v->getId());
                        continue;
-                   }else { // tengo que cambiar de barrio.
+                   } else { // tengo que cambiar de barrio.
                        long idBarrioActualCalle = grafo->obtenerNodo(nodo_inicial)->getSeccion();
                        long idBarrioSig = grafo->obtenerNodo(nodo_final)->getSeccion();
-                       long idSiguienteNodo = v->sigNodoARecorrer();
-                       string codigoSiguienteCalle = Calle::getIdCalle(nodo_final, idSiguienteNodo);
                        if (asignacion_barrios[idBarrioActualCalle] == asignacion_barrios[idBarrioSig]) { // si el barrio es del mismo nodo mpi.
-                           Calle *sigCalle = mapa_barrio[idBarrioSig]->obtenerCalle(codigoSiguienteCalle);
+
+                           pair<int, long> clave = make_pair(v->getId(), idBarrioSig);
+                           SegmentoTrayectoVehculoEnBarrio sigSegmento = (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].front();
+
+                           #pragma omp critical
+                           (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].pop();
+
+                           auto caminoSigBarrio = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+                           v->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
+                           v->set_indice_calle_recorrida(0);
+
+                           string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
+                           Calle *sigCalle = mapa_barrio[idBarrioSig]->obtenerCalle(idSigCalle);
+                           v->setEsperandoTrasladoEntreCalles(true);
                            sigCalle->insertarSolicitudTranspaso(this, v);
                        }else {
                            SolicitudTranspaso solicitudTranspaso;
@@ -122,7 +139,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                            this->enviarSolicitudFn(solicitudTranspaso);
 
                            printf("SOLICITUD!!!!");
-                           exit(1);
                        }
                    }
                }else { // continua computando calles dentro del mismo barrio.
@@ -130,26 +146,11 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                    long idBarrio = grafo->obtenerNodo(nodo_final)->getSeccion();
                    long idSiguienteNodo = v->sigNodoARecorrer();
                    string codigoSiguienteCalle = Calle::getIdCalle(nodo_final, idSiguienteNodo);
-                   //si el barrio pertenece al mismo barrio que el nodo actual entoneces lo gestiona el mismo nodo mpi.
-                   if (asignacion_barrios[idBarrioActualCalle] ==
-                       asignacion_barrios[idBarrioSigCalle]) { //Si el nodo MPI encargado de la solictud es el mismo
-                       Calle *sigCalle = mapa_barrio[idBarrioSigCalle]->obtenerCalle(codigoSiguienteCalle);
-                       sigCalle->insertarSolicitudTranspaso(this, v);
-                   } else {
-                       //aca se envia la informacion desde el nodo mpi del barrio actual al siguiente.
+                   Calle *sigCalle = mapa_barrio[idBarrio]->obtenerCalle(codigoSiguienteCalle);
 
-                       SolicitudTranspaso solicitudTranspaso;
-                       solicitudTranspaso.id_vehiculo = v->getId();
-                       solicitudTranspaso.id_barrio = idBarrioSigCalle;
-                       solicitudTranspaso.id_nodo_inicial_calle_anterior = nodo_inicial;
+                   //cout << (int) v->get_is_segmento_final() << endl;
 
-                       #pragma omp critical
-                       this->enviarSolicitudFn(solicitudTranspaso);
-
-                       printf("SOLICITUD!!!!");
-                       //exit(1);
-
-                   }
+                   sigCalle->insertarSolicitudTranspaso(this, v);
                }
            }
         }
@@ -166,7 +167,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     vehculos_ordenados_en_calle = vehiculos_ordenados_en_calle_aux;
 
     // 3- aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
-    omp_set_lock(&lock_solicitud);
+
+
     /*
     long data_received[4];
     MPI_Request request;
@@ -175,37 +177,42 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     int flag;
     MPI_Test(&request, &flag, &status);
      */
+
+    omp_set_lock(&lock_solicitud);
+
     for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
         if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
             if(!solicitudes_traspaso_calle.empty()){
 
-                int posicion_sig_vehiculo = -1;
+
+                // Logica de cual vehiculo elegir de otra calle
+
+                int indice_sig_solicitud_aceptada = -1;
 
                 int contador = 0;
                 for(auto calle_vehiculo: solicitudes_traspaso_calle){
-                    if(posicion_sig_vehiculo == -1 ){
-                        posicion_sig_vehiculo = contador;
+                    if(indice_sig_solicitud_aceptada == -1 ){
+                        indice_sig_solicitud_aceptada = contador;
                     } else {
-                        if(solicitudes_traspaso_calle[posicion_sig_vehiculo].first == nullptr
+                        if(solicitudes_traspaso_calle[indice_sig_solicitud_aceptada].first == nullptr
                         && calle_vehiculo.first != nullptr){
-                            posicion_sig_vehiculo = contador;
+                            indice_sig_solicitud_aceptada = contador;
                         }
                     }
                     contador++;
                 }
 
 
-                pair<Calle*, Vehiculo*> solicitud = solicitudes_traspaso_calle[posicion_sig_vehiculo];
-                solicitudes_traspaso_calle.erase(solicitudes_traspaso_calle.begin() + posicion_sig_vehiculo);
+                pair<Calle*, Vehiculo*> solicitud = solicitudes_traspaso_calle[indice_sig_solicitud_aceptada];
+                solicitudes_traspaso_calle.erase(solicitudes_traspaso_calle.begin() + indice_sig_solicitud_aceptada);
 
                 pair<int, float> carrilPosicion;
                 carrilPosicion.first = num_carril;
                 carrilPosicion.second = 0.f;
+
                 posiciones_vehiculos_en_calle[solicitud.second->getId()] = carrilPosicion;
 
                 vehculos_ordenados_en_calle.push_back(solicitud.second);
-
-                solicitud.second->setEsperandoTrasladoEntreCalles(false);
 
                 if(solicitud.first != nullptr){
                     solicitud.first->notificarTranspasoCompleto(solicitud.second->getId());

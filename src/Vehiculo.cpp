@@ -24,9 +24,6 @@ unsigned char Vehiculo::get_is_segmento_final() {
     return this->is_segmento_final;
 }
 
-void Vehiculo::set_is_segmento_final(unsigned char valor) {
-    Vehiculo::is_segmento_final = valor;
-}
 
 unsigned long Vehiculo::getEpocaInicial() const {
     return epoca_inicial;
@@ -79,8 +76,9 @@ const vector<long> &Vehiculo::getRuta() const {
     return ruta;
 }
 
-void Vehiculo::setRuta(const vector<long> &ruta) {
-    Vehiculo::ruta = ruta;
+void Vehiculo::setRuta(const vector<long> &ruta, unsigned char is_segmento_final) {
+    this->ruta = ruta;
+    this->is_segmento_final = is_segmento_final;
 }
 
 void Vehiculo::imprimirRuta() {
