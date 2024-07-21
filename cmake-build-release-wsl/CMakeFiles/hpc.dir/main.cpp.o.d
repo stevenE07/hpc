@@ -224,7 +224,8 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/include/c++/9/bits/atomic_lockfree_defines.h \
  /usr/include/c++/9/backward/auto_ptr.h \
  /usr/include/c++/9/pstl/glue_memory_defs.h \
- /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h /usr/include/c++/9/queue \
+ /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h \
+ /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h /usr/include/c++/9/queue \
  /usr/include/c++/9/deque /usr/include/c++/9/bits/stl_deque.h \
  /usr/include/c++/9/bits/deque.tcc /usr/include/c++/9/bits/stl_queue.h \
  /mnt/c/Users/Steven/Desktop/hpc/include/Vehiculo.h \
@@ -322,4 +323,5 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
  /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/status_inln.h \
  /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/info_inln.h \
  /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/win_inln.h \
- /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/file_inln.h
+ /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/file_inln.h \
+ /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h

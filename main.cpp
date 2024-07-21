@@ -256,13 +256,25 @@ void initMpi(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
+    std::map<int, int> barrios_con_cantidades;
+    std::map<int, double> probabilidad_por_barrio;
+    std::map<int, int> asignaciones;
+    bool calculo_por_distribucion_cantidad_barrio = true;
+
+    std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
+    leerCSVbarrioCantidades( dir ,barrios_con_cantidades);
+
+    calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
+
+    long numeroVehiculosPendientes = 1;
+    asignarCantidades(numeroVehiculosPendientes, probabilidad_por_barrio, asignaciones);
+
     initConfig();
     initMpi(argc, argv);
     std::mt19937 rng(2024); // Semilia random
 
     // ---- Funciones de notificacion
 
-    long numeroVehiculosPendientes = 1;
 
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
@@ -322,14 +334,21 @@ int main(int argc, char* argv[]) {
         long* nodo_inicial = new long[numeroVehiculosPendientes];
         long* nodo_final   = new long[numeroVehiculosPendientes];
 
-        std::uniform_int_distribution<int> dist(0, (int)mis_barrios.size()-1);
-        for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
-
-            //Genero unicamente vehiculos cuyas ubicaciones comiencen en el nodo
-
-            long id_barrio = mis_barrios[dist(rng)];
-            nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
-            nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+        if(calculo_por_distribucion_cantidad_barrio) {
+            for(auto cantidad_por_barrio : barrios_con_cantidades) {
+                for(int i = 0; i < cantidad_por_barrio.second; i++) {
+                    long id_barrio = mis_barrios[cantidad_por_barrio.first];
+                    nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
+                    nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+                }
+            }
+        }else {
+            std::uniform_int_distribution<int> dist(0, (int)mis_barrios.size()-1);
+            for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
+                long id_barrio = mis_barrios[dist(rng)];
+                nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
+                nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
+            }
         }
 
         //   ----  CALCULAR CAMINOS

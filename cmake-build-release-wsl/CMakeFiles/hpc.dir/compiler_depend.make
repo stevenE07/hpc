@@ -10,6 +10,7 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h \
+  /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Vehiculo.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -414,6 +415,7 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h \
+  /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Vehiculo.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -747,6 +749,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h \
+  /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Vehiculo.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -1115,6 +1118,7 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Ca
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h \
+  /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Vehiculo.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -2027,6 +2031,8 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/lib/gcc/x86_64-linux-gnu/9/include/stdint.h
 
 
+/mnt/c/Users/Steven/Desktop/hpc/src/CargarGrafo.cpp:
+
 /usr/include/c++/9/streambuf:
 
 /usr/include/c++/9/sstream:
@@ -2199,7 +2205,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/functions_inln.h:
 
-/usr/include/c++/9/bits/exception.h:
+/usr/include/c++/9/bits/stl_algo.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/9/include/stdint.h:
 
@@ -2245,6 +2251,16 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
+/usr/include/c++/9/bits/exception.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/c++/9/tr1/poly_hermite.tcc:
+
+/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/request_inln.h:
+
+/mnt/c/Users/Steven/Desktop/hpc/include/Utils.h:
+
 /usr/include/c++/9/deque:
 
 /usr/include/c++/9/ctime:
@@ -2258,30 +2274,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 /usr/include/c++/9/bits/valarray_array.tcc:
 
 /usr/include/c++/9/bits/mask_array.h:
-
-/usr/include/c++/9/bits/forward_list.h:
-
-/mnt/c/Users/Steven/Desktop/hpc/src/Vehiculo.cpp:
-
-/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intracomm.h:
-
-/usr/include/c++/9/cstddef:
-
-/usr/include/c++/9/bits/localefwd.h:
-
-/usr/include/c++/9/bits/quoted_string.h:
-
-/usr/include/stdlib.h:
-
-/usr/include/c++/9/bits/stl_function.h:
-
-/usr/include/c++/9/bits/unique_ptr.h:
-
-/usr/include/c++/9/bits/sstream.tcc:
-
-/usr/include/c++/9/bits/gslice_array.h:
-
-/usr/include/x86_64-linux-gnu/c++/9/bits/c++allocator.h:
 
 /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h:
 
@@ -2297,11 +2289,25 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/c++/9/bits/locale_facets_nonio.tcc:
 
+/usr/include/c++/9/bits/localefwd.h:
+
+/usr/include/c++/9/cstddef:
+
+/usr/include/c++/9/bits/quoted_string.h:
+
+/usr/include/stdlib.h:
+
 /mnt/c/Users/Steven/Desktop/hpc/main.cpp:
 
 /usr/lib/x86_64-linux-gnu/openmpi/include/mpi.h:
 
 /usr/include/c++/9/cstdio:
+
+/usr/include/c++/9/pstl/pstl_config.h:
+
+/usr/include/asm-generic/bitsperlong.h:
+
+/usr/include/c++/9/bits/char_traits.h:
 
 /usr/include/c++/9/bits/indirect_array.h:
 
@@ -2329,18 +2335,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/c++/9/bits/std_abs.h:
 
-/usr/include/c++/9/pstl/pstl_config.h:
-
-/usr/include/c++/9/bits/char_traits.h:
-
-/usr/include/asm-generic/bitsperlong.h:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/include/c++/9/tr1/poly_hermite.tcc:
-
-/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/request_inln.h:
-
 /usr/include/c++/9/bits/basic_string.h:
 
 /usr/include/c++/9/ext/concurrence.h:
@@ -2353,15 +2347,29 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/x86_64-linux-gnu/bits/sigstack.h:
 
-/usr/include/c++/9/bits/erase_if.h:
+/usr/include/c++/9/bits/basic_ios.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/signum.h:
 
 /usr/include/c++/9/bits/stringfwd.h:
 
-/usr/include/c++/9/bits/basic_ios.tcc:
-
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdio.h:
+
+/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/win_inln.h:
+
+/usr/include/assert.h:
+
+/usr/include/c++/9/tr1/legendre_function.tcc:
+
+/usr/include/c++/9/bits/node_handle.h:
+
+/usr/include/c++/9/bits/erase_if.h:
+
+/usr/include/c++/9/ratio:
+
+/usr/include/c++/9/bits/ptr_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
@@ -2371,21 +2379,27 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/asm-generic/int-ll64.h:
 
-/usr/include/assert.h:
-
-/usr/include/c++/9/tr1/legendre_function.tcc:
-
-/usr/include/c++/9/bits/node_handle.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdio.h:
-
-/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/win_inln.h:
-
 /usr/include/c++/9/stdexcept:
 
 /usr/include/asm-generic/posix_types.h:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
+
+/usr/include/c++/9/bits/forward_list.h:
+
+/mnt/c/Users/Steven/Desktop/hpc/src/Vehiculo.cpp:
+
+/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/ompi/mpi/cxx/intracomm.h:
+
+/usr/include/c++/9/bits/stl_function.h:
+
+/usr/include/c++/9/bits/unique_ptr.h:
+
+/usr/include/c++/9/bits/sstream.tcc:
+
+/usr/include/c++/9/bits/gslice_array.h:
+
+/usr/include/x86_64-linux-gnu/c++/9/bits/c++allocator.h:
 
 /usr/include/c++/9/bits/forward_list.tcc:
 
@@ -2414,8 +2428,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 /usr/include/c++/9/chrono:
 
 /usr/include/x86_64-linux-gnu/sys/stat.h:
-
-/mnt/c/Users/Steven/Desktop/hpc/src/CargarGrafo.cpp:
 
 /usr/include/c++/9/bits/fs_fwd.h:
 
@@ -2471,10 +2483,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
-/usr/include/c++/9/tr1/ell_integral.tcc:
-
-/usr/include/c++/9/bits/locale_conv.h:
-
 /usr/include/c++/9/bits/locale_facets.h:
 
 /usr/include/c++/9/tr1/modified_bessel_func.tcc:
@@ -2517,11 +2525,9 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
 
 /usr/include/c++/9/bits/shared_ptr_base.h:
 
-/usr/include/c++/9/bits/ptr_traits.h:
+/usr/include/c++/9/bits/locale_conv.h:
 
-/usr/include/c++/9/ratio:
-
-/usr/include/c++/9/bits/stl_algo.h:
+/usr/include/c++/9/tr1/ell_integral.tcc:
 
 /usr/include/c++/9/tr1/exp_integral.tcc:
 
