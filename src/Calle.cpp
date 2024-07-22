@@ -242,6 +242,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
                         NotificacionTranspaso notificacion;
                         notificacion.id_vehiculo = vehiculoIngresado->getId();
+                        notificacion.id_barrio = idBarrioCalleANotificar;
 
                         #pragma omp critical
                         enviarNotificacionFn(notificacion);

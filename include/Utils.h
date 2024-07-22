@@ -25,6 +25,7 @@ typedef struct {
 
 typedef struct {
     int id_vehiculo;
+    long id_barrio;
 }NotificacionTranspaso;
 
 struct barrio_cantidad {

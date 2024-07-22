@@ -15,6 +15,12 @@
 #include <queue>
 #include <stdio.h>
 
+#define TAG_CANTIDAD_SEGMENTOS 0
+#define TAG_SEGMENTOS 1
+
+#define TAG_SOLICITUDES 2
+#define TAG_NOTIFICACIONES 3
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -31,21 +37,17 @@ using chrono::seconds;
 using namespace std;
 
 
-
 // ----------- Tipos MPI
 MPI_Datatype MPI_SegmentoTrayectoVehculoEnBarrio;
 MPI_Datatype MPI_SolicitudTranspaso;
-MPI_Datatype MPI_NotificacionTranspaso;
 
 
 // ----------- Variables Globales
 
 int my_rank, size_mpi;
-
 long numeroVehiculosPendientes = 1;
 
 Grafo* grafoMapa;
-
 map<long, Barrio*> mapa_mis_barios;
 vector<long> mis_barrios;
 vector<Calle*> todas_calles;
@@ -112,7 +114,7 @@ void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRec
         pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
         SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
 
-#pragma omp critical
+        #pragma omp critical
         segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
 
         auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
@@ -169,15 +171,12 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
     }*/
 
     int size_buffer = total_solicitudes * sizeof(SolicitudTranspaso) + MPI_BSEND_OVERHEAD;
-
     auto bufferEnvioSolicitudes = (char*)malloc( size_buffer);
 
     MPI_Buffer_attach(bufferEnvioSolicitudes, size_buffer);
 
     for(auto nodo_vecino: nodos_mpi_vecinos){
-
         int numeroSolicitudes = total_solicitudes_por_nodo[nodo_vecino];
-
         auto buff = new SolicitudTranspaso[numeroSolicitudes];
 
         int cont = 0;
@@ -186,10 +185,9 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
             cont++;
         }
 
-        MPI_Bsend(buff, numeroSolicitudes, MPI_SolicitudTranspaso, nodo_vecino, 2, MPI_COMM_WORLD);
+        MPI_Bsend(buff, numeroSolicitudes, MPI_SolicitudTranspaso, nodo_vecino, TAG_SOLICITUDES, MPI_COMM_WORLD);
 
         delete[] buff;
-
     }
 
     /*
@@ -201,14 +199,14 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
     }
     */
 
-    int max_cantidad = nodos_mpi_vecinos.size() * 1000;
-    auto buffResepcion = new SolicitudTranspaso[nodos_mpi_vecinos.size() * 1000]; //Todo Mejorar estimador
+    int max_cantidad = nodos_mpi_vecinos.size() * 5000;
+    auto buffResepcion = new SolicitudTranspaso[max_cantidad]; //Todo Mejorar estimador
 
     for(auto nodo_vecino: nodos_mpi_vecinos) {
         int numero_solcitud;
 
         MPI_Status status;
-        MPI_Recv(buffResepcion, max_cantidad, MPI_SolicitudTranspaso, MPI_ANY_SOURCE, 2, MPI_COMM_WORLD, &status);
+        MPI_Recv(buffResepcion, max_cantidad, MPI_SolicitudTranspaso, MPI_ANY_SOURCE, TAG_SOLICITUDES, MPI_COMM_WORLD, &status);
 
         int cantidad_solicitudes_recividas;
         MPI_Get_count(&status, MPI_SolicitudTranspaso, &cantidad_solicitudes_recividas);
@@ -226,19 +224,86 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
 
     delete [] buffResepcion;
 
-
     //MPI_Waitall(requests, nodos_mpi_vecinos.size());  //ToDO ¿Necesario?
 
     delete [] total_solicitudes_por_nodo;
 
-
     MPI_Buffer_detach(bufferEnvioSolicitudes, &size_buffer);
     delete[] bufferEnvioSolicitudes;
+}
+
+void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
+    map<int, vector<NotificacionTranspaso>> notificacion_por_nodos;
+
+    int total_notificaciones = 0;
+
+    auto * total_notificaciones_por_nodo = new int[size_mpi];
+
+    for(int i = 0; i < size_mpi; i++){
+        total_notificaciones_por_nodo[i] = 0;
+    }
+
+    for(auto notificacion: notificaciones_transpaso_entre_nodos_mpi){
+        long id_barrio = notificacion.id_barrio;
+        int nodo_encargado = asignacion_barrios[id_barrio];
+
+        total_notificaciones_por_nodo[nodo_encargado]++;
+        total_notificaciones++;
+
+        notificacion_por_nodos[nodo_encargado].push_back(notificacion);
+    }
+
+    notificaciones_transpaso_entre_nodos_mpi.clear();
 
 
+    auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
 
-        // son la 4 am ya no me funciona mas el cerebo, sigo mañana...
+    auto bufferEnvioNotificaciones = new int[total_notificaciones];
 
+    int inicioEnvioBuffer = 0;
+    int cont_request = 0;
+    for(auto nodo_vecino: nodos_mpi_vecinos){
+
+        int cont = inicioEnvioBuffer;
+        for(auto notificacion: notificacion_por_nodos[nodo_vecino]){
+            bufferEnvioNotificaciones[inicioEnvioBuffer] = notificacion.id_vehiculo;
+            cont++;
+        }
+
+        MPI_Isend(&bufferEnvioNotificaciones[inicioEnvioBuffer], (int)notificacion_por_nodos[nodo_vecino].size(), MPI_INT, nodo_vecino, TAG_NOTIFICACIONES, MPI_COMM_WORLD, &requests[cont_request]);
+
+        inicioEnvioBuffer += (int)notificacion_por_nodos[nodo_vecino].size();
+        cont_request ++;
+    }
+
+    int max_cantidad = nodos_mpi_vecinos.size() * 5000;
+    auto buffResepcion = new int[max_cantidad]; //Todo Mejorar estimador
+
+    for(auto nodo_vecino: nodos_mpi_vecinos) {
+        int numero_solcitud;
+
+        MPI_Status status;
+        MPI_Recv(buffResepcion, max_cantidad, MPI_INT, MPI_ANY_SOURCE, TAG_NOTIFICACIONES, MPI_COMM_WORLD, &status);
+
+        int cantidad_notificaciones_recividas;
+        MPI_Get_count(&status, MPI_INT, &cantidad_notificaciones_recividas);
+
+        if(cantidad_notificaciones_recividas > 0){
+            printf("Nodo %d recivio %d notificaciones\n", my_rank, cantidad_notificaciones_recividas);
+            for(int i = 0; i < cantidad_notificaciones_recividas; i++){
+                (*ptr_notificaciones).push_back(buffResepcion[i]);
+                printf("NOTIFICACION: id_vehiculo = %d \n",   buffResepcion[i]);
+            }
+
+            //exit(1);
+        }
+    }
+
+    delete [] buffResepcion;
+
+    MPI_Waitall((int)nodos_mpi_vecinos.size(), requests, nullptr);  //ToDO ¿Necesario?
+
+    delete [] bufferEnvioNotificaciones;
 }
 
 
@@ -258,6 +323,9 @@ void ejecutar_epoca(int numero_epoca){
 
     vector<SolicitudTranspaso> solicitudesRecividas;
     intercambiar_solicitudes(&solicitudesRecividas);
+
+    vector<int> notificacionesRecividas;
+    intercambiar_notificaciones(&notificacionesRecividas);
 
     // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
     crear_vehiculos_de_otros_nodos(solicitudesRecividas);
@@ -532,9 +600,8 @@ int main(int argc, char* argv[]) {
             }
 
 
-            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, 0, MPI_COMM_WORLD);
-            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, 0,
-                     MPI_COMM_WORLD);
+            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD);
+            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS,MPI_COMM_WORLD);
 
             printf("Envio de segmentos de nodo %d a nodo %d COMPLETADO\n", my_rank, rank_nodo_a_enviar);
 
@@ -544,10 +611,10 @@ int main(int argc, char* argv[]) {
         MPI_Status status;
         int cantidad_vehiculos_barrios;
 
-        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         auto inicio_fin_vehculos_nodo = new SegmentoTrayectoVehculoEnBarrio[cantidad_vehiculos_barrios];
 
-        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,TAG_SEGMENTOS,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
         printf("Nodo %d, recibio %d trayectos", my_rank, cantidad_vehiculos_barrios);
 
