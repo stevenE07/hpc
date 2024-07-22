@@ -2,7 +2,6 @@
 #include "Utils.h"
 #include "easylogging++.h"
 #include "queue"
-#include "Vehiculo.h"
 #include "map"
 #include "vector"
 #include "string"
@@ -17,6 +16,7 @@
 
 using namespace std;
 
+class Vehiculo;
 class Barrio;
 class Calle {
 
@@ -28,7 +28,7 @@ private:
     Grafo g;
 
     vector<pair<pair<long,long>, Vehiculo*>> solicitudes_traspaso_calle;
-    set<unsigned int>notificaciones_traslado_calle_realizado;
+    set<pair<int, bool>>notificaciones_traslado_calle_realizado;
 
     //Dado un id_vehiculo se guarda el numero de carril y su pociion dentro del caril, donde la posicion es el frente del vehiculo dado que 0 es el inicio de la calle
     map<unsigned int,  pair<int , float>> posiciones_vehiculos_en_calle;
@@ -46,6 +46,8 @@ private:
 
     map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo;
 
+    int my_rank;
+
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
 
@@ -57,11 +59,12 @@ public:
           function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
           Grafo* grafo,
           map<long, int>& asignacion_barrios,
-          map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
+          map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
+          int my_rank);
 
     void insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id_fin_calle_solicitante, Vehiculo* vehiculo);
 
-    void notificarTranspasoCompleto(unsigned int idVehiculo);
+    void notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
 
     // tiempo_epoca en ms
     void ejecutarEpoca(float tiempo_epoca);
@@ -81,6 +84,7 @@ public:
 
 };
 
+#include "Vehiculo.h"
 #include "Barrio.h"
 
 #endif //CALLE_H

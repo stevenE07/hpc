@@ -9,9 +9,10 @@ Vehiculo::Vehiculo(int id){
     this->indice_calle_recorrida = 0;
     this->is_segmento_final = 0;
     this->esperando_traslado_entre_calles = false;
+    this->calleactual = nullptr;
 }
 
-unsigned int Vehiculo::getId() const {
+int Vehiculo::getId() const {
     return id;
 }
 
@@ -83,6 +84,14 @@ long Vehiculo::nodo_destino(){
 
 long Vehiculo::nodo_actual() {
     return ruta[indice_calle_recorrida];
+}
+
+Calle *Vehiculo::getCalleactual() const {
+    return calleactual;
+}
+
+void Vehiculo::setCalleactual(Calle *calleactual) {
+    Vehiculo::calleactual = calleactual;
 }
 
 

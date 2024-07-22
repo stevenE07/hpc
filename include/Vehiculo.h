@@ -7,6 +7,7 @@
 
 using namespace std;
 
+class Calle;
 class Vehiculo {
 private:
     //Propiedades del vehiculo
@@ -18,6 +19,8 @@ private:
     unsigned int indice_calle_recorrida; //Es 0 cuando esta en su primera calle
     unsigned char is_segmento_final;
 
+    Calle* calleactual;
+
     //Aspectos temporales
     float velocidad;
 
@@ -25,11 +28,13 @@ private:
 
 public:
 
-
-
     Vehiculo(int id);
 
-    unsigned int getId() const;
+    Calle *getCalleactual() const;
+
+    void setCalleactual(Calle *calleactual);
+
+    int getId() const;
 
     void setId(unsigned int id);
 
@@ -73,5 +78,6 @@ public:
 };
 
 
+#include "Calle.h"
 
 #endif //VEHICULO_H

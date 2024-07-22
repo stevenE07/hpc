@@ -45,7 +45,11 @@ MPI_Datatype MPI_SolicitudTranspaso;
 // ----------- Variables Globales
 
 int my_rank, size_mpi;
-long numeroVehiculosPendientes = 1;
+int numero_vehiculos_en_curso_global = 200; //Esto se deberia leer por parametro, se actualiza en cada epoca
+
+int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
+
+map<int, Vehiculo*> mapa_mis_vehiculos;
 
 Grafo* grafoMapa;
 map<long, Barrio*> mapa_mis_barios;
@@ -94,7 +98,7 @@ void create_mpi_types() {
 
 
     const int nitems_solicitud=2;
-    int blocklengths_solicitud[2] = {1, 3};
+    int blocklengths_solicitud[2] = {1, 2};
     MPI_Datatype types_solicitud[2] = {MPI_INT, MPI_LONG};
     MPI_Aint     offsets_solicitud[2];
 
@@ -108,9 +112,6 @@ void create_mpi_types() {
 
 void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRecividas){
     for(SolicitudTranspaso solicitud: solicitudesRecividas){
-
-        printf("Procesando solicitudes recividas\n");
-
         pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
         SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
 
@@ -120,6 +121,7 @@ void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRec
         auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
 
         auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
+        mapa_mis_vehiculos[vehiculoIngresado->getId()] =  vehiculoIngresado;
 
         vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
         vehiculoIngresado->set_indice_calle_recorrida(0);
@@ -136,6 +138,12 @@ void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRec
     }
 }
 
+void procesar_notificaciones_recividas (vector<int> & id_vehculos_notificados){
+    for( auto idVehiculo: id_vehculos_notificados){
+        mapa_mis_vehiculos[idVehiculo]->getCalleactual()->notificarTranspasoCompleto(idVehiculo, true);
+        mapa_mis_vehiculos.erase(idVehiculo);
+    }
+}
 
 void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
 
@@ -212,10 +220,8 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
         MPI_Get_count(&status, MPI_SolicitudTranspaso, &cantidad_solicitudes_recividas);
 
         if(cantidad_solicitudes_recividas > 0){
-            printf("Nodo %d recivio %d soliciutdes\n", my_rank, cantidad_solicitudes_recividas);
             for(int i = 0; i < cantidad_solicitudes_recividas; i++){
                 (*ptr_solicitudes).push_back(buffResepcion[i]);
-                printf("SOLICITUD: id_barrio = %ld, id_vehiculo = %d, id_nodo_anterior = %ld \n",   buffResepcion[i].id_barrio, buffResepcion[i].id_vehiculo, buffResepcion[i].id_nodo_inicial_calle_anterior);
             }
 
             //exit(1);
@@ -266,7 +272,7 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
         int cont = inicioEnvioBuffer;
         for(auto notificacion: notificacion_por_nodos[nodo_vecino]){
-            bufferEnvioNotificaciones[inicioEnvioBuffer] = notificacion.id_vehiculo;
+            bufferEnvioNotificaciones[cont] = notificacion.id_vehiculo;
             cont++;
         }
 
@@ -289,13 +295,9 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
         MPI_Get_count(&status, MPI_INT, &cantidad_notificaciones_recividas);
 
         if(cantidad_notificaciones_recividas > 0){
-            printf("Nodo %d recivio %d notificaciones\n", my_rank, cantidad_notificaciones_recividas);
             for(int i = 0; i < cantidad_notificaciones_recividas; i++){
                 (*ptr_notificaciones).push_back(buffResepcion[i]);
-                printf("NOTIFICACION: id_vehiculo = %d \n",   buffResepcion[i]);
             }
-
-            //exit(1);
         }
     }
 
@@ -323,8 +325,14 @@ void ejecutar_epoca(int numero_epoca){
         //}
     }
 
+
+
+    numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
+
     vector<SolicitudTranspaso> solicitudesRecividas;
     intercambiar_solicitudes(&solicitudesRecividas);
+
+    numero_vehiculos_en_curso_en_el_nodo += (int)solicitudesRecividas.size();
 
     vector<int> notificacionesRecividas;
     intercambiar_notificaciones(&notificacionesRecividas);
@@ -332,12 +340,16 @@ void ejecutar_epoca(int numero_epoca){
     // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
     crear_vehiculos_de_otros_nodos(solicitudesRecividas);
 
+    procesar_notificaciones_recividas(notificacionesRecividas);
+
+    MPI_Allreduce(&numero_vehiculos_en_curso_en_el_nodo, &numero_vehiculos_en_curso_global, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
 
 
     if(my_rank == 0){
         if((numero_epoca + 1) % 500 == 1){
             milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
-            cout << " ========  Epoca  "<< numero_epoca + 1 << " | Tiempo: " << ( (float)milisecondsEp.count() / 1000.f) / 500.f  << " ms | numero vehiculos pendientes "<< numeroVehiculosPendientes << " ==========" << endl;
+            cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: " << ( (float)milisecondsEp.count() / 1000.f) / 500.f << " ms | numero vehiculos pendientes " << numero_vehiculos_en_curso_global << " ==========" << endl;
             inicioTiempoEp = Clock::now();
         }
     }
@@ -384,8 +396,7 @@ int main(int argc, char* argv[]) {
 
     calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
 
-
-    asignarCantidades(numeroVehiculosPendientes, probabilidad_por_barrio, asignaciones);
+    asignarCantidades(numero_vehiculos_en_curso_global, probabilidad_por_barrio, asignaciones);
 
     initConfig();
     initMpi(argc, argv);
@@ -395,7 +406,7 @@ int main(int argc, char* argv[]) {
 
 
     auto notificarFinalizacion = std::function<void()>{};
-    notificarFinalizacion = [&] () -> void {numeroVehiculosPendientes--;};
+    notificarFinalizacion = [&] () -> void {numero_vehiculos_en_curso_en_el_nodo--;};
 
 
     auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
@@ -441,7 +452,7 @@ int main(int argc, char* argv[]) {
 
     map<int,long,long> nodos_inicio_final_vehiculo;
 
-    vector<Vehiculo*> todos_vehiculos;
+
 
 
 
@@ -455,8 +466,12 @@ int main(int argc, char* argv[]) {
 
         // --- Genero el inicio y final de cada nodo
 
-        long* nodo_inicial = new long[numeroVehiculosPendientes];
-        long* nodo_final   = new long[numeroVehiculosPendientes];
+        numero_vehiculos_en_curso_en_el_nodo = numero_vehiculos_en_curso_global;
+
+        long* nodo_inicial = new long[numero_vehiculos_en_curso_en_el_nodo];
+        long* nodo_final   = new long[numero_vehiculos_en_curso_en_el_nodo];
+
+
 
         if(calculo_por_distribucion_cantidad_barrio) {
             int contador = 0;
@@ -470,7 +485,7 @@ int main(int argc, char* argv[]) {
             }
         }else {
             std::uniform_int_distribution<int> dist(0, (int)mis_barrios.size()-1);
-            for(int i = 0 ; i < numeroVehiculosPendientes; i++) {
+            for(int i = 0 ; i < numero_vehiculos_en_curso_en_el_nodo; i++) {
                 long id_barrio = mis_barrios[dist(rng)];
                 nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
                 nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
@@ -486,7 +501,7 @@ int main(int argc, char* argv[]) {
 
         //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
         #pragma omp parallel for schedule(dynamic)
-        for(int id_vehiculo = 0 ; id_vehiculo < numeroVehiculosPendientes; id_vehiculo++) {
+        for(int id_vehiculo = 0 ; id_vehiculo < numero_vehiculos_en_curso_en_el_nodo; id_vehiculo++) {
 
             int thread_id = omp_get_thread_num();
             long src = nodo_inicial[id_vehiculo];
@@ -558,7 +573,7 @@ int main(int argc, char* argv[]) {
                 v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
 
                 #pragma omp critical
-                todos_vehiculos.push_back(v);
+                mapa_mis_vehiculos[v->getId()] = v;
 
                 long id_camino_primer_nodo = caminoPrimerBarrio[0];
                 long id_camino_segundo_nodo = caminoPrimerBarrio[1];
@@ -571,7 +586,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        numeroVehiculosPendientes -= numeroVehiculosFallo;
+        numero_vehiculos_en_curso_en_el_nodo -= numeroVehiculosFallo;
 
         delete[] nodo_inicial;
         delete[] nodo_final;
@@ -618,7 +633,6 @@ int main(int argc, char* argv[]) {
 
         MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,TAG_SEGMENTOS,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-        printf("Nodo %d, recibio %d trayectos", my_rank, cantidad_vehiculos_barrios);
 
         for(int i = 0; i < cantidad_vehiculos_barrios; i++){
             pair<int,long> clave = make_pair(inicio_fin_vehculos_nodo[i].id_vehiculo, inicio_fin_vehculos_nodo[i].id_barrio);
@@ -630,11 +644,6 @@ int main(int argc, char* argv[]) {
     milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
     printf("----- Tiempo transcurido calculo y distribuccion caminos = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
 
-    numeroVehiculosPendientes -= numeroVehiculosFallo;
-
-
-
-
 
 
     time_point<Clock> inicioTiempo = Clock::now();
@@ -642,13 +651,15 @@ int main(int argc, char* argv[]) {
     inicioTiempoEp = Clock::now();
 
     int contador_numero_epoca = 1;
-    while(numeroVehiculosPendientes > 0){
+    while(numero_vehiculos_en_curso_global > 0){
         ejecutar_epoca(contador_numero_epoca);
         contador_numero_epoca++;
     }
 
     milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
-    printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+    if(my_rank == 0){
+        printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+    }
 
 
     // Limpieza
@@ -657,8 +668,8 @@ int main(int argc, char* argv[]) {
         delete barrios.second;
     }
 
-    for (Vehiculo* v: todos_vehiculos){
-        delete v;
+    for (auto v: mapa_mis_vehiculos){
+        delete v.second;
     }
 
 

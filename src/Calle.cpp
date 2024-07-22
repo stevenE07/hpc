@@ -11,7 +11,8 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
              function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
              Grafo* grafo,
              map<long, int>& asignacion_barrios,
-             map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo){
+             map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> * ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
+             int my_rank){
    this->nodo_inicial = id_nodo_inicial;
    this->nodo_final = id_nodo_final;
    this->largo = largo;
@@ -24,6 +25,9 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
    this->grafo = grafo;
    this->asignacion_barrios = asignacion_barrios;
    this->ptr_segmentos_a_recorrer_por_barrio_por_vehiculo = ptr_segmentos_a_recorrer_por_barrio_por_vehiculo;
+
+   this->my_rank = my_rank;
+
    omp_init_lock(&lock_solicitud);
    omp_init_lock(&lock_notificacion);
 }
@@ -38,9 +42,9 @@ void Calle::insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id
     omp_unset_lock(&lock_solicitud);
 }
 
-void Calle::notificarTranspasoCompleto(unsigned int idVehiculo){
+void Calle::notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar){
     omp_set_lock(&lock_notificacion); //Mutex al insertar notificacion
-    notificaciones_traslado_calle_realizado.insert(idVehiculo);
+    notificaciones_traslado_calle_realizado.insert(make_pair(idVehiculo, eliminar_luego_de_notificar));
     omp_unset_lock(&lock_notificacion);
 }
 
@@ -62,6 +66,10 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     // 1 y 2- Remover vehiculos aceptados por otras calles y Actualizar vehiculos en calle
 
 
+
+
+
+
     auto maximoPorCarril = new float[numero_carriles];
 
     for (int i = 0; i < numero_carriles; i++) {
@@ -75,13 +83,30 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
         omp_set_lock(&lock_notificacion);
         //eliminamos los vehiculos que fueron aceptados.
-        if( notificaciones_traslado_calle_realizado.find(v->getId()) != notificaciones_traslado_calle_realizado.end()) {
-            notificaciones_traslado_calle_realizado.erase(v->getId());
+
+        bool hay_notificacion = false;
+        pair<int, bool> mi_notificacion;
+        for (auto notificacion : notificaciones_traslado_calle_realizado ){
+            if(notificacion.first == v->getId()){
+                hay_notificacion = true;
+                mi_notificacion = notificacion;
+                break;
+            }
+        }
+
+        if( hay_notificacion) {
+            notificaciones_traslado_calle_realizado.erase(mi_notificacion);
             omp_unset_lock(&lock_notificacion);
 
             v->setEsperandoTrasladoEntreCalles(false);
-
             posiciones_vehiculos_en_calle.erase(v->getId());
+
+            bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
+
+            if(vehiculo_insertado_en_otro_nodo_mpi ){
+                delete v;
+            }
+
             continue;
         }
         omp_unset_lock(&lock_notificacion);
@@ -149,8 +174,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
                            #pragma omp critical
                            this->enviarSolicitudFn(solicitudTranspaso);
-
-                           printf("SOLICITUD ENVIADA!!!!\n");
                        }
                    }
                }else { // continua computando calles dentro del mismo barrio.
@@ -174,6 +197,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
         vehiculos_ordenados_en_calle_aux.push_back(v);
     }
 
+
+
     vehculos_ordenados_en_calle = vehiculos_ordenados_en_calle_aux;
 
     // 3- aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
@@ -193,6 +218,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
     for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
         if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
             if(!solicitudes_traspaso_calle.empty()){
+
 
 
                 // Logica de cual vehiculo elegir de otra calle
@@ -221,6 +247,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
                 Vehiculo* vehiculoIngresado = solicitud.second;
 
+                vehiculoIngresado->setCalleactual(this);
+
                 pair<int, float> carrilPosicion;
                 carrilPosicion.first = num_carril;
                 carrilPosicion.second = 0.f;
@@ -228,6 +256,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                 posiciones_vehiculos_en_calle[vehiculoIngresado->getId()] = carrilPosicion;
 
                 vehculos_ordenados_en_calle.push_back(vehiculoIngresado);
+
 
                 if(!isCalleNula(solicitud.first)){
 
@@ -247,12 +276,11 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
                         #pragma omp critical
                         enviarNotificacionFn(notificacion);
 
-                        printf("NOTIFICACION EXTERNA \n");
-
                     } else {
                         string idCalleANotificar = Calle::getIdCalle(idNodoInicialNotificante, idNodoFinalNotificante);
                         Calle* calleANotificar = mapa_barrio[idBarrioCalleANotificar]->obtenerCalle(idCalleANotificar);
-                        calleANotificar->notificarTranspasoCompleto(solicitud.second->getId());
+                        calleANotificar->notificarTranspasoCompleto(solicitud.second->getId(), false);
+
                     }
 
 
@@ -260,6 +288,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
             }
         }
     }
+
+
     omp_unset_lock(&lock_solicitud);
 
     delete[] maximoPorCarril;

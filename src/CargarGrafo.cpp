@@ -137,7 +137,8 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             enviarNotificacionFn,
                                             grafo,
                                             asignacion_barrios,
-                                            ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
+                                            ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
+                                            my_rank);
 
                     barrio1->agregarCalle(calle1);
                 }
@@ -165,7 +166,8 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             enviarNotificacionFn,
                                             grafo,
                                             asignacion_barrios,
-                                            ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
+                                            ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
+                                            my_rank);
                     barrio2->agregarCalle(calle2);
                 }
             }
@@ -194,7 +196,8 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                            enviarNotificacionFn,
                                            grafo,
                                            asignacion_barrios,
-                                           ptr_segmentos_a_recorrer_por_barrio_por_vehiculo);
+                                           ptr_segmentos_a_recorrer_por_barrio_por_vehiculo,
+                                           my_rank);
                     barrio->agregarCalle(calle);
                 }
             }
