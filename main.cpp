@@ -301,7 +301,9 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
     delete [] buffResepcion;
 
-    MPI_Waitall((int)nodos_mpi_vecinos.size(), requests, nullptr);  //ToDO ¿Necesario?
+    for(int i = 0; i < nodos_mpi_vecinos.size(); i++){
+        MPI_Wait(&requests[i], MPI_STATUS_IGNORE);
+    }
 
     delete [] bufferEnvioNotificaciones;
 }
