@@ -109,7 +109,24 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
             velocidad_max = "45";
         }
 
-        int numeroCarriles =  1; // data["links"][i]["lanes"];
+        int numeroCarriles = 1;
+        if( data["links"][i].contains("lanes")){
+            if(data["links"][i]["lanes"].is_string()) {
+                string numeroCarrilesStr = data["links"][i]["lanes"];
+                numeroCarriles = stoi(numeroCarrilesStr);
+            } else if(data["links"][i]["lanes"].is_array()){
+                string numeroCarrilesStr = data["links"][i]["lanes"][0];
+                numeroCarriles = stoi(numeroCarrilesStr);
+            } else {
+                float numeroCarrilesflow =   data["links"][i]["lanes"];
+                numeroCarriles = (int)numeroCarrilesflow;
+            }
+        }
+
+
+        float max_speed =  stof(velocidad_max);
+        float pesoArista = largo / max_speed;
+
 
         if(doble){
 
@@ -117,7 +134,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
 
 
             if(!grafo->existeArista(id_src, id_dst)){ //No agregamos aristas repetidas
-                grafo->agregarArista(id_src, id_dst, largo);
+                grafo->agregarArista(id_src, id_dst, pesoArista);
 
                 if(asignacion_barrios[id_barrio_src] == my_rank){
                     Barrio* barrio1 = barrios[id_barrio_src];
@@ -130,7 +147,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             id_dst,
                                             largo,
                                             numeroCarriles,
-                                            stof(velocidad_max),
+                                            max_speed,
                                             barrios,
                                             doneFn,
                                             enviarSolicitudFn,
@@ -147,7 +164,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
             //--- Cargo la segunda arista
 
             if(!grafo->existeArista(id_dst, id_src)) { //No agregamos aristas repetidas
-                grafo->agregarArista(id_dst, id_src, largo);
+                grafo->agregarArista(id_dst, id_src, pesoArista);
                 if(asignacion_barrios[id_barrio_dst] == my_rank) {
                     Barrio* barrio2 = barrios[id_barrio_dst];
 
@@ -159,7 +176,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                                             id_src,
                                             largo,
                                             numeroCarriles,
-                                            stof(velocidad_max),
+                                            max_speed,
                                             barrios,
                                             doneFn,
                                             enviarSolicitudFn,
@@ -177,7 +194,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
         } else {
 
             if(!grafo->existeArista(id_src, id_dst)) { //No agregamos aristas repetidas
-                grafo->agregarArista(id_src, id_dst, largo);
+                grafo->agregarArista(id_src, id_dst, pesoArista);
                 if(asignacion_barrios[id_barrio_src] == my_rank){
                     Barrio* barrio = barrios[id_barrio_src];
 
@@ -185,11 +202,13 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios, std::f
                         barrio->agregarBarrioVecino(id_barrio_dst);
                     }
 
+
+
                     auto calle = new Calle(id_src,
                                            id_dst,
-                                           largo,
+                                           largo ,
                                            numeroCarriles,
-                                           stof(velocidad_max),
+                                           max_speed,
                                            barrios,
                                            doneFn,
                                            enviarSolicitudFn,

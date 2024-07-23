@@ -44,8 +44,12 @@ MPI_Datatype MPI_SolicitudTranspaso;
 
 // ----------- Variables Globales
 
+time_point<Clock> inicioTiempoEp;
+
+bool calculo_por_distribucion_cantidad_barrio = false;
+
 int my_rank, size_mpi;
-int numero_vehiculos_en_curso_global = 200; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 100000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
@@ -110,7 +114,7 @@ void create_mpi_types() {
 
 }
 
-void crear_vehiculos_de_otros_nodos( vector<SolicitudTranspaso> & solicitudesRecividas){
+void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesRecividas){
     for(SolicitudTranspaso solicitud: solicitudesRecividas){
         pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
         SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
@@ -223,15 +227,10 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes){
             for(int i = 0; i < cantidad_solicitudes_recividas; i++){
                 (*ptr_solicitudes).push_back(buffResepcion[i]);
             }
-
-            //exit(1);
         }
     }
 
     delete [] buffResepcion;
-
-    //MPI_Waitall(requests, nodos_mpi_vecinos.size());  //ToDO ¿Necesario?
-
     delete [] total_solicitudes_por_nodo;
 
     MPI_Buffer_detach(bufferEnvioSolicitudes, &size_buffer);
@@ -310,12 +309,8 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
     delete [] bufferEnvioNotificaciones;
 }
 
-
-time_point<Clock> inicioTiempoEp;
-
 void ejecutar_epoca(int numero_epoca){
-
-    //#pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
+    #pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
@@ -324,7 +319,6 @@ void ejecutar_epoca(int numero_epoca){
             //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
         //}
     }
-
 
 
     numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
@@ -338,7 +332,7 @@ void ejecutar_epoca(int numero_epoca){
     intercambiar_notificaciones(&notificacionesRecividas);
 
     // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
-    crear_vehiculos_de_otros_nodos(solicitudesRecividas);
+    procesar_solicitudes_recividas(solicitudesRecividas);
 
     procesar_notificaciones_recividas(notificacionesRecividas);
 
@@ -385,29 +379,272 @@ void initMpi(int argc, char* argv[]){
 
 }
 
+void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> & nodos_a_enviar_mpi_por_barrio){
+    map<int, int> cantidad_mensajes_a_enviar;
+    int cantidad_mensajes_a_enviar_total = 0;
+    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+
+        if(rank_nodo_a_enviar == my_rank){
+            continue;
+        }
+
+        for (const auto &par: asignacion_barrios)
+            if (par.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[par.first].empty()){
+                int cantidad_segmentos = (int)nodos_a_enviar_mpi_por_barrio[par.first].size();
+                cantidad_mensajes_a_enviar[rank_nodo_a_enviar] += cantidad_segmentos;
+
+                cantidad_mensajes_a_enviar_total += cantidad_segmentos;
+            }
+    }
+
+    int size_buffer = cantidad_mensajes_a_enviar_total * (int)sizeof(SegmentoTrayectoVehculoEnBarrio) + MPI_BSEND_OVERHEAD;
+    auto bufferEnvioSegmentos = (char*)malloc( size_buffer);
+    MPI_Buffer_attach(bufferEnvioSegmentos, size_buffer);
+
+    auto requests_cantidad_segmentos = new MPI_Request[size_mpi - 1];
+    auto buff_cantidad_segmentos = new int[size_mpi - 1];
+    int cont_request = 0;
+    for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if (rank_nodo_a_enviar == my_rank)
+            continue;
+
+        buff_cantidad_segmentos[cont_request] = cantidad_mensajes_a_enviar[rank_nodo_a_enviar];
+
+        MPI_Isend(&buff_cantidad_segmentos[cont_request], 1, MPI_INT,
+                  rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, &requests_cantidad_segmentos[cont_request]);
+
+        cont_request++;
+    }
+
+
+    //enviar para cada nodo mpi la informacion que le corresponde.
+    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if(rank_nodo_a_enviar == my_rank)
+            continue;
+
+        auto buff_data_vehiculo_a_enviar = new SegmentoTrayectoVehculoEnBarrio[cantidad_mensajes_a_enviar[rank_nodo_a_enviar]];
+        int cont = 0;
+
+        for (auto bb: asignacion_barrios) {
+            long idBarrio = bb.first;
+            if (bb.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[idBarrio].empty()) {
+                for (auto &m: nodos_a_enviar_mpi_por_barrio[idBarrio]) {
+                    buff_data_vehiculo_a_enviar[cont] = m;
+                    cont++;
+                }
+            }
+        }
+
+        MPI_Rsend(buff_data_vehiculo_a_enviar, cantidad_mensajes_a_enviar[rank_nodo_a_enviar],
+                  MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD);
+
+        delete[] buff_data_vehiculo_a_enviar;
+
+    }
+
+
+
+    int max_numero_segmentos_a_recibir = 0;
+    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if(rank_nodo_a_enviar == my_rank)
+            continue;
+
+        int cantidad_segmentos;
+        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, MPI_ANY_SOURCE, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        max_numero_segmentos_a_recibir = max(max_numero_segmentos_a_recibir, cantidad_segmentos);
+    }
+
+    auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[max_numero_segmentos_a_recibir]; //Todo Mejorar estimador
+
+    for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if(rank_nodo_a_enviar == my_rank){
+            continue;
+        }
+
+        MPI_Status status;
+        MPI_Recv(buffResepcion, max_numero_segmentos_a_recibir, MPI_SegmentoTrayectoVehculoEnBarrio, MPI_ANY_SOURCE, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
+
+        int cantidad_segmentos_recibidos;
+        MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
+
+        if(cantidad_segmentos_recibidos > 0){
+            for(int i = 0; i < cantidad_segmentos_recibidos; i++){
+                pair<int, long> clave = make_pair(buffResepcion[i].id_vehiculo,
+                                                  buffResepcion[i].id_barrio);
+                segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(buffResepcion[i]);
+                SegmentoTrayectoVehculoEnBarrio seg = buffResepcion[i];
+            }
+        }
+    }
+
+    for(int i = 0; i < nodos_mpi_vecinos.size(); i++){
+        MPI_Wait(&requests_cantidad_segmentos[i], MPI_STATUS_IGNORE);
+    }
+
+    MPI_Buffer_detach(bufferEnvioSegmentos, &size_buffer);
+    delete [] bufferEnvioSegmentos;
+
+}
+
+void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, int>& barrios_con_cantidades) {
+
+    time_point<Clock> inicioTiempoDJ = Clock::now();
+    int numeroVehiculosFallo = 0;
+
+    // --- Genero el inicio y final de cada nodo
+
+    numero_vehiculos_en_curso_en_el_nodo = numero_vehiculos_en_curso_global; //ToDo sacar cuando se haga la distribucion de vehiculos por barrios
+
+    long *nodo_inicial = new long[numero_vehiculos_en_curso_en_el_nodo];
+    long *nodo_final = new long[numero_vehiculos_en_curso_en_el_nodo];
+
+
+    // ----- Sorteo los puntos de inicio y final
+    if (calculo_por_distribucion_cantidad_barrio) {
+        int contador = 0;
+        for (auto cantidad_por_barrio: barrios_con_cantidades) {
+            for (int i = 0; i < cantidad_por_barrio.second; i++) {
+                long id_barrio = cantidad_por_barrio.first;
+                nodo_inicial[contador] = grafoMapa->idNodoAletorio(rng, id_barrio);
+                nodo_final[contador] = grafoMapa->idNodoAletorio(rng);
+                contador++;
+            }
+        }
+    } else {
+        std::uniform_int_distribution<int> dist(0, (int) mis_barrios.size() - 1);
+        for (int i = 0; i < numero_vehiculos_en_curso_en_el_nodo; i++) {
+            long id_barrio = mis_barrios[dist(rng)];
+            nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
+            nodo_final[i] = grafoMapa->idNodoAletorio(rng);
+        }
+    }
+
+    // ----- Calcular caminos
+
+    cout << "Calculando caminos en nodo " << my_rank << endl;
+
+    map<long, vector<SegmentoTrayectoVehculoEnBarrio>> nodos_a_enviar_mpi_por_barrio;
+
+    //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
+    #pragma omp parallel for schedule(dynamic)
+    for (int num_vehiculo_localmente_generado = 0; num_vehiculo_localmente_generado < numero_vehiculos_en_curso_en_el_nodo; num_vehiculo_localmente_generado++) {
+
+        int id_vehiculo = num_vehiculo_localmente_generado + my_rank * numero_vehiculos_en_curso_en_el_nodo;
+
+        long src = nodo_inicial[num_vehiculo_localmente_generado];
+        long dst = nodo_final[num_vehiculo_localmente_generado];
+
+        auto camino = grafoMapa->computarCaminoMasCorto(src, dst);
+
+        if (camino.empty()) {
+            #pragma omp atomic
+            numeroVehiculosFallo++;
+        } else {
+            long barrio_actual = grafoMapa->obtenerNodo(src)->getSeccion();
+            auto nodo_inicial_barrio = camino.front();
+
+            int size_camino = camino.size();
+
+            /*  // Descomenta para imprimir los caminos
+            for (auto c : camino){
+                long id_barrio = grafoMapa->obtenerNodo(c)->getSeccion();
+                cout << id_barrio << " --- " << c << endl;
+            }
+            */
+
+            for (size_t j = 0; j < size_camino; ++j) {
+                long barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
+                if (barrio != barrio_actual || j == size_camino - 1) {
+
+                    SegmentoTrayectoVehculoEnBarrio segmento{};
+                    segmento.id_vehiculo = id_vehiculo;
+                    segmento.id_inicio = nodo_inicial_barrio;
+                    segmento.id_fin = camino[j];
+                    segmento.id_barrio = barrio_actual;
+                    segmento.is_segmento_final = (j == size_camino - 1) ? 1 : 0;
+
+
+                    if (std::find(mis_barrios.begin(), mis_barrios.end(), barrio_actual) == mis_barrios.end()) { //El al que le corresponde el segmento no es de mi barrio no es parte de mi barrio
+                        #pragma omp critical
+                        nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(segmento);
+                    } else {
+                        // Si el segmento es para el nodo que calcula, se lo guarda para si mismo
+                        pair<int, long> clave;
+                        clave.first = id_vehiculo;
+                        clave.second = barrio_actual;
+
+                        #pragma omp critical
+                        segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(segmento);
+                    }
+
+
+                    barrio_actual = barrio;
+                    nodo_inicial_barrio = camino[j];
+                }
+            }
+
+            auto v = new Vehiculo(id_vehiculo);
+
+            pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
+
+            SegmentoTrayectoVehculoEnBarrio primerSegmento = segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].front();
+
+            #pragma omp critical
+            segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].pop();
+
+
+            auto caminoPrimerBarrio = grafoMapa->computarCaminoMasCorto(primerSegmento.id_inicio,
+                                                                        primerSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+
+            v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
+
+            #pragma omp critical
+            mapa_mis_vehiculos[v->getId()] = v;
+
+            long id_camino_primer_nodo = caminoPrimerBarrio[0];
+            long id_camino_segundo_nodo = caminoPrimerBarrio[1];
+
+            string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
+            Nodo *nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
+            Calle *calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
+            calle->insertarSolicitudTranspaso(-1, -1, v);
+
+        }
+    }
+
+    milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
+    printf("----- Tiempo transcurido calculo y distribuccion caminos = %.2f seg \n",
+           (float) milisecondsDj.count() / 1000.f);
+
+    numero_vehiculos_en_curso_en_el_nodo -= numeroVehiculosFallo;
+
+    delete[] nodo_inicial;
+    delete[] nodo_final;
+
+    intercambiar_segmentos(nodos_a_enviar_mpi_por_barrio);
+}
+
+
 int main(int argc, char* argv[]) {
     std::map<int, int> barrios_con_cantidades;
     std::map<int, double> probabilidad_por_barrio;
     std::map<int, int> asignaciones;
-    bool calculo_por_distribucion_cantidad_barrio = false;
 
-    std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
-    leerCSVbarrioCantidades( dir ,barrios_con_cantidades);
-
-    calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
-
-    asignarCantidades(numero_vehiculos_en_curso_global, probabilidad_por_barrio, asignaciones);
 
     initConfig();
     initMpi(argc, argv);
     std::mt19937 rng(2024); // Semilia random
 
+    // ---- Leer poblaciones por barrio
+    /*std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
+    leerCSVbarrioCantidades( dir ,barrios_con_cantidades);
+    calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
+    asignarCantidades(numero_vehiculos_en_curso_global, probabilidad_por_barrio, asignaciones);*/
+
+
     // ---- Funciones de notificacion
-
-
     auto notificarFinalizacion = std::function<void()>{};
     notificarFinalizacion = [&] () -> void {numero_vehiculos_en_curso_en_el_nodo--;};
-
 
     auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
     ingresarSolicitudTranspaso = [&] (SolicitudTranspaso& solicitud) -> void {solicitudes_transpaso_entre_nodos_mpi.push_back(solicitud);};
@@ -416,11 +653,10 @@ int main(int argc, char* argv[]) {
     ingresarNotificacionTranspaso = [&] (NotificacionTranspaso & notificacion) -> void {notificaciones_transpaso_entre_nodos_mpi.push_back(notificacion);};
 
 
-
+    // ---- Leer MAPA
     CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
+    //CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Madrid_suburbio.json"));
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
-
-
 
 
     // ----- Funcion de asignacion de barrios a nodos MPI //ToDO cambiar
@@ -442,7 +678,7 @@ int main(int argc, char* argv[]) {
 
     calcular_nodos_mpi_vecinos(); //Calculo cuales son mis nodos MPI vecinos
 
-    //Formar un unico arreglo de Calles para todos los barrios del
+    // ---- Formar un unico arreglo de Calles para todos los barrios del
     for(const auto& id_bario_y_barrio: mapa_mis_barios){
         id_bario_y_barrio.second->addCalles(todas_calles);
     }
@@ -450,200 +686,7 @@ int main(int argc, char* argv[]) {
     cout << "Nodo " << my_rank << " tiene " << todas_calles.size() << " calles" << endl;
 
 
-    map<int,long,long> nodos_inicio_final_vehiculo;
-
-
-
-
-
-
-    time_point<Clock> inicioTiempoDJ = Clock::now();
-    int numeroVehiculosFallo = 0;
-
-
-
-    if (my_rank == 0){ //ToDo sacar la limitante que solo el nodo 0 genere los vehiculos
-
-        // --- Genero el inicio y final de cada nodo
-
-        numero_vehiculos_en_curso_en_el_nodo = numero_vehiculos_en_curso_global;
-
-        long* nodo_inicial = new long[numero_vehiculos_en_curso_en_el_nodo];
-        long* nodo_final   = new long[numero_vehiculos_en_curso_en_el_nodo];
-
-
-
-        if(calculo_por_distribucion_cantidad_barrio) {
-            int contador = 0;
-            for(auto cantidad_por_barrio : barrios_con_cantidades) {
-                for(int i = 0; i < cantidad_por_barrio.second; i++) {
-                    long id_barrio = cantidad_por_barrio.first;
-                    nodo_inicial[contador] = grafoMapa->idNodoAletorio(rng, id_barrio);
-                    nodo_final[contador]   = grafoMapa->idNodoAletorio(rng);
-                    contador++;
-                }
-            }
-        }else {
-            std::uniform_int_distribution<int> dist(0, (int)mis_barrios.size()-1);
-            for(int i = 0 ; i < numero_vehiculos_en_curso_en_el_nodo; i++) {
-                long id_barrio = mis_barrios[dist(rng)];
-                nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
-                nodo_final[i]   = grafoMapa->idNodoAletorio(rng);
-            }
-        }
-
-        //   ----  CALCULAR CAMINOS
-
-        cout << "Calculando caminos" << endl;
-
-        //Dado un barrio tiene un vector que contiene datos del tipo (id_vehiculo, nodo_inicial, nodo_final)
-        map<long, vector<SegmentoTrayectoVehculoEnBarrio>> nodos_a_enviar_mpi_por_barrio;
-
-        //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
-        #pragma omp parallel for schedule(dynamic)
-        for(int id_vehiculo = 0 ; id_vehiculo < numero_vehiculos_en_curso_en_el_nodo; id_vehiculo++) {
-
-            int thread_id = omp_get_thread_num();
-            long src = nodo_inicial[id_vehiculo];
-            long dst = nodo_final[id_vehiculo];
-
-            auto camino = grafoMapa->computarCaminoMasCorto(src,dst);
-
-
-            if(camino.empty()){
-                #pragma omp atomic
-                numeroVehiculosFallo++;
-            } else {
-
-                long barrio_actual = grafoMapa->obtenerNodo(src)->getSeccion();
-                auto nodo_inicial_barrio = camino.front();
-
-                int size_camino = camino.size();
-
-                /*
-                for (auto c : camino){
-                    long id_barrio = grafoMapa->obtenerNodo(c)->getSeccion();
-                    cout << id_barrio << " --- " << c << endl;
-                }
-                 */
-
-                for (size_t j = 0; j < size_camino; ++j) {
-                    int barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
-                    if(barrio != barrio_actual || j == size_camino - 1) {
-
-                        SegmentoTrayectoVehculoEnBarrio segmento{};
-                        segmento.id_vehiculo = id_vehiculo;
-                        segmento.id_inicio = nodo_inicial_barrio;
-                        segmento.id_fin = camino[j];
-                        segmento.id_barrio = barrio_actual;
-                        segmento.is_segmento_final = (j == size_camino - 1) ? 1 : 0;
-
-
-                        if (std::find(mis_barrios.begin(), mis_barrios.end(), barrio_actual) == mis_barrios.end() ){ //El barrio no es parte de mi barrio
-                            #pragma omp critical
-                            nodos_a_enviar_mpi_por_barrio[barrio_actual].push_back(segmento);
-                        } else {
-                            // Si el segmento es para el nodo que calcula, se lo guarda para si mismo
-                            pair<int, long> clave;
-                            clave.first = id_vehiculo;
-                            clave.second = barrio_actual;
-
-                            #pragma omp critical
-                            segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(segmento);
-                        }
-
-
-                        barrio_actual = barrio;
-                        nodo_inicial_barrio = camino[j];
-                    }
-                }
-
-                auto v = new Vehiculo(id_vehiculo);
-
-                pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
-
-                SegmentoTrayectoVehculoEnBarrio primerSegmento = segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].front();
-
-                #pragma omp critical
-                segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].pop();
-
-
-                auto caminoPrimerBarrio = grafoMapa->computarCaminoMasCorto(primerSegmento.id_inicio, primerSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
-
-                v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
-
-                #pragma omp critical
-                mapa_mis_vehiculos[v->getId()] = v;
-
-                long id_camino_primer_nodo = caminoPrimerBarrio[0];
-                long id_camino_segundo_nodo = caminoPrimerBarrio[1];
-
-                string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
-                Nodo* nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
-                Calle * calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
-                calle->insertarSolicitudTranspaso(-1, -1, v);
-
-            }
-        }
-
-        numero_vehiculos_en_curso_en_el_nodo -= numeroVehiculosFallo;
-
-        delete[] nodo_inicial;
-        delete[] nodo_final;
-
-        //enviar para cada nodo mpi la informacion que le corresponde.
-        for(int rank_nodo_a_enviar = 1; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar ++) {
-            int cantidad_mensajes_a_enviar = 0;
-
-            for (const auto &par: asignacion_barrios)
-                if (par.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[par.first].empty())
-                    cantidad_mensajes_a_enviar += nodos_a_enviar_mpi_por_barrio[par.first].size();
-
-
-
-            //computo por cada barrio los vehiculos que le corresponden y lo agrego a la estructura de data_vehiculo_a_enviar.
-
-            auto data_vehiculo_a_enviar = new SegmentoTrayectoVehculoEnBarrio[cantidad_mensajes_a_enviar];
-            int cont = 0;
-
-            for (auto bb: asignacion_barrios) {
-                long idBarrio = bb.first;
-                if (bb.second == rank_nodo_a_enviar && !nodos_a_enviar_mpi_por_barrio[idBarrio].empty()) {
-                    for (auto &m: nodos_a_enviar_mpi_por_barrio[idBarrio]) {
-                        data_vehiculo_a_enviar[cont] =  m;
-                        cont++;
-                    }
-                }
-            }
-
-
-            MPI_Send(&cantidad_mensajes_a_enviar, 1, MPI_INT, rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD);
-            MPI_Send(data_vehiculo_a_enviar, cantidad_mensajes_a_enviar, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS,MPI_COMM_WORLD);
-
-            printf("Envio de segmentos de nodo %d a nodo %d COMPLETADO\n", my_rank, rank_nodo_a_enviar);
-
-            delete[] data_vehiculo_a_enviar;
-        }
-    } else {
-        MPI_Status status;
-        int cantidad_vehiculos_barrios;
-
-        MPI_Recv(&cantidad_vehiculos_barrios, 1, MPI_INT, 0, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        auto inicio_fin_vehculos_nodo = new SegmentoTrayectoVehculoEnBarrio[cantidad_vehiculos_barrios];
-
-        MPI_Recv(inicio_fin_vehculos_nodo,cantidad_vehiculos_barrios,MPI_SegmentoTrayectoVehculoEnBarrio,0,TAG_SEGMENTOS,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-
-
-        for(int i = 0; i < cantidad_vehiculos_barrios; i++){
-            pair<int,long> clave = make_pair(inicio_fin_vehculos_nodo[i].id_vehiculo, inicio_fin_vehculos_nodo[i].id_barrio);
-            segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(inicio_fin_vehculos_nodo[i]);
-        }
-
-    }
-
-    milliseconds milisecondsDj = duration_cast<milliseconds>(Clock::now() - inicioTiempoDJ);
-    printf("----- Tiempo transcurido calculo y distribuccion caminos = %.2f seg \n", (float)milisecondsDj.count() / 1000.f);
-
+    generar_vehiculos_y_notificar_segmentos(rng, barrios_con_cantidades);
 
 
     time_point<Clock> inicioTiempo = Clock::now();
