@@ -26,6 +26,9 @@ private:
 
     bool esperando_traslado_entre_calles;
 
+    float distancia_recorrida;
+    int epoca_inicio;
+
 public:
 
     Vehiculo(int id);
@@ -37,14 +40,6 @@ public:
     int getId() const;
 
     void setId(unsigned int id);
-
-    unsigned long getEpocaInicial() const;
-
-    void setEpocaInicial(unsigned long epocaInicial);
-
-    unsigned long getEpocaFinal() const;
-
-    void setEpocaFinal(unsigned long epocaFinal);
 
     float getVelocidad() const;
 
@@ -75,6 +70,15 @@ public:
     unsigned char getIsSegmentoFinal() const;
 
     void setIsSegmentoFinal(unsigned char isSegmentoFinal);
+
+    float getDistanciaRecorrida() const;
+
+    void setDistanciaRecorrida(float distanciaRecorrida);
+
+
+    int getEpocaInicio() const;
+
+    void setEpocaInicio(int epocaInicio);
 };
 
 

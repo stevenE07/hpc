@@ -49,7 +49,8 @@ time_point<Clock> inicioTiempoEp;
 bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
-int numero_vehiculos_en_curso_global = 1000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+
+int numero_vehiculos_en_curso_global = 65000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
@@ -68,6 +69,8 @@ map<pair<int, long>, queue<SegmentoTrayectoVehculoEnBarrio>> segmentos_a_recorre
 
 vector<SolicitudTranspaso> solicitudes_transpaso_entre_nodos_mpi;
 vector<NotificacionTranspaso> notificaciones_transpaso_entre_nodos_mpi;
+
+vector<float> tiempoRecorridoPor10Km;
 
 
 // ----------- Funciones auxiliares
@@ -310,16 +313,24 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 }
 
 void ejecutar_epoca(int numero_epoca){
+
+    if (numero_epoca > 40000) {
+        LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
+    }
+
     #pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
-        it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
-        //if (numero_epoca % 10 == 0) {
-            //#pragma omp critical
-            //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
-        //}
+        it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
+        if (numero_epoca > 40000) {
+            #pragma omp critical
+            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
+        }
     }
 
+    if (numero_epoca > 40000) {
+        exit(1);
+    }
 
     numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
 
@@ -349,7 +360,7 @@ void ejecutar_epoca(int numero_epoca){
     }
 
 
-    LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
+
 
 }
 
@@ -643,8 +654,11 @@ int main(int argc, char* argv[]) {
 
 
     // ---- Funciones de notificacion
-    auto notificarFinalizacion = std::function<void()>{};
-    notificarFinalizacion = [&] () -> void {numero_vehiculos_en_curso_en_el_nodo--;};
+    auto notificarFinalizacion = std::function<void(float, int)>{};
+    notificarFinalizacion = [&] (float distancia, int numero_epocas) -> void {
+        numero_vehiculos_en_curso_en_el_nodo--;
+        tiempoRecorridoPor10Km.push_back(  ((float)numero_epocas / distancia) * 10000);
+    };
 
     auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
     ingresarSolicitudTranspaso = [&] (SolicitudTranspaso& solicitud) -> void {solicitudes_transpaso_entre_nodos_mpi.push_back(solicitud);};
@@ -699,10 +713,7 @@ int main(int argc, char* argv[]) {
         contador_numero_epoca++;
     }
 
-    milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
-    if(my_rank == 0){
-        printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
-    }
+
 
 
     // Limpieza
@@ -715,6 +726,20 @@ int main(int argc, char* argv[]) {
         delete v.second;
     }
 
+    float tiempoPromedio = 0.f;
+    int cantidad = (int)tiempoRecorridoPor10Km.size();
+
+    for(float tiempo: tiempoRecorridoPor10Km){
+        tiempoPromedio += tiempo / (float)cantidad;
+    }
+
+    printf("TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
+
+
+    milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
+    if(my_rank == 0){
+        printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+    }
 
     MPI_Finalize();
 

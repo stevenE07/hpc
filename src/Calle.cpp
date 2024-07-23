@@ -6,7 +6,7 @@
 
 Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,
              map<long, Barrio*> & mapa_barrio,
-             function<void()>& doneFn,
+             function<void(float, int)>& doneFn,
              function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
              function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
              Grafo* grafo,
@@ -55,7 +55,7 @@ bool isCalleNula(pair<long, long> idCalle){
 }
 
 
-void Calle::ejecutarEpoca(float tiempo_epoca) {
+void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
     /*
      * 1 y 2. Remover vehiculos aceptados por otras calles
      * 1 y 2. Actualizar vehiculos en calle
@@ -64,10 +64,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
      */
 
     // 1 y 2- Remover vehiculos aceptados por otras calles y Actualizar vehiculos en calle
-
-
-
-
 
 
     auto maximoPorCarril = new float[numero_carriles];
@@ -135,12 +131,12 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
            if(!v->isEsperandoTrasladoEntreCalles()) {
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1) {
                    // termino de computar la ultima calle dentro del barrio.
-                   #pragma omp critical
-                   LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
+                   //#pragma omp critical
+                   //LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
                        #pragma omp critical
-                       doneFn();
+                       doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio());
                        posiciones_vehiculos_en_calle.erase(v->getId());
                        continue;
                    } else { // tengo que cambiar de barrio.
@@ -255,16 +251,16 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
                 posiciones_vehiculos_en_calle[vehiculoIngresado->getId()] = carrilPosicion;
 
+                vehiculoIngresado->setDistanciaRecorrida(vehiculoIngresado->getDistanciaRecorrida() + largo);
+
                 vehculos_ordenados_en_calle.push_back(vehiculoIngresado);
 
-
-                if(!isCalleNula(solicitud.first)){
-
+                if(isCalleNula(solicitud.first)){
+                    vehiculoIngresado->setEpocaInicio(numeroEpoca);
+                } else {
                     long idNodoInicialNotificante = solicitud.first.first;
                     long idNodoFinalNotificante = solicitud.first.second;
-
                     long idBarrioCalleANotificar = grafo->obtenerNodo(idNodoInicialNotificante)->getSeccion();
-
                     long idBarrioActual = grafo->obtenerNodo(nodo_inicial)->getSeccion();
 
                     if(asignacion_barrios[idBarrioCalleANotificar] != asignacion_barrios[idBarrioActual]){

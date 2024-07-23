@@ -24,7 +24,7 @@ public:
 
     void FormarGrafo(Grafo* grafo,
                      map<long, Barrio*>& barrios,
-                     std::function<void()>& doneFn,
+                     std::function<void(float, int)>& doneFn,
                      function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
                      function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
                      map<long, int>&  asignacion_barrios,
