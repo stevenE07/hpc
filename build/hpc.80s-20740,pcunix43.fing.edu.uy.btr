@@ -1,0 +1,11 @@
+
+hpc:20740 terminated with signal 11 at PC=7fe262ecd722 SP=7fe258fff7b8.  Backtrace:
+/lib64/libstdc++.so.6(_ZSt29_Rb_tree_insert_and_rebalancebPSt18_Rb_tree_node_baseS0_RS_+0x102)[0x7fe262ecd722]
+./hpc[0x414fad]
+./hpc[0x411eed]
+./hpc[0x40e2c8]
+./hpc[0x40bd69]
+./hpc[0x40933c]
+/lib64/libgomp.so.1(+0x20d7e)[0x7fe263917d7e]
+/lib64/libc.so.6(+0x8e897)[0x7fe262cac897]
+/lib64/libc.so.6(+0x115a5c)[0x7fe262d33a5c]

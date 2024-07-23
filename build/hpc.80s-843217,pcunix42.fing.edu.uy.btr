@@ -1,0 +1,11 @@
+
+hpc:843217 terminated with signal 11 at PC=7fc6926cd4d4 SP=7fc6887ff678.  Backtrace:
+/lib64/libstdc++.so.6(_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base+0x34)[0x7fc6926cd4d4]
+./hpc[0x41ba01]
+./hpc[0x415e0f]
+./hpc[0x410cc4]
+./hpc[0x40da31]
+./hpc[0x40b1bd]
+/lib64/libgomp.so.1(+0x20d7e)[0x7fc69327ad7e]
+/lib64/libc.so.6(+0x8e897)[0x7fc6924ac897]
+/lib64/libc.so.6(+0x115a5c)[0x7fc692533a5c]

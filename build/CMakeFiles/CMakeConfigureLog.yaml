@@ -1139,3 +1139,201 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_07947/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_07947.dir/build.make CMakeFiles/cmTC_07947.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0'
+        Building C object CMakeFiles/cmTC_07947.dir/test_mpi.c.o
+        /usr/lib64/ccache/cc  -isystem /usr/include/mpich-x86_64  -o CMakeFiles/cmTC_07947.dir/test_mpi.c.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0/test_mpi.c
+        Linking C executable cmTC_07947
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_07947.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_07947.dir/test_mpi.c.o -o cmTC_07947  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-cNleD0'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3bc03/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3bc03.dir/build.make CMakeFiles/cmTC_3bc03.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE'
+        Building CXX object CMakeFiles/cmTC_3bc03.dir/test_mpi.cpp.o
+        /usr/lib64/ccache/c++  -isystem /usr/include/mpich-x86_64 -fopenmp  -o CMakeFiles/cmTC_3bc03.dir/test_mpi.cpp.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE/test_mpi.cpp
+        Linking CXX executable cmTC_3bc03
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3bc03.dir/link.txt --verbose=1
+        /usr/lib64/ccache/c++  -fopenmp  -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_3bc03.dir/test_mpi.cpp.o -o cmTC_3bc03  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpicxx.so /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-c4KvIE'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_96c21/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_96c21.dir/build.make CMakeFiles/cmTC_96c21.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY'
+        Building CXX object CMakeFiles/cmTC_96c21.dir/test_mpi.cpp.o
+        /usr/lib64/ccache/c++  -isystem /usr/include/mpich-x86_64 -fopenmp  -o CMakeFiles/cmTC_96c21.dir/test_mpi.cpp.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY/test_mpi.cpp
+        Linking CXX executable cmTC_96c21
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_96c21.dir/link.txt --verbose=1
+        /usr/lib64/ccache/c++  -fopenmp  -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_96c21.dir/test_mpi.cpp.o -o cmTC_96c21  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpicxx.so /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-f13UEY'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e19aa/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e19aa.dir/build.make CMakeFiles/cmTC_e19aa.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU'
+        Building C object CMakeFiles/cmTC_e19aa.dir/test_mpi.c.o
+        /usr/lib64/ccache/cc  -isystem /usr/include/mpich-x86_64  -o CMakeFiles/cmTC_e19aa.dir/test_mpi.c.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU/test_mpi.c
+        Linking C executable cmTC_e19aa
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e19aa.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_e19aa.dir/test_mpi.c.o -o cmTC_e19aa  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-xa4CrU'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2eabf/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2eabf.dir/build.make CMakeFiles/cmTC_2eabf.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB'
+        Building CXX object CMakeFiles/cmTC_2eabf.dir/test_mpi.cpp.o
+        /usr/lib64/ccache/c++  -isystem /usr/include/mpich-x86_64 -fopenmp  -o CMakeFiles/cmTC_2eabf.dir/test_mpi.cpp.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB/test_mpi.cpp
+        Linking CXX executable cmTC_2eabf
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2eabf.dir/link.txt --verbose=1
+        /usr/lib64/ccache/c++  -fopenmp  -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_2eabf.dir/test_mpi.cpp.o -o cmTC_2eabf  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpicxx.so /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-n948aB'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:14 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg"
+      binary: "/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bda62/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bda62.dir/build.make CMakeFiles/cmTC_bda62.dir/build
+        gmake[1]: se entra en el directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg'
+        Building CXX object CMakeFiles/cmTC_bda62.dir/test_mpi.cpp.o
+        /usr/lib64/ccache/c++  -isystem /usr/include/mpich-x86_64 -fopenmp  -o CMakeFiles/cmTC_bda62.dir/test_mpi.cpp.o -c /ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg/test_mpi.cpp
+        Linking CXX executable cmTC_bda62
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bda62.dir/link.txt --verbose=1
+        /usr/lib64/ccache/c++  -fopenmp  -Wl,-rpath -Wl,/usr/lib64/mpich/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_bda62.dir/test_mpi.cpp.o -o cmTC_bda62  -Wl,-rpath,/usr/lib64/mpich/lib /usr/lib64/mpich/lib/libmpicxx.so /usr/lib64/mpich/lib/libmpi.so 
+        gmake[1]: se sale del directorio '/ens/home01/e/edison.estramil/hpc/build/CMakeFiles/CMakeScratch/TryCompile-rhadcg'
+        
+      exitCode: 0
+...

@@ -1,0 +1,18 @@
+
+hpc:21223 terminated with signal 6 at PC=7fb8500ae834 SP=7fb8457ff490.  Backtrace:
+/lib64/libc.so.6(+0x90834)[0x7fb8500ae834]
+/lib64/libc.so.6(raise+0x1e)[0x7fb85005c8ee]
+/lib64/libc.so.6(abort+0xdf)[0x7fb8500448ff]
+/lib64/libc.so.6(+0x277d0)[0x7fb8500457d0]
+/lib64/libc.so.6(+0x9a7a5)[0x7fb8500b87a5]
+/lib64/libc.so.6(+0x9c840)[0x7fb8500ba840]
+/lib64/libc.so.6(+0x9cb4a)[0x7fb8500bab4a]
+/lib64/libc.so.6(free+0x7e)[0x7fb8500bd3de]
+./hpc[0x416d6e]
+./hpc[0x41182c]
+./hpc[0x40e095]
+./hpc[0x40bc49]
+./hpc[0x409364]
+/lib64/libgomp.so.1(+0x20d7e)[0x7fb850e31d7e]
+/lib64/libc.so.6(+0x8e897)[0x7fb8500ac897]
+/lib64/libc.so.6(+0x115a5c)[0x7fb850133a5c]

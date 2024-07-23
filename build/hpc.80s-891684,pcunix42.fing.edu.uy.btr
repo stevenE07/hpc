@@ -1,0 +1,14 @@
+
+hpc:891684 terminated with signal 11 at PC=7f9e3f77f8dd SP=7ffe1ccc1c28.  Backtrace:
+/lib64/libc.so.6(+0x1618dd)[0x7f9e3f77f8dd]
+./hpc[0x40b2bc]
+./hpc[0x40ce1b]
+./hpc[0x430fdc]
+./hpc[0x429af0]
+./hpc[0x40abee]
+/lib64/libgomp.so.1(GOMP_parallel+0x46)[0x7f9e4045c286]
+./hpc[0x407efb]
+./hpc[0x40966a]
+/lib64/libc.so.6(+0x2814a)[0x7f9e3f64614a]
+/lib64/libc.so.6(__libc_start_main+0x8b)[0x7f9e3f64620b]
+./hpc[0x406cb5]

@@ -1,0 +1,15 @@
+
+hpc:63531 terminated with signal 11 at PC=46f71e SP=7f1358bff1f0.  Backtrace:
+./hpc[0x46f71e]
+./hpc[0x461d0e]
+./hpc[0x465f63]
+./hpc[0x465e7a]
+./hpc[0x46733a]
+./hpc[0x468094]
+./hpc[0x467e18]
+./hpc[0x40ba3c]
+./hpc[0x4299e5]
+./hpc[0x40ac1d]
+/lib64/libgomp.so.1(+0x20d7e)[0x7f13634ebd7e]
+/lib64/libc.so.6(+0x8e897)[0x7f13628ac897]
+/lib64/libc.so.6(+0x115a5c)[0x7f1362933a5c]

@@ -1,0 +1,11 @@
+
+hpc:63007 terminated with signal 11 at PC=7f60960cd745 SP=7f608cbff738.  Backtrace:
+/lib64/libstdc++.so.6(_ZSt29_Rb_tree_insert_and_rebalancebPSt18_Rb_tree_node_baseS0_RS_+0x125)[0x7f60960cd745]
+./hpc[0x41baf1]
+./hpc[0x4160d1]
+./hpc[0x410cec]
+./hpc[0x40da31]
+./hpc[0x40ae95]
+/lib64/libgomp.so.1(+0x20d7e)[0x7f6096bbcd7e]
+/lib64/libc.so.6(+0x8e897)[0x7f6095eac897]
+/lib64/libc.so.6(+0x115a5c)[0x7f6095f33a5c]

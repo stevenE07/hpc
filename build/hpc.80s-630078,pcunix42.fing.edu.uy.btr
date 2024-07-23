@@ -1,0 +1,9 @@
+
+hpc:630078 terminated with signal 11 at PC=7f6c0ba57880 SP=7ffdb9b75f50.  Backtrace:
+/usr/lib64/mpich/lib/libmpi.so.12(MPIR_Err_return_comm+0x100)[0x7f6c0ba57880]
+./hpc[0x407e85]
+./hpc[0x407f82]
+./hpc[0x40936f]
+/lib64/libc.so.6(+0x2814a)[0x7f6c0b24614a]
+/lib64/libc.so.6(__libc_start_main+0x8b)[0x7f6c0b24620b]
+./hpc[0x406cc5]

@@ -1,0 +1,8 @@
+
+hpc:78698 terminated with signal 11 at PC=425188 SP=7f20ed1ff6b0.  Backtrace:
+./hpc[0x425188]
+./hpc[0x429afb]
+./hpc[0x40abee]
+/lib64/libgomp.so.1(+0x20d7e)[0x7f20f8ebcd7e]
+/lib64/libc.so.6(+0x8e897)[0x7f20f80ac897]
+/lib64/libc.so.6(+0x115a5c)[0x7f20f8133a5c]

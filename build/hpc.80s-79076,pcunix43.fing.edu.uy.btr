@@ -1,0 +1,11 @@
+
+hpc:79076 terminated with signal 11 at PC=7f355637f8dd SP=7f354c7ff688.  Backtrace:
+/lib64/libc.so.6(+0x1618dd)[0x7f355637f8dd]
+./hpc[0x40b2bc]
+./hpc[0x40ce1b]
+./hpc[0x430fdc]
+./hpc[0x429af0]
+./hpc[0x40abee]
+/lib64/libgomp.so.1(+0x20d7e)[0x7f355704ed7e]
+/lib64/libc.so.6(+0x8e897)[0x7f35562ac897]
+/lib64/libc.so.6(+0x115a5c)[0x7f3556333a5c]
