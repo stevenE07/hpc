@@ -49,7 +49,7 @@ time_point<Clock> inicioTiempoEp;
 bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
-int numero_vehiculos_en_curso_global = 100000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 1000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
