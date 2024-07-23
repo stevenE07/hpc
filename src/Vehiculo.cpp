@@ -94,4 +94,7 @@ void Vehiculo::setCalleactual(Calle *calleactual) {
     Vehiculo::calleactual = calleactual;
 }
 
+string Vehiculo::getIdCalle(){
+     return to_string(ruta[indice_calle_recorrida]) + "-" + to_string(ruta[indice_calle_recorrida + 1]);
+}
 

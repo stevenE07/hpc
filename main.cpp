@@ -49,7 +49,7 @@ time_point<Clock> inicioTiempoEp;
 bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
-int numero_vehiculos_en_curso_global = 100000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 1000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
@@ -314,10 +314,10 @@ void ejecutar_epoca(int numero_epoca){
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
-        //if (numero_epoca % 10 == 0) {
-            //#pragma omp critical
-            //it->mostrarEstado(); // Mostrar el estado cada 10 épocas
-        //}
+        if (true or numero_epoca == 27001) {
+            #pragma omp critical
+            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
+        }
     }
 
 

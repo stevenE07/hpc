@@ -135,8 +135,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
            if(!v->isEsperandoTrasladoEntreCalles()) {
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1) {
                    // termino de computar la ultima calle dentro del barrio.
-                   #pragma omp critical
-                   LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
+                   //#pragma omp critical
+                   //LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
                        #pragma omp critical
@@ -303,17 +303,20 @@ void Calle::mostrarEstado(){
 
     string idCalle = Calle::getIdCalle(this);
 
-    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo ;
-
+    LOG(INFO) << " >>>>>>>>>>>  INFO CALLE: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo ;
 
     for( Vehiculo* v: vehculos_ordenados_en_calle){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
-
-        LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-        << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
+        if(carrilPosicion.second == this->largo){
+            LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
+            << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
+        }
     }
-
-    LOG(INFO) << " >>>>>>>>>>>  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
+    LOG(INFO) << " >>>>>>>>>>>  Solicituedes:  ";
+    for(auto soli : this->solicitudes_traspaso_calle){
+        LOG(INFO) << "# " << soli.second->getId() << " | " << soli.second->getIdCalle();
+    }
+    //LOG(INFO) << " >>>>>>>>>>>  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
 
 }
 

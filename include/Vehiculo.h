@@ -75,6 +75,8 @@ public:
     unsigned char getIsSegmentoFinal() const;
 
     void setIsSegmentoFinal(unsigned char isSegmentoFinal);
+
+    string getIdCalle();
 };
 
 
