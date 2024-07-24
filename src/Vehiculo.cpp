@@ -10,7 +10,7 @@ Vehiculo::Vehiculo(int id){
     this->is_segmento_final = 0;
     this->esperando_traslado_entre_calles = false;
     this->calleactual = nullptr;
-    this->distancia_recorrida = 0.f;
+    this->distancia_recorrida = 0.0f;
 }
 
 int Vehiculo::getId() const {
@@ -95,6 +95,13 @@ void Vehiculo::setCalleactual(Calle *calleactual) {
     Vehiculo::calleactual = calleactual;
 }
 
+float Vehiculo::getDistanciaRecorrida() const {
+    return distancia_recorrida;
+}
+
+void Vehiculo::setDistanciaRecorrida(float distanciaRecorrida) {
+    distancia_recorrida = distanciaRecorrida;
+}
 
 int Vehiculo::getEpocaInicio() const {
     return epoca_inicio;
@@ -102,14 +109,6 @@ int Vehiculo::getEpocaInicio() const {
 
 void Vehiculo::setEpocaInicio(int epocaInicio) {
     epoca_inicio = epocaInicio;
-}
-
-float Vehiculo::getDistanciaRecorrida() const {
-    return distancia_recorrida;
-}
-
-void Vehiculo::setDistanciaRecorrida(float distanciaRecorrida) {
-    distancia_recorrida = distanciaRecorrida;
 }
 
 

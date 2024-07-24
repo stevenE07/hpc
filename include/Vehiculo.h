@@ -75,10 +75,10 @@ public:
 
     void setDistanciaRecorrida(float distanciaRecorrida);
 
-
     int getEpocaInicio() const;
 
     void setEpocaInicio(int epocaInicio);
+
 };
 
 

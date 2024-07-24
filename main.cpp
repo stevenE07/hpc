@@ -50,8 +50,7 @@ bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
-int numero_vehiculos_en_curso_global = 65000; //Esto se deberia leer por parametro, se actualiza en cada epoca
-
+int numero_vehiculos_en_curso_global = 10; //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
 map<int, Vehiculo*> mapa_mis_vehiculos;
@@ -104,13 +103,14 @@ void create_mpi_types() {
     MPI_Type_commit(&MPI_SegmentoTrayectoVehculoEnBarrio);
 
 
-    const int nitems_solicitud=2;
-    int blocklengths_solicitud[2] = {1, 2};
-    MPI_Datatype types_solicitud[2] = {MPI_INT, MPI_LONG};
-    MPI_Aint     offsets_solicitud[2];
+    const int nitems_solicitud=3;
+    int blocklengths_solicitud[3] = {2, 1, 2};
+    MPI_Datatype types_solicitud[3] = {MPI_INT, MPI_FLOAT, MPI_LONG};
+    MPI_Aint     offsets_solicitud[3];
 
     offsets_solicitud[0] = offsetof(SolicitudTranspaso, id_vehiculo);
-    offsets_solicitud[1] = offsetof(SolicitudTranspaso, id_nodo_inicial_calle_anterior);
+    offsets_solicitud[1] = offsetof(SolicitudTranspaso, trayectoriaTotal);
+    offsets_solicitud[2] = offsetof(SolicitudTranspaso, id_nodo_inicial_calle_anterior);
 
     MPI_Type_create_struct(nitems_solicitud, blocklengths_solicitud, offsets_solicitud, types_solicitud, &MPI_SolicitudTranspaso);
     MPI_Type_commit(&MPI_SolicitudTranspaso);
@@ -133,6 +133,9 @@ void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesReci
         vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
         vehiculoIngresado->set_indice_calle_recorrida(0);
         vehiculoIngresado->setEsperandoTrasladoEntreCalles(false);
+        vehiculoIngresado->setEpocaInicio(solicitud.epocaInicial);
+        vehiculoIngresado->setDistanciaRecorrida(solicitud.trayectoriaTotal);
+
 
         long idBarrioSiguiente = grafoMapa->obtenerNodo(caminoSigBarrio[0])->getSeccion();
 
@@ -726,20 +729,30 @@ int main(int argc, char* argv[]) {
         delete v.second;
     }
 
-    float tiempoPromedio = 0.f;
-    int cantidad = (int)tiempoRecorridoPor10Km.size();
+
+    double tiempoTotal;
+    double tiempoTotalEnNodo = 0.0;
 
     for(float tiempo: tiempoRecorridoPor10Km){
-        tiempoPromedio += tiempo / (float)cantidad;
+        tiempoTotalEnNodo += tiempo;
     }
+    MPI_Reduce(&tiempoTotalEnNodo, &tiempoTotal, 1, MPI_DOUBLE, MPI_SUM, 0 , MPI_COMM_WORLD);
 
-    printf("TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
+    long cantidadTotal;
+    long cantidadEnNodo = (long)tiempoRecorridoPor10Km.size();
+
+    MPI_Reduce(&cantidadEnNodo, &cantidadTotal, 1, MPI_LONG, MPI_SUM, 0 , MPI_COMM_WORLD);
 
 
-    milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
     if(my_rank == 0){
+        double tiempoPromedio = tiempoTotal / (double)cantidadTotal;
+        printf("----- TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)\n", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
+        milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
         printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
     }
+
+
+
 
     MPI_Finalize();
 

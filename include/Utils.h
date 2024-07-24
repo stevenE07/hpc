@@ -19,6 +19,8 @@ typedef struct {
 
 typedef struct {
     int id_vehiculo;
+    int epocaInicial;
+    float trayectoriaTotal;
     long id_nodo_inicial_calle_anterior;
     long id_barrio;
 }SolicitudTranspaso;

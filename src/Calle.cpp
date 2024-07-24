@@ -164,6 +164,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                            SolicitudTranspaso solicitudTranspaso;
                            solicitudTranspaso.id_vehiculo = v->getId();
                            solicitudTranspaso.id_barrio = idBarrioSig;
+                           solicitudTranspaso.trayectoriaTotal = v->getDistanciaRecorrida();
+                           solicitudTranspaso.epocaInicial = v->getEpocaInicio();
                            solicitudTranspaso.id_nodo_inicial_calle_anterior = nodo_inicial;
 
                            v->setEsperandoTrasladoEntreCalles(true);
