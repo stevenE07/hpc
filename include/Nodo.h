@@ -5,15 +5,18 @@ using namespace std;
 
 class Nodo {
 private:
+    float x, y;
     int id_int;
     long id_ext;
     long seccion; //Identificador de la componente a la que pertenecen, en nuestro conexto es el barrio
     vector<pair<Nodo*, float>> nodos_vecinos;
 public:
-    Nodo(int id_int, long id_ext, long seccion){
+    Nodo(int id_int, long id_ext, long seccion, float x, float y){
         this->id_int = id_int;
         this->id_ext = id_ext;
         this->seccion = seccion;
+        this->x = x;
+        this->y = y;
     }
     void conectarNodo(Nodo* nodo, float peso){
         pair<Nodo*, float> arista;
@@ -29,6 +32,22 @@ public:
             }
         }
         return false;
+    }
+
+    float getX() const {
+        return x;
+    }
+
+    void setX(float x) {
+        Nodo::x = x;
+    }
+
+    float getY() const {
+        return y;
+    }
+
+    void setY(float y) {
+        Nodo::y = y;
     }
 
     int getIdInt() const {

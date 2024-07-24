@@ -50,7 +50,7 @@ bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
-int numero_vehiculos_en_curso_global = 10; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 60000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
 map<int, Vehiculo*> mapa_mis_vehiculos;
@@ -125,7 +125,7 @@ void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesReci
         #pragma omp critical
         segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
 
-        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
 
         auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
         mapa_mis_vehiculos[vehiculoIngresado->getId()] =  vehiculoIngresado;
@@ -317,23 +317,13 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
 void ejecutar_epoca(int numero_epoca){
 
-    if (numero_epoca > 40000) {
-        LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
-    }
-
     #pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
-        if (numero_epoca > 40000) {
-            #pragma omp critical
-            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
-        }
     }
 
-    if (numero_epoca > 40000) {
-        exit(1);
-    }
+
 
     numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
 
@@ -521,6 +511,8 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
                 long id_barrio = cantidad_por_barrio.first;
                 nodo_inicial[contador] = grafoMapa->idNodoAletorio(rng, id_barrio);
                 nodo_final[contador] = grafoMapa->idNodoAletorio(rng);
+
+
                 contador++;
             }
         }
@@ -530,6 +522,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
             long id_barrio = mis_barrios[dist(rng)];
             nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
             nodo_final[i] = grafoMapa->idNodoAletorio(rng);
+
         }
     }
 
@@ -548,7 +541,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
         long src = nodo_inicial[num_vehiculo_localmente_generado];
         long dst = nodo_final[num_vehiculo_localmente_generado];
 
-        auto camino = grafoMapa->computarCaminoMasCorto(src, dst);
+        auto camino = grafoMapa->computarCaminoMasCortoUtilizandoAStar(src, dst);
 
         if (camino.empty()) {
             #pragma omp atomic
@@ -608,7 +601,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
 
 
             auto caminoPrimerBarrio = grafoMapa->computarCaminoMasCorto(primerSegmento.id_inicio,
-                                                                        primerSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+                                                                        primerSegmento.id_fin, primerSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
 
             v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
 

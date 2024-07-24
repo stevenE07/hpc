@@ -41,7 +41,10 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
         long id_nodo_archivo = data["nodes"][i]["id"];
         long barrio_id = data["nodes"][i]["suburb_id"];
 
-        grafo->agregarNodo(id_nodo_archivo, barrio_id);
+        float x = data["nodes"][i]["x"];
+        float y = data["nodes"][i]["y"];
+
+        grafo->agregarNodo(id_nodo_archivo, barrio_id, x, y);
         mapa_barios_por_nodo[id_nodo_archivo] = barrio_id;
 
         // Solo cargo los barrios de el nodo actual

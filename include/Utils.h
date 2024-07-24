@@ -3,10 +3,12 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <cmath>
 
 #ifndef HPC_UTILS_H
 #define HPC_UTILS_H
 
+# define M_PI 3.14159265358979323846
 
 // ----------- Struct con datos a enviar
 typedef struct {
@@ -86,6 +88,18 @@ inline void asignarCantidades(int total_cantidad, const std::map<int, double>& p
     for (const auto& barrio : probabilidad_por_barrio) {
         asignaciones[barrio.first] = static_cast<int>(barrio.second * total_cantidad);
     }
+}
+
+
+inline double getDistanceEntrePuntosEnMetros(double latitude1, double longitude1, double latitude2, double longitude2) {
+    double theta = longitude1 - longitude2;
+    double distance = 60 * 1.1515 * (180/M_PI) * acos(
+            sin(latitude1 * (M_PI/180)) * sin(latitude2 * (M_PI/180)) +
+            cos(latitude1 * (M_PI/180)) * cos(latitude2 * (M_PI/180)) * cos(theta * (M_PI/180))
+    );
+
+    return round(distance * 1.609344 * 1000);
+
 }
 
 

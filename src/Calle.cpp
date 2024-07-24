@@ -150,7 +150,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                            #pragma omp critical
                            (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].pop();
 
-                           auto caminoSigBarrio = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin); //ToDo mejorar que solo busque en el barrio
+                           auto caminoSigBarrio = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
                            v->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
                            v->set_indice_calle_recorrida(0);
 

@@ -3,6 +3,7 @@
 #include "Nodo.h"
 #include "iostream"
 #include "random"
+#include "Utils.h"
 
 #ifndef GRAFO_H
 #define GRAFO_H
@@ -20,14 +21,14 @@ private:
 
     map<long, vector<long>> nodos_id_por_seccion;
 
-
-
 public:
     Grafo();
-    void agregarNodo(long id_ext, long seccion);
+    void agregarNodo(long id_ext, long seccion, float x, float y);
     void agregarArista(long id_ext_entrada, long id_ext_salida, float peso);
 
-    vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final);
+    vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final, long seccion);
+
+    vector<long> computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inicio, long id_ext_nodo_final);
 
     bool existeNodo(long id_ext){
         return this->nodos_id_ext.find(id_ext) != this->nodos_id_ext.end();
@@ -41,8 +42,9 @@ public:
     }
 
     long idNodoAletorio(std::mt19937& rnd){
-        std::uniform_int_distribution<int> dist(0, sigIdNodo);
-        return id_int_to_ext[dist(rnd)];
+        std::uniform_int_distribution<int> dist(0, sigIdNodo - 1);
+        int d = dist(rnd);
+        return id_int_to_ext[d];
     }
 
     bool existeArista(long id_ext_src, long id_ext_dst){
