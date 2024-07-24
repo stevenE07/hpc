@@ -49,7 +49,7 @@ time_point<Clock> inicioTiempoEp;
 bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
-int numero_vehiculos_en_curso_global = 1000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 80000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
@@ -310,16 +310,23 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 }
 
 void ejecutar_epoca(int numero_epoca){
+    if (numero_epoca > 40000) {
+        LOG(INFO) << " ========  Epoca  " << numero_epoca << " ==========";
+    }
+
     #pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS); // Ejecutar la época para la calle
-        if (true or numero_epoca == 27001) {
+        if (numero_epoca > 40000) {
             #pragma omp critical
-            it->mostrarEstado(); // Mostrar el estado cada 10 épocas
+            it->mostrarEstado();
         }
     }
 
+    if (numero_epoca > 40000) {
+        exit(1);
+    }
 
     numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
 
@@ -349,7 +356,7 @@ void ejecutar_epoca(int numero_epoca){
     }
 
 
-    LOG(INFO) << " ========  Epoca  "<< numero_epoca << " ==========";
+
 
 }
 

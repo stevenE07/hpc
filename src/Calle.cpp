@@ -297,24 +297,34 @@ void Calle::ejecutarEpoca(float tiempo_epoca) {
 
 void Calle::mostrarEstado(){
 
-    if(vehculos_ordenados_en_calle.empty() && solicitudes_traspaso_calle.empty()){
+    vector<Vehiculo* > vehiculosTope;
+
+    for(auto v : vehculos_ordenados_en_calle){
+        auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
+        if(carrilPosicion.second == this->largo){
+            vehiculosTope.push_back(v);
+        }
+    }
+
+    if(vehiculosTope.empty() && solicitudes_traspaso_calle.empty()){
         return;
     }
+
+
 
     string idCalle = Calle::getIdCalle(this);
 
     LOG(INFO) << " >>>>>>>>>>>  INFO CALLE: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo ;
 
-    for( Vehiculo* v: vehculos_ordenados_en_calle){
+    for( Vehiculo* v: vehiculosTope){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
-        if(carrilPosicion.second == this->largo){
-            LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-            << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
-        }
+        LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
+        << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
+
     }
     LOG(INFO) << " >>>>>>>>>>>  Solicituedes:  ";
     for(auto soli : this->solicitudes_traspaso_calle){
-        LOG(INFO) << "# " << soli.second->getId() << " | " << soli.second->getIdCalle();
+        LOG(INFO) << "---------- " << soli.second->getId() << " | " << soli.first.first << " - " << soli.first.second;
     }
     //LOG(INFO) << " >>>>>>>>>>>  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
 
