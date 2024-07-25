@@ -129,7 +129,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
 
 
         float max_speed =  stof(velocidad_max);
-        float pesoArista = largo / max_speed;
+        float pesoArista = largo / (max_speed * sqrt(numeroCarriles));
 
 
         if(doble){

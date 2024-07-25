@@ -17,9 +17,9 @@
 
 #define TAG_CANTIDAD_SEGMENTOS 0
 #define TAG_SEGMENTOS 1
-
 #define TAG_SOLICITUDES 2
 #define TAG_NOTIFICACIONES 3
+#define TAG_ASIGNACION_BARRIOS
 
 
 INITIALIZE_EASYLOGGINGPP
@@ -40,6 +40,7 @@ using namespace std;
 // ----------- Tipos MPI
 MPI_Datatype MPI_SegmentoTrayectoVehculoEnBarrio;
 MPI_Datatype MPI_SolicitudTranspaso;
+MPI_Datatype MPI_AsignacionBarrio;
 
 
 // ----------- Variables Globales
@@ -115,6 +116,17 @@ void create_mpi_types() {
     MPI_Type_create_struct(nitems_solicitud, blocklengths_solicitud, offsets_solicitud, types_solicitud, &MPI_SolicitudTranspaso);
     MPI_Type_commit(&MPI_SolicitudTranspaso);
 
+
+    const int nitems_asignacion=2;
+    int blocklengths_asignacion[2] = {1, 2};
+    MPI_Datatype types_asignacion[2] = {MPI_LONG, MPI_INT};
+    MPI_Aint     offsets_asignacion[2];
+
+    offsets_asignacion[0] = offsetof(Asignacion_barrio, id_barrio);
+    offsets_asignacion[1] = offsetof(Asignacion_barrio, cantidad_vehiculos_a_generar);
+
+    MPI_Type_create_struct(nitems_asignacion, blocklengths_asignacion, offsets_asignacion, types_asignacion, &MPI_AsignacionBarrio);
+    MPI_Type_commit(&MPI_AsignacionBarrio);
 }
 
 void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesRecividas){
@@ -248,24 +260,15 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
     int total_notificaciones = 0;
 
-    auto * total_notificaciones_por_nodo = new int[size_mpi];
-
-    for(int i = 0; i < size_mpi; i++){
-        total_notificaciones_por_nodo[i] = 0;
-    }
-
     for(auto notificacion: notificaciones_transpaso_entre_nodos_mpi){
         long id_barrio = notificacion.id_barrio;
         int nodo_encargado = asignacion_barrios[id_barrio];
-
-        total_notificaciones_por_nodo[nodo_encargado]++;
         total_notificaciones++;
 
         notificacion_por_nodos[nodo_encargado].push_back(notificacion);
     }
 
     notificaciones_transpaso_entre_nodos_mpi.clear();
-
 
     auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
 
@@ -317,13 +320,11 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
 void ejecutar_epoca(int numero_epoca){
 
-    #pragma omp parallel for  //ToDo descomentar cuando se hagan las pruebas en la fing
+    //#pragma omp parallel for
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
     }
-
-
 
     numero_vehiculos_en_curso_en_el_nodo -= (int)solicitudes_transpaso_entre_nodos_mpi.size();
 
@@ -342,8 +343,6 @@ void ejecutar_epoca(int numero_epoca){
 
     MPI_Allreduce(&numero_vehiculos_en_curso_en_el_nodo, &numero_vehiculos_en_curso_global, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-
-
     if(my_rank == 0){
         if((numero_epoca + 1) % 500 == 1){
             milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
@@ -351,10 +350,6 @@ void ejecutar_epoca(int numero_epoca){
             inicioTiempoEp = Clock::now();
         }
     }
-
-
-
-
 }
 
 void initConfig(){
@@ -490,53 +485,54 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
 }
 
-void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, int>& barrios_con_cantidades) {
+void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, int>& cantidad_vehiculos_a_generar_por_barrio) {
 
     time_point<Clock> inicioTiempoDJ = Clock::now();
-    int numeroVehiculosFallo = 0;
+
 
     // --- Genero el inicio y final de cada nodo
 
-    numero_vehiculos_en_curso_en_el_nodo = numero_vehiculos_en_curso_global; //ToDo sacar cuando se haga la distribucion de vehiculos por barrios
+    //numero_vehiculos_en_curso_en_el_nodo = numero_vehiculos_en_curso_global; //ToDo sacar cuando se haga la distribucion de vehiculos por barrios
 
-    long *nodo_inicial = new long[numero_vehiculos_en_curso_en_el_nodo];
-    long *nodo_final = new long[numero_vehiculos_en_curso_en_el_nodo];
-
+    vector<long> nodo_inicial;
+    vector<long> nodo_final;
 
     // ----- Sorteo los puntos de inicio y final
-    if (calculo_por_distribucion_cantidad_barrio) {
-        int contador = 0;
-        for (auto cantidad_por_barrio: barrios_con_cantidades) {
-            for (int i = 0; i < cantidad_por_barrio.second; i++) {
-                long id_barrio = cantidad_por_barrio.first;
-                nodo_inicial[contador] = grafoMapa->idNodoAletorio(rng, id_barrio);
-                nodo_final[contador] = grafoMapa->idNodoAletorio(rng);
 
+    numero_vehiculos_en_curso_en_el_nodo = 0;
+    for (auto bario_y_cantidad: cantidad_vehiculos_a_generar_por_barrio) {
+        if(asignacion_barrios[bario_y_cantidad.first] == my_rank){
+            for (int i = 0; i < bario_y_cantidad.second; i++) {
+                long id_barrio = bario_y_cantidad.first;
+                nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng, id_barrio));
+                nodo_final.push_back( grafoMapa->idNodoAletorio(rng));
 
-                contador++;
+                numero_vehiculos_en_curso_en_el_nodo++;
             }
-        }
-    } else {
-        std::uniform_int_distribution<int> dist(0, (int) mis_barrios.size() - 1);
-        for (int i = 0; i < numero_vehiculos_en_curso_en_el_nodo; i++) {
-            long id_barrio = mis_barrios[dist(rng)];
-            nodo_inicial[i] = grafoMapa->idNodoAletorio(rng, id_barrio);
-            nodo_final[i] = grafoMapa->idNodoAletorio(rng);
-
         }
     }
 
+    // ----- Calculamos a partir de que id podemos generar los vehiculos
+    int numVehiculosDeNodosAnteriores = 0;
+    for (auto bario_y_cantidad: cantidad_vehiculos_a_generar_por_barrio) {
+        if(asignacion_barrios[bario_y_cantidad.first] < my_rank){
+            numVehiculosDeNodosAnteriores+=bario_y_cantidad.second;
+        }
+    }
+
+
     // ----- Calcular caminos
 
-    cout << "Calculando caminos en nodo " << my_rank << endl;
+    cout << "Calculando caminos en nodo " << my_rank << " id inicial = " << numVehiculosDeNodosAnteriores << endl;
 
     map<long, vector<SegmentoTrayectoVehculoEnBarrio>> nodos_a_enviar_mpi_por_barrio;
+    int numeroVehiculosFallo = 0;
 
     //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
-    #pragma omp parallel for schedule(dynamic)
+    //#pragma omp parallel for schedule(dynamic)
     for (int num_vehiculo_localmente_generado = 0; num_vehiculo_localmente_generado < numero_vehiculos_en_curso_en_el_nodo; num_vehiculo_localmente_generado++) {
 
-        int id_vehiculo = num_vehiculo_localmente_generado + my_rank * numero_vehiculos_en_curso_en_el_nodo;
+        int id_vehiculo = num_vehiculo_localmente_generado + numVehiculosDeNodosAnteriores;
 
         long src = nodo_inicial[num_vehiculo_localmente_generado];
         long dst = nodo_final[num_vehiculo_localmente_generado];
@@ -613,6 +609,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
 
             string id_calle = Calle::getIdCalle(id_camino_primer_nodo, id_camino_segundo_nodo);
             Nodo *nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
+
             Calle *calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
             calle->insertarSolicitudTranspaso(-1, -1, v);
 
@@ -625,28 +622,86 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<int, i
 
     numero_vehiculos_en_curso_en_el_nodo -= numeroVehiculosFallo;
 
-    delete[] nodo_inicial;
-    delete[] nodo_final;
 
     intercambiar_segmentos(nodos_a_enviar_mpi_por_barrio);
 }
 
 
+void leerCSVbarrioCantidades(const std::string& nombreArchivo, std::map<long, int>& barrios_con_cantidades) {
+    std::ifstream file(nombreArchivo);
+    if (!file.is_open()) {
+        std::cerr << "No se pudo abrir el archivo: " << nombreArchivo << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+
+    // Omitir la primera línea de encabezado
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string id_barrio_str, cantidad_str;
+
+        std::getline(ss, id_barrio_str, ',');
+        std::getline(ss, cantidad_str, ',');
+
+        try {
+            // Comprobar si las cadenas no están vacías antes de convertirlas
+            if (!id_barrio_str.empty() && !cantidad_str.empty()) {
+                long id_barrio = std::stoi(id_barrio_str);
+                int cantidad = std::stoi(cantidad_str);
+
+                barrios_con_cantidades[id_barrio] = cantidad;
+            }
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Error de conversión: " << e.what() << " en línea: " << line << std::endl;
+        } catch (const std::out_of_range& e) {
+            std::cerr << "Número fuera de rango: " << e.what() << " en línea: " << line << std::endl;
+        }
+    }
+
+    file.close();
+}
+
+void calcularProbabilidad(const std::map<long, int>& barrios_con_cantidades, std::map<long, double>& probabilidad_por_barrio) {
+    int total = 0;
+    for (const auto& barrio : barrios_con_cantidades) {
+        total += barrio.second;
+    }
+    for (const auto& barrio : barrios_con_cantidades) {
+        probabilidad_por_barrio[barrio.first] = static_cast<double>(barrio.second) / total;
+    }
+}
+
+void asignarCantidades(std::mt19937& rnd, int total_cantidad, const std::map<long, double>& probabilidad_por_barrio, std::map<long, int>& asignaciones) {
+
+    vector<int> clavesBarrios;
+    vector<double> probailidadesBarrios;
+
+    for(auto pb: probabilidad_por_barrio){
+        clavesBarrios.push_back(pb.first);
+        probailidadesBarrios.push_back(pb.second);
+        asignaciones[pb.first] = 0;
+    }
+
+    for(int c = 0; c < total_cantidad; c++){
+        int barrioSortadoIndice = getClasePorProbailidad(rnd, probailidadesBarrios);
+        asignaciones[clavesBarrios[barrioSortadoIndice]]++;
+    }
+}
+
+
 int main(int argc, char* argv[]) {
-    std::map<int, int> barrios_con_cantidades;
-    std::map<int, double> probabilidad_por_barrio;
-    std::map<int, int> asignaciones;
+    std::map<long, int> barrios_con_poblacion;
+    std::map<long, double> probabilidad_por_barrio;
+    std::map<long, int> cantidad_vehiculos_a_generar_por_barrio;
 
 
     initConfig();
     initMpi(argc, argv);
     std::mt19937 rng(2024); // Semilia random
 
-    // ---- Leer poblaciones por barrio
-    /*std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
-    leerCSVbarrioCantidades( dir ,barrios_con_cantidades);
-    calcularProbabilidad(barrios_con_cantidades, probabilidad_por_barrio);
-    asignarCantidades(numero_vehiculos_en_curso_global, probabilidad_por_barrio, asignaciones);*/
 
 
     // ---- Funciones de notificacion
@@ -656,27 +711,73 @@ int main(int argc, char* argv[]) {
         tiempoRecorridoPor10Km.push_back(  ((float)numero_epocas / distancia) * 10000);
     };
 
+
     auto ingresarSolicitudTranspaso = std::function<void(SolicitudTranspaso&)>{};
     ingresarSolicitudTranspaso = [&] (SolicitudTranspaso& solicitud) -> void {solicitudes_transpaso_entre_nodos_mpi.push_back(solicitud);};
 
     auto ingresarNotificacionTranspaso = std::function<void(NotificacionTranspaso &)>{};
     ingresarNotificacionTranspaso = [&] (NotificacionTranspaso & notificacion) -> void {notificaciones_transpaso_entre_nodos_mpi.push_back(notificacion);};
 
-
     // ---- Leer MAPA
     CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
-    //CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Madrid_suburbio.json"));
+
+
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
+    int numBarrios = (int)barrios.size();
+    auto buffAsignacionesBarrio = new Asignacion_barrio [numBarrios];
 
+    if(my_rank == 0){
 
-    // ----- Funcion de asignacion de barrios a nodos MPI //ToDO cambiar
-    for(int i = 0; i < barrios.size(); i++){
-        asignacion_barrios[barrios[i].first] = i % size_mpi;
-        if(my_rank == i % size_mpi){
-            mis_barrios.push_back(barrios[i].first);
+        // ---- Leer poblaciones por barrio
+        std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
+        leerCSVbarrioCantidades( dir ,barrios_con_poblacion);
+        calcularProbabilidad(barrios_con_poblacion, probabilidad_por_barrio);
+        asignarCantidades(rng, numero_vehiculos_en_curso_global, probabilidad_por_barrio, cantidad_vehiculos_a_generar_por_barrio);
+
+        // --- Asignacion de barios a nodos
+        for(int i = 0; i < barrios.size(); i++){  //ToDo Cambiar
+            asignacion_barrios[barrios[i].first] = i % size_mpi;
+            if(my_rank == i % size_mpi){
+                mis_barrios.push_back(barrios[i].first);
+            }
+        }
+
+        int contador = 0;
+        for(auto as: asignacion_barrios){
+            long idBarrio = as.first;
+
+            Asignacion_barrio asignacion;
+            asignacion.id_barrio = idBarrio;
+            asignacion.cantidad_vehiculos_a_generar = cantidad_vehiculos_a_generar_por_barrio[idBarrio];
+            asignacion.nodo_responsable = as.second;
+
+            buffAsignacionesBarrio[contador] = asignacion;
+
+            contador++;
         }
     }
 
+    MPI_Bcast(buffAsignacionesBarrio, numBarrios, MPI_AsignacionBarrio, 0, MPI_COMM_WORLD);
+
+
+    if(my_rank != 0){ //El nodo master ya realizo este proceso mientras determinaba la asignacion de los barrios a los nodos.
+        for(int i = 0; i < numBarrios; i++){
+
+            Asignacion_barrio asignacion = buffAsignacionesBarrio[i];
+
+            asignacion_barrios[asignacion.id_barrio] = asignacion.nodo_responsable;
+            cantidad_vehiculos_a_generar_por_barrio[asignacion.id_barrio] = asignacion.cantidad_vehiculos_a_generar;
+
+            if(asignacion.nodo_responsable == my_rank){
+                mis_barrios.push_back(asignacion.id_barrio);
+            }
+
+        }
+    }
+
+    delete [] buffAsignacionesBarrio;
+
+    // ----- Funcion de asignacion de barrios a nodos MPI
     grafoMapa = new Grafo();
     loadData.FormarGrafo(grafoMapa,
                          mapa_mis_barios,
@@ -685,6 +786,7 @@ int main(int argc, char* argv[]) {
                          ingresarNotificacionTranspaso,
                          asignacion_barrios,
                          &segmentos_a_recorrer_por_barrio_por_vehiculo,my_rank);
+
 
     calcular_nodos_mpi_vecinos(); //Calculo cuales son mis nodos MPI vecinos
 
@@ -696,32 +798,24 @@ int main(int argc, char* argv[]) {
     cout << "Nodo " << my_rank << " tiene " << todas_calles.size() << " calles" << endl;
 
 
-    generar_vehiculos_y_notificar_segmentos(rng, barrios_con_cantidades);
+    generar_vehiculos_y_notificar_segmentos(rng, cantidad_vehiculos_a_generar_por_barrio);
 
+
+    // ---- Ejecuccion de la simulaccion
 
     time_point<Clock> inicioTiempo = Clock::now();
 
     inicioTiempoEp = Clock::now();
 
     int contador_numero_epoca = 1;
-    while(numero_vehiculos_en_curso_global > 0){
+    do{
         ejecutar_epoca(contador_numero_epoca);
         contador_numero_epoca++;
-    }
+    }while(numero_vehiculos_en_curso_global > 0);
 
 
 
-
-    // Limpieza
-
-    for (auto barrios : mapa_mis_barios){
-        delete barrios.second;
-    }
-
-    for (auto v: mapa_mis_vehiculos){
-        delete v.second;
-    }
-
+    // ---- Calculo del tiempo promedio de viaje
 
     double tiempoTotal;
     double tiempoTotalEnNodo = 0.0;
@@ -744,7 +838,13 @@ int main(int argc, char* argv[]) {
         printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
     }
 
+    // ----- Limpieza
+    for (auto barrios : mapa_mis_barios)
+        delete barrios.second;
 
+
+    for (auto v: mapa_mis_vehiculos)
+        delete v.second;
 
 
     MPI_Finalize();
