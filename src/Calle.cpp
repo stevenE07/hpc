@@ -30,6 +30,11 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
 
    omp_init_lock(&lock_solicitud);
    omp_init_lock(&lock_notificacion);
+
+    id_ultimos_vehiculos_tope = new int[numero_carriles];
+    for (int i = 0; i < numero_carriles; ++i) {
+        id_ultimos_vehiculos_tope[i] = 0;
+    }
 }
 
 void Calle::insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id_fin_calle_solicitante, Vehiculo* vehiculo){
@@ -74,6 +79,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
     vector<Vehiculo *> vehiculos_ordenados_en_calle_aux;
 
+    carril_a_actualizar = 0;
+    trancado = true;
     for (Vehiculo *v: vehculos_ordenados_en_calle) {
 
 
@@ -183,6 +190,11 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
                    sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
                }
+           }else {
+               if(id_ultimos_vehiculos_tope[numeroCarril] != v->getId()) {
+                   id_ultimos_vehiculos_tope[numeroCarril] = v->getId();
+                   trancado = false;
+               }
            }
         }
 
@@ -193,6 +205,26 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
         maximoPorCarril[numeroCarril] = nuevaPosicion - LARGO_VEHICULO;
 
         vehiculos_ordenados_en_calle_aux.push_back(v);
+    }
+
+    if(trancado == true) {
+        cantidad_epocas_parado ++;
+    }else {
+        cantidad_epocas_parado = 0;
+    }
+
+    if(cantidad_epocas_parado == 5000) {
+        for (Vehiculo *v: vehculos_ordenados_en_calle) {
+            auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
+            int numeroCarril = carrilPosicion.first;
+            float posicion = carrilPosicion.second;
+
+            if(posicion >= largo) {
+                posiciones_vehiculos_en_calle.erase(v->getId());
+                //cout << "borrando!!!!" << endl;
+            }
+        }
+        cantidad_epocas_parado = 0;
     }
 
 

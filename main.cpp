@@ -50,7 +50,7 @@ bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
-int numero_vehiculos_en_curso_global = 60000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 500000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
 map<int, Vehiculo*> mapa_mis_vehiculos;

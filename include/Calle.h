@@ -27,6 +27,11 @@ private:
     float velocidad_maxima;
     Grafo g;
 
+    int cantidad_epocas_parado = 0;
+    int * id_ultimos_vehiculos_tope;
+    int carril_a_actualizar = 0;
+    bool trancado = true;
+
     vector<pair<pair<long,long>, Vehiculo*>> solicitudes_traspaso_calle;
     set<pair<int, bool>>notificaciones_traslado_calle_realizado;
 
