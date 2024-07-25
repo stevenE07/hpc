@@ -250,7 +250,12 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: \
  /usr/include/c++/9/tr1/modified_bessel_func.tcc \
  /usr/include/c++/9/tr1/poly_hermite.tcc \
  /usr/include/c++/9/tr1/poly_laguerre.tcc \
- /usr/include/c++/9/tr1/riemann_zeta.tcc /usr/include/c++/9/queue \
+ /usr/include/c++/9/tr1/riemann_zeta.tcc /usr/include/c++/9/random \
+ /usr/include/c++/9/bits/random.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
+ /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
+ /usr/include/c++/9/bits/stl_numeric.h \
+ /usr/include/c++/9/pstl/glue_numeric_defs.h /usr/include/c++/9/queue \
  /usr/include/c++/9/deque /usr/include/c++/9/bits/stl_deque.h \
  /usr/include/c++/9/bits/deque.tcc /usr/include/c++/9/bits/stl_queue.h \
  /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
@@ -258,11 +263,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Grafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
- /usr/include/c++/9/random /usr/include/c++/9/bits/random.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
- /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
- /usr/include/c++/9/bits/stl_numeric.h \
- /usr/include/c++/9/pstl/glue_numeric_defs.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Vehiculo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h

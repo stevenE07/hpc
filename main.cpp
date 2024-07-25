@@ -320,7 +320,7 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones){
 
 void ejecutar_epoca(int numero_epoca){
 
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < todas_calles.size(); ++i) {
         auto it = todas_calles[i];
         it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
@@ -353,7 +353,7 @@ void ejecutar_epoca(int numero_epoca){
 }
 
 void initConfig(){
-    omp_set_num_threads(6);
+    omp_set_num_threads(1);
     // ---- Configuraciones
 
     el::Configurations defaultConf;
@@ -529,7 +529,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
     int numeroVehiculosFallo = 0;
 
     //PARA CADA VEHICULO DEFINIDO CALCULAMOS SU RUTA.
-    //#pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic)
     for (int num_vehiculo_localmente_generado = 0; num_vehiculo_localmente_generado < numero_vehiculos_en_curso_en_el_nodo; num_vehiculo_localmente_generado++) {
 
         int id_vehiculo = num_vehiculo_localmente_generado + numVehiculosDeNodosAnteriores;
@@ -734,14 +734,41 @@ int main(int argc, char* argv[]) {
         calcularProbabilidad(barrios_con_poblacion, probabilidad_por_barrio);
         asignarCantidades(rng, numero_vehiculos_en_curso_global, probabilidad_por_barrio, cantidad_vehiculos_a_generar_por_barrio);
 
+        vector<pair<long,int>> cantidades_por_barrio_ordenadas;
+        for(auto info : cantidad_vehiculos_a_generar_por_barrio) {
+            cantidades_por_barrio_ordenadas.push_back({info.first,info.second});
+        }
+
+        std::sort(cantidades_por_barrio_ordenadas.begin(), cantidades_por_barrio_ordenadas.end(),
+                [](const std::pair<long, int>& a, const std::pair<long, int>& b) {
+                    return a.second > b.second;
+                });
+
         // --- Asignacion de barios a nodos
+        vector<long> carga_por_nodo(size_mpi,0);
+        for(auto cantidad_barrio : cantidades_por_barrio_ordenadas ) {
+            long index = min_element(carga_por_nodo.begin(), carga_por_nodo.end()) - carga_por_nodo.begin();
+            asignacion_barrios[index] = cantidad_barrio.first;
+            carga_por_nodo[index] += cantidad_barrio.second;
+            if(index == my_rank) {
+                mis_barrios.push_back(cantidad_barrio.first);
+            }
+        }
+
+        int index = 0;
+        for(auto c : carga_por_nodo) {
+            cout << "index:" << index++ << " cantidad:" << c << endl;
+        }
+
+
+    /*
         for(int i = 0; i < barrios.size(); i++){  //ToDo Cambiar
             asignacion_barrios[barrios[i].first] = i % size_mpi;
             if(my_rank == i % size_mpi){
                 mis_barrios.push_back(barrios[i].first);
             }
         }
-
+    */
         int contador = 0;
         for(auto as: asignacion_barrios){
             long idBarrio = as.first;

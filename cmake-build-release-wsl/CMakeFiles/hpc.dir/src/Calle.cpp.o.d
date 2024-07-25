@@ -194,7 +194,13 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: \
  /usr/include/c++/9/tr1/modified_bessel_func.tcc \
  /usr/include/c++/9/tr1/poly_hermite.tcc \
  /usr/include/c++/9/tr1/poly_laguerre.tcc \
- /usr/include/c++/9/tr1/riemann_zeta.tcc \
+ /usr/include/c++/9/tr1/riemann_zeta.tcc /usr/include/c++/9/random \
+ /usr/include/c++/9/bits/random.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
+ /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
+ /usr/include/c++/9/bits/stl_numeric.h \
+ /usr/include/c++/9/pstl/glue_numeric_defs.h \
+ /usr/include/c++/9/pstl/execution_defs.h \
  /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
  /usr/include/c++/9/ctime /usr/include/c++/9/cstring \
  /usr/include/string.h /usr/include/strings.h \
@@ -236,8 +242,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
  /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/c++/9/algorithm \
- /usr/include/c++/9/pstl/glue_algorithm_defs.h \
- /usr/include/c++/9/pstl/execution_defs.h /usr/include/c++/9/memory \
+ /usr/include/c++/9/pstl/glue_algorithm_defs.h /usr/include/c++/9/memory \
  /usr/include/c++/9/bits/stl_raw_storage_iter.h \
  /usr/include/c++/9/ext/concurrence.h \
  /usr/include/c++/9/bits/unique_ptr.h \
@@ -256,11 +261,6 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Grafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
- /usr/include/c++/9/random /usr/include/c++/9/bits/random.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
- /usr/include/c++/9/bits/random.tcc /usr/include/c++/9/numeric \
- /usr/include/c++/9/bits/stl_numeric.h \
- /usr/include/c++/9/pstl/glue_numeric_defs.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Vehiculo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Calle.h \
