@@ -4,6 +4,8 @@
 #include <iostream>
 #include <map>
 #include <cmath>
+#include "random"
+#include "vector"
 
 #ifndef HPC_UTILS_H
 #define HPC_UTILS_H
@@ -32,63 +34,13 @@ typedef struct {
     long id_barrio;
 }NotificacionTranspaso;
 
-struct barrio_cantidad {
-    int id_barrio;
-    int cantidad;
-};
+ typedef struct{
+    long id_barrio;
+    int cantidad_vehiculos_a_generar;
+    int nodo_responsable;
+}Asignacion_barrio;
 
-inline void leerCSVbarrioCantidades(const std::string& nombreArchivo, std::map<int, int>& barrios_con_cantidades) {
-    std::ifstream file(nombreArchivo);
-    if (!file.is_open()) {
-        std::cerr << "No se pudo abrir el archivo: " << nombreArchivo << std::endl;
-        return;
-    }
 
-    std::string line;
-
-    // Omitir la primera línea de encabezado
-    std::getline(file, line);
-
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string id_barrio_str, cantidad_str;
-
-        std::getline(ss, id_barrio_str, ',');
-        std::getline(ss, cantidad_str, ',');
-
-        try {
-            // Comprobar si las cadenas no están vacías antes de convertirlas
-            if (!id_barrio_str.empty() && !cantidad_str.empty()) {
-                int id_barrio = std::stoi(id_barrio_str);
-                int cantidad = std::stoi(cantidad_str);
-
-                barrios_con_cantidades[id_barrio] = cantidad;
-            }
-        } catch (const std::invalid_argument& e) {
-            std::cerr << "Error de conversión: " << e.what() << " en línea: " << line << std::endl;
-        } catch (const std::out_of_range& e) {
-            std::cerr << "Número fuera de rango: " << e.what() << " en línea: " << line << std::endl;
-        }
-    }
-
-    file.close();
-}
-
-inline void calcularProbabilidad(const std::map<int, int>& barrios_con_cantidades, std::map<int, double>& probabilidad_por_barrio) {
-    int total = 0;
-    for (const auto& barrio : barrios_con_cantidades) {
-        total += barrio.second;
-    }
-    for (const auto& barrio : barrios_con_cantidades) {
-        probabilidad_por_barrio[barrio.first] = static_cast<double>(barrio.second) / total;
-    }
-}
-
-inline void asignarCantidades(int total_cantidad, const std::map<int, double>& probabilidad_por_barrio, std::map<int, int>& asignaciones) {
-    for (const auto& barrio : probabilidad_por_barrio) {
-        asignaciones[barrio.first] = static_cast<int>(barrio.second * total_cantidad);
-    }
-}
 
 
 inline double getDistanceEntrePuntosEnMetros(double latitude1, double longitude1, double latitude2, double longitude2) {
@@ -100,6 +52,24 @@ inline double getDistanceEntrePuntosEnMetros(double latitude1, double longitude1
 
     return round(distance * 1.609344 * 1000);
 
+}
+
+inline int getClasePorProbailidad(std::mt19937& rnd, std::vector<double>& pro){
+    std::uniform_real_distribution<float> dist(0, 1);
+    float probailidad = dist(rnd);
+
+    float acc = 0.0f;
+    int c = 0;
+    while( c <pro.size() && ! (probailidad >= acc && probailidad < acc + pro[c] ) ){
+        acc += pro[c];
+        c ++;
+    }
+
+    if( c == pro.size()){
+        return -1;
+    } else {
+        return c;
+    }
 }
 
 
