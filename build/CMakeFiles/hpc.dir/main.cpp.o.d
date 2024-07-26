@@ -202,37 +202,15 @@ CMakeFiles/hpc.dir/main.cpp.o: /ens/home01/e/edison.estramil/hpc/main.cpp \
  /usr/include/c++/13/backward/auto_ptr.h \
  /usr/include/c++/13/pstl/glue_memory_defs.h \
  /ens/home01/e/edison.estramil/hpc/include/Calle.h \
- /usr/include/c++/13/queue /usr/include/c++/13/deque \
- /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
- /usr/include/c++/13/bits/stl_queue.h \
- /ens/home01/e/edison.estramil/hpc/include/Vehiculo.h \
- /usr/include/c++/13/set /usr/include/c++/13/bits/stl_set.h \
- /usr/include/c++/13/bits/stl_multiset.h \
- /usr/lib/gcc/x86_64-redhat-linux/13/include/omp.h \
- /ens/home01/e/edison.estramil/hpc/include/Constantes.h \
- /usr/include/c++/13/filesystem /usr/include/c++/13/bits/fs_fwd.h \
- /usr/include/c++/13/cstdint /usr/include/c++/13/bits/chrono.h \
- /usr/include/c++/13/ratio /usr/include/c++/13/limits \
- /usr/include/c++/13/bits/parse_numbers.h \
- /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/locale \
- /usr/include/c++/13/bits/locale_facets_nonio.h \
- /usr/include/c++/13/x86_64-redhat-linux/bits/time_members.h \
- /usr/include/c++/13/x86_64-redhat-linux/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/13/bits/locale_facets_nonio.tcc \
- /usr/include/c++/13/bits/locale_conv.h /usr/include/c++/13/iomanip \
- /usr/include/c++/13/bits/quoted_string.h /usr/include/c++/13/codecvt \
- /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
- /ens/home01/e/edison.estramil/hpc/include/CargarGrafo.h \
- /ens/home01/e/edison.estramil/hpc/include/Grafo.h \
- /ens/home01/e/edison.estramil/hpc/include/Nodo.h \
- /usr/include/c++/13/random /usr/include/c++/13/cmath /usr/include/math.h \
+ /ens/home01/e/edison.estramil/hpc/include/Utils.h \
+ /usr/include/c++/13/cmath /usr/include/math.h \
  /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
  /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
  /usr/include/bits/iscanonical.h /usr/include/c++/13/bits/specfun.h \
- /usr/include/c++/13/tr1/gamma.tcc \
+ /usr/include/c++/13/limits /usr/include/c++/13/tr1/gamma.tcc \
  /usr/include/c++/13/tr1/special_function_util.h \
  /usr/include/c++/13/tr1/bessel_function.tcc \
  /usr/include/c++/13/tr1/beta_function.tcc \
@@ -243,13 +221,35 @@ CMakeFiles/hpc.dir/main.cpp.o: /ens/home01/e/edison.estramil/hpc/main.cpp \
  /usr/include/c++/13/tr1/modified_bessel_func.tcc \
  /usr/include/c++/13/tr1/poly_hermite.tcc \
  /usr/include/c++/13/tr1/poly_laguerre.tcc \
- /usr/include/c++/13/tr1/riemann_zeta.tcc \
- /usr/include/c++/13/bits/random.h \
+ /usr/include/c++/13/tr1/riemann_zeta.tcc /usr/include/c++/13/random \
+ /usr/include/c++/13/cstdint /usr/include/c++/13/bits/random.h \
  /usr/include/c++/13/x86_64-redhat-linux/bits/opt_random.h \
  /usr/include/c++/13/bits/random.tcc /usr/include/c++/13/numeric \
  /usr/include/c++/13/bits/stl_numeric.h \
- /usr/include/c++/13/pstl/glue_numeric_defs.h \
+ /usr/include/c++/13/pstl/glue_numeric_defs.h /usr/include/c++/13/queue \
+ /usr/include/c++/13/deque /usr/include/c++/13/bits/stl_deque.h \
+ /usr/include/c++/13/bits/deque.tcc /usr/include/c++/13/bits/stl_queue.h \
+ /usr/include/c++/13/set /usr/include/c++/13/bits/stl_set.h \
+ /usr/include/c++/13/bits/stl_multiset.h \
+ /usr/lib/gcc/x86_64-redhat-linux/13/include/omp.h \
+ /ens/home01/e/edison.estramil/hpc/include/Grafo.h \
+ /ens/home01/e/edison.estramil/hpc/include/Nodo.h \
+ /ens/home01/e/edison.estramil/hpc/include/Constantes.h \
+ /ens/home01/e/edison.estramil/hpc/include/Vehiculo.h \
  /ens/home01/e/edison.estramil/hpc/include/Calle.h \
+ /ens/home01/e/edison.estramil/hpc/include/Barrio.h \
+ /usr/include/c++/13/filesystem /usr/include/c++/13/bits/fs_fwd.h \
+ /usr/include/c++/13/bits/chrono.h /usr/include/c++/13/ratio \
+ /usr/include/c++/13/bits/parse_numbers.h \
+ /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/locale \
+ /usr/include/c++/13/bits/locale_facets_nonio.h \
+ /usr/include/c++/13/x86_64-redhat-linux/bits/time_members.h \
+ /usr/include/c++/13/x86_64-redhat-linux/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/13/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/13/bits/locale_conv.h /usr/include/c++/13/iomanip \
+ /usr/include/c++/13/bits/quoted_string.h /usr/include/c++/13/codecvt \
+ /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
+ /ens/home01/e/edison.estramil/hpc/include/CargarGrafo.h \
  /ens/home01/e/edison.estramil/hpc/external/nlohmann/json.hpp \
  /usr/include/c++/13/iterator /usr/include/c++/13/bits/stream_iterator.h \
  /usr/include/c++/13/forward_list /usr/include/c++/13/bits/forward_list.h \
@@ -268,4 +268,5 @@ CMakeFiles/hpc.dir/main.cpp.o: /ens/home01/e/edison.estramil/hpc/main.cpp \
  /ens/home01/e/edison.estramil/hpc/include/Grafo.h \
  /usr/include/c++/13/chrono /usr/include/mpich-x86_64/mpi.h \
  /usr/include/mpich-x86_64/mpi_proto.h /usr/include/mpich-x86_64/mpio.h \
- /usr/include/mpich-x86_64/mpi.h /usr/include/mpich-x86_64/mpicxx.h
+ /usr/include/mpich-x86_64/mpi.h /usr/include/mpich-x86_64/mpicxx.h \
+ /ens/home01/e/edison.estramil/hpc/include/Utils.h
