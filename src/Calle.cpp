@@ -135,7 +135,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                    //LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
-                       #pragma omp critical
+                       #pragma omp critical(doneFn_mutex)
                        doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio());
                        posiciones_vehiculos_en_calle.erase(v->getId());
                        continue;
@@ -147,7 +147,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                            pair<int, long> clave = make_pair(v->getId(), idBarrioSig);
                            SegmentoTrayectoVehculoEnBarrio sigSegmento = (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].front();
 
-                           #pragma omp critical
+                           #pragma omp critical(segmentos_a_recorrer_pop_mutex)
                            (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].pop();
 
                            auto caminoSigBarrio = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
@@ -170,7 +170,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
                            v->setEsperandoTrasladoEntreCalles(true);
 
-                           #pragma omp critical
+                           #pragma omp critical(enviar_solicitud_fn_mutex)
                            this->enviarSolicitudFn(solicitudTranspaso);
                        }
                    }
@@ -213,79 +213,83 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
     omp_set_lock(&lock_solicitud);
 
-    for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
-        if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
-            if(!solicitudes_traspaso_calle.empty()){
+    if(!solicitudes_traspaso_calle.empty()){
+
+        for (int num_carril = 0; num_carril < numero_carriles; num_carril++) {
+            if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
+                if(!solicitudes_traspaso_calle.empty()){
 
 
 
-                // Logica de cual vehiculo elegir de otra calle
+                    // Logica de cual vehiculo elegir de otra calle
 
-                int indice_sig_solicitud_aceptada = -1;
+                    int indice_sig_solicitud_aceptada = -1;
 
-                int contador = 0;
-                for(auto calle_vehiculo: solicitudes_traspaso_calle){
+                    int contador = 0;
+                    for(auto calle_vehiculo: solicitudes_traspaso_calle){
 
 
 
-                    if(indice_sig_solicitud_aceptada == -1 ){
-                        indice_sig_solicitud_aceptada = contador;
-                    } else {
-                        if(isCalleNula(solicitudes_traspaso_calle[indice_sig_solicitud_aceptada].first)
-                        && !isCalleNula(calle_vehiculo.first)){
+                        if(indice_sig_solicitud_aceptada == -1 ){
                             indice_sig_solicitud_aceptada = contador;
+                        } else {
+                            if(isCalleNula(solicitudes_traspaso_calle[indice_sig_solicitud_aceptada].first)
+                               && !isCalleNula(calle_vehiculo.first)){
+                                indice_sig_solicitud_aceptada = contador;
+                            }
                         }
+                        contador++;
                     }
-                    contador++;
-                }
 
 
-                auto solicitud = solicitudes_traspaso_calle[indice_sig_solicitud_aceptada];
-                solicitudes_traspaso_calle.erase(solicitudes_traspaso_calle.begin() + indice_sig_solicitud_aceptada);
+                    auto solicitud = solicitudes_traspaso_calle[indice_sig_solicitud_aceptada];
+                    solicitudes_traspaso_calle.erase(solicitudes_traspaso_calle.begin() + indice_sig_solicitud_aceptada);
 
-                Vehiculo* vehiculoIngresado = solicitud.second;
+                    Vehiculo* vehiculoIngresado = solicitud.second;
 
-                vehiculoIngresado->setCalleactual(this);
+                    vehiculoIngresado->setCalleactual(this);
 
-                pair<int, float> carrilPosicion;
-                carrilPosicion.first = num_carril;
-                carrilPosicion.second = 0.f;
+                    pair<int, float> carrilPosicion;
+                    carrilPosicion.first = num_carril;
+                    carrilPosicion.second = 0.f;
 
-                posiciones_vehiculos_en_calle[vehiculoIngresado->getId()] = carrilPosicion;
+                    posiciones_vehiculos_en_calle[vehiculoIngresado->getId()] = carrilPosicion;
 
-                vehiculoIngresado->setDistanciaRecorrida(vehiculoIngresado->getDistanciaRecorrida() + largo);
+                    vehiculoIngresado->setDistanciaRecorrida(vehiculoIngresado->getDistanciaRecorrida() + largo);
 
-                vehculos_ordenados_en_calle.push_back(vehiculoIngresado);
+                    vehculos_ordenados_en_calle.push_back(vehiculoIngresado);
 
-                if(isCalleNula(solicitud.first)){
-                    vehiculoIngresado->setEpocaInicio(numeroEpoca);
-                } else {
-                    long idNodoInicialNotificante = solicitud.first.first;
-                    long idNodoFinalNotificante = solicitud.first.second;
-                    long idBarrioCalleANotificar = grafo->obtenerNodo(idNodoInicialNotificante)->getSeccion();
-                    long idBarrioActual = grafo->obtenerNodo(nodo_inicial)->getSeccion();
-
-                    if(asignacion_barrios[idBarrioCalleANotificar] != asignacion_barrios[idBarrioActual]){
-
-                        NotificacionTranspaso notificacion;
-                        notificacion.id_vehiculo = vehiculoIngresado->getId();
-                        notificacion.id_barrio = idBarrioCalleANotificar;
-
-                        #pragma omp critical
-                        enviarNotificacionFn(notificacion);
-
+                    if(isCalleNula(solicitud.first)){
+                        vehiculoIngresado->setEpocaInicio(numeroEpoca);
                     } else {
-                        string idCalleANotificar = Calle::getIdCalle(idNodoInicialNotificante, idNodoFinalNotificante);
-                        Calle* calleANotificar = mapa_barrio[idBarrioCalleANotificar]->obtenerCalle(idCalleANotificar);
-                        calleANotificar->notificarTranspasoCompleto(solicitud.second->getId(), false);
+                        long idNodoInicialNotificante = solicitud.first.first;
+                        long idNodoFinalNotificante = solicitud.first.second;
+                        long idBarrioCalleANotificar = grafo->obtenerNodo(idNodoInicialNotificante)->getSeccion();
+                        long idBarrioActual = grafo->obtenerNodo(nodo_inicial)->getSeccion();
+
+                        if(asignacion_barrios[idBarrioCalleANotificar] != asignacion_barrios[idBarrioActual]){
+
+                            NotificacionTranspaso notificacion;
+                            notificacion.id_vehiculo = vehiculoIngresado->getId();
+                            notificacion.id_barrio = idBarrioCalleANotificar;
+
+#pragma omp critical(enviar_notificacion_fn_mutex)
+                            enviarNotificacionFn(notificacion);
+
+                        } else {
+                            string idCalleANotificar = Calle::getIdCalle(idNodoInicialNotificante, idNodoFinalNotificante);
+                            Calle* calleANotificar = mapa_barrio[idBarrioCalleANotificar]->obtenerCalle(idCalleANotificar);
+                            calleANotificar->notificarTranspasoCompleto(solicitud.second->getId(), false);
+
+                        }
+
 
                     }
-
-
                 }
             }
         }
     }
+
 
 
     omp_unset_lock(&lock_solicitud);
