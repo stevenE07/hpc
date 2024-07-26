@@ -334,6 +334,7 @@ void ejecutar_epoca() {
             {
 
                 if (my_rank == 0) {
+                    cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: "<< endl;
                     if ((numero_epoca + 1) % 500 == 1) {
                         milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
                         cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: "
@@ -347,12 +348,12 @@ void ejecutar_epoca() {
                 numero_vehiculos_en_curso_en_el_nodo -= (int) solicitudes_traspaso_epoca_anterior.size();
 
                 vector<SolicitudTranspaso> solicitudesRecividas;
-                //intercambiar_solicitudes(&solicitudesRecividas, solicitudes_traspaso_epoca_anterior);
+                intercambiar_solicitudes(&solicitudesRecividas, solicitudes_traspaso_epoca_anterior);
 
                 numero_vehiculos_en_curso_en_el_nodo += (int) solicitudesRecividas.size();
 
                 vector<int> notificacionesRecividas;
-                //intercambiar_notificaciones(&notificacionesRecividas, notificaciones_traspaso_epoca_anterior);
+                intercambiar_notificaciones(&notificacionesRecividas, notificaciones_traspaso_epoca_anterior);
 
                 // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
                 procesar_solicitudes_recividas(solicitudesRecividas);
@@ -440,7 +441,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     int size_buffer = cantidad_mensajes_a_enviar_total * (int)sizeof(SegmentoTrayectoVehculoEnBarrio) + MPI_BSEND_OVERHEAD;
     auto bufferEnvioSegmentos = (char*)malloc( size_buffer);
     MPI_Buffer_attach(bufferEnvioSegmentos, size_buffer);
-
     auto requests_cantidad_segmentos = new MPI_Request[size_mpi - 1];
     auto buff_cantidad_segmentos = new int[size_mpi - 1];
     int cont_request = 0;
@@ -452,12 +452,21 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
         MPI_Isend(&buff_cantidad_segmentos[cont_request], 1, MPI_INT,
                   rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, &requests_cantidad_segmentos[cont_request]);
-
         cont_request++;
     }
 
 
     //enviar para cada nodo mpi la informacion que le corresponde.
+    int max_numero_segmentos_a_recibir = 0;
+    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if(rank_nodo_a_enviar == my_rank)
+            continue;
+
+        int cantidad_segmentos;
+        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, MPI_ANY_SOURCE, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        max_numero_segmentos_a_recibir = max(max_numero_segmentos_a_recibir, cantidad_segmentos);
+    }
+
     for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
         if(rank_nodo_a_enviar == my_rank)
             continue;
@@ -474,8 +483,8 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
                 }
             }
         }
-
-        MPI_Rsend(buff_data_vehiculo_a_enviar, cantidad_mensajes_a_enviar[rank_nodo_a_enviar],
+        cout << "cont ::" << cont << endl;
+        MPI_Bsend(buff_data_vehiculo_a_enviar, cantidad_mensajes_a_enviar[rank_nodo_a_enviar],
                   MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD);
 
         delete[] buff_data_vehiculo_a_enviar;
@@ -483,16 +492,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     }
 
 
-
-    int max_numero_segmentos_a_recibir = 0;
-    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
-        if(rank_nodo_a_enviar == my_rank)
-            continue;
-
-        int cantidad_segmentos;
-        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, MPI_ANY_SOURCE, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        max_numero_segmentos_a_recibir = max(max_numero_segmentos_a_recibir, cantidad_segmentos);
-    }
 
     auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[max_numero_segmentos_a_recibir]; //Todo Mejorar estimador
 
@@ -503,7 +502,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
         MPI_Status status;
         MPI_Recv(buffResepcion, max_numero_segmentos_a_recibir, MPI_SegmentoTrayectoVehculoEnBarrio, MPI_ANY_SOURCE, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
-
         int cantidad_segmentos_recibidos;
         MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
 
@@ -520,7 +518,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     for(int i = 0; i < nodos_mpi_vecinos.size(); i++){
         MPI_Wait(&requests_cantidad_segmentos[i], MPI_STATUS_IGNORE);
     }
-
     MPI_Buffer_detach(bufferEnvioSegmentos, &size_buffer);
     delete [] bufferEnvioSegmentos;
 
@@ -563,8 +560,6 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
 
 
     // ----- Calcular caminos
-
-    cout << "Calculando caminos en nodo " << my_rank << " id inicial = " << numVehiculosDeNodosAnteriores << endl;
 
     map<long, vector<SegmentoTrayectoVehculoEnBarrio>> nodos_a_enviar_mpi_por_barrio;
     int numeroVehiculosFallo = 0;
@@ -744,7 +739,6 @@ int main(int argc, char* argv[]) {
     std::mt19937 rng(2024); // Semilia random
 
 
-
     // ---- Funciones de notificacion
     auto notificarFinalizacion = std::function<void(float, int)>{};
     notificarFinalizacion = [&] (float distancia, int numero_epocas) -> void {
@@ -779,6 +773,12 @@ int main(int argc, char* argv[]) {
         switch(stoi(conf["modo_balance_carga"])) {
             case 1:
                 calculo_equitativo_por_personas(size_mpi,my_rank,cantidad_vehiculos_a_generar_por_barrio,asignacion_barrios,mis_barrios);
+                for(auto asignacion : asignacion_barrios) {
+                    cout << "asignacion " << asignacion.first << ": " << asignacion.second << endl;
+                }
+                break;
+            case 2:
+                calculo_naive_por_nodo_mpi(my_rank,size_mpi,barrios,asignacion_barrios,mis_barrios);
                 break;
         }
 
@@ -815,6 +815,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+
     delete [] buffAsignacionesBarrio;
 
     // ----- Funcion de asignacion de barrios a nodos MPI
@@ -835,11 +836,8 @@ int main(int argc, char* argv[]) {
         id_bario_y_barrio.second->addCalles(todas_calles);
     }
 
-    cout << "Nodo " << my_rank << " tiene " << todas_calles.size() << " calles" << endl;
-
 
     generar_vehiculos_y_notificar_segmentos(rng, cantidad_vehiculos_a_generar_por_barrio);
-
 
     // ---- Ejecuccion de la simulaccion
 

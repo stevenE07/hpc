@@ -117,6 +117,14 @@ inline std::map<std::string, std::string> readConfig(const std::string& filename
 
     return config;
 }
+inline void calculo_naive_por_nodo_mpi(int my_rank, int size_mpi, vector<pair<long, basic_string<char>>> barrios, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
+    for(int i = 0; i < barrios.size(); i++){  //ToDo Cambiar
+        asignacion_barrios[barrios[i].first] = i % size_mpi;
+        if(my_rank == i % size_mpi){
+            mis_barrios.push_back(barrios[i].first);
+        }
+    }
+}
 
 
 
