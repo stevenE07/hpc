@@ -6,11 +6,13 @@
 #include <cmath>
 #include "random"
 #include "vector"
-
+#include <algorithm>
 #ifndef HPC_UTILS_H
 #define HPC_UTILS_H
 
 # define M_PI 3.14159265358979323846
+
+using namespace std;
 
 // ----------- Struct con datos a enviar
 typedef struct {
@@ -72,7 +74,49 @@ inline int getClasePorProbailidad(std::mt19937& rnd, std::vector<double>& pro){
     }
 }
 
+inline void calculo_equitativo_por_personas(int size_mpi, int my_rank, std::map<long,int> & cantidad_vehiculos_a_generar_por_barrio, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
+    vector<pair<long,int>> cantidades_por_barrio_ordenadas;
+    for(auto info : cantidad_vehiculos_a_generar_por_barrio) {
+        cantidades_por_barrio_ordenadas.push_back({info.first,info.second});
+    }
 
+    std::sort(cantidades_por_barrio_ordenadas.begin(), cantidades_por_barrio_ordenadas.end(),
+            [](const std::pair<long, int>& a, const std::pair<long, int>& b) {
+                return a.second > b.second;
+            });
+
+    // --- Asignacion de barios a nodos
+    vector<long> carga_por_nodo(size_mpi,0);
+    for(auto cantidad_barrio : cantidades_por_barrio_ordenadas ) {
+        long index = min_element(carga_por_nodo.begin(), carga_por_nodo.end()) - carga_por_nodo.begin();
+        asignacion_barrios[cantidad_barrio.first] = index;
+        carga_por_nodo[index] += cantidad_barrio.second;
+        if(index == my_rank) {
+            mis_barrios.push_back(cantidad_barrio.first);
+        }
+    }
+    int index = 0;
+    cout << "---- carga por nodo mpi ----" << endl;
+    for(auto c : carga_por_nodo) {
+        cout << "index:" << index << " cantidad:" << c << endl;
+        index++;
+    }
+}
+
+inline std::map<std::string, std::string> readConfig(const std::string& filename) {
+    std::ifstream file(filename);
+    std::map<std::string, std::string> config;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        size_t delimiterPos = line.find('=');
+        std::string key = line.substr(0, delimiterPos);
+        std::string value = line.substr(delimiterPos + 1);
+        config[key] = value;
+    }
+
+    return config;
+}
 
 
 

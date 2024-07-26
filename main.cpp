@@ -36,6 +36,8 @@ using chrono::seconds;
 
 using namespace std;
 
+std::string config_dir = PROJECT_BASE_DIR + std::string("/configuraciones/config.txt");
+std::map<std::string, std::string> conf = readConfig(config_dir);
 
 // ----------- Tipos MPI
 MPI_Datatype MPI_SegmentoTrayectoVehculoEnBarrio;
@@ -51,7 +53,7 @@ bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
-int numero_vehiculos_en_curso_global = 10000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = stoi(conf["numero_vehiculos_en_curso_global"]); //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
 map<int, Vehiculo*> mapa_mis_vehiculos;
@@ -392,7 +394,7 @@ void ejecutar_epoca() {
 }
 
 void initConfig(){
-    omp_set_num_threads(4);
+    omp_set_num_threads(stoi(conf["omp_set_num_threads"]));
     // ---- Configuraciones
 
     el::Configurations defaultConf;
@@ -730,8 +732,8 @@ void asignarCantidades(std::mt19937& rnd, int total_cantidad, const std::map<lon
     }
 }
 
-
 int main(int argc, char* argv[]) {
+
     std::map<long, int> barrios_con_poblacion;
     std::map<long, double> probabilidad_por_barrio;
     std::map<long, int> cantidad_vehiculos_a_generar_por_barrio;
@@ -758,8 +760,7 @@ int main(int argc, char* argv[]) {
     ingresarNotificacionTranspaso = [&] (NotificacionTranspaso & notificacion) -> void {notificaciones_transpaso_entre_nodos_mpi.push_back(notificacion);};
 
     // ---- Leer MAPA
-    //CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
-    CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
+    CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
 
 
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
@@ -770,17 +771,15 @@ int main(int argc, char* argv[]) {
 
         // ---- Leer poblaciones por barrio
         //std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
-        std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
+        std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
         leerCSVbarrioCantidades( dir ,barrios_con_poblacion);
         calcularProbabilidad(barrios_con_poblacion, probabilidad_por_barrio);
         asignarCantidades(rng, numero_vehiculos_en_curso_global, probabilidad_por_barrio, cantidad_vehiculos_a_generar_por_barrio);
 
-        // --- Asignacion de barios a nodos
-        for(int i = 0; i < barrios.size(); i++){  //ToDo Cambiar
-            asignacion_barrios[barrios[i].first] = i % size_mpi;
-            if(my_rank == i % size_mpi){
-                mis_barrios.push_back(barrios[i].first);
-            }
+        switch(stoi(conf["modo_balance_carga"])) {
+            case 1:
+                calculo_equitativo_por_personas(size_mpi,my_rank,cantidad_vehiculos_a_generar_por_barrio,asignacion_barrios,mis_barrios);
+                break;
         }
 
         int contador = 0;
