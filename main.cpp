@@ -51,7 +51,7 @@ bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
-int numero_vehiculos_en_curso_global = 500000; //Esto se deberia leer por parametro, se actualiza en cada epoca
+int numero_vehiculos_en_curso_global = 1000; //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
 
 map<int, Vehiculo*> mapa_mis_vehiculos;
@@ -748,16 +748,19 @@ int main(int argc, char* argv[]) {
         vector<long> carga_por_nodo(size_mpi,0);
         for(auto cantidad_barrio : cantidades_por_barrio_ordenadas ) {
             long index = min_element(carga_por_nodo.begin(), carga_por_nodo.end()) - carga_por_nodo.begin();
-            asignacion_barrios[index] = cantidad_barrio.first;
+            asignacion_barrios[cantidad_barrio.first] = index;
             carga_por_nodo[index] += cantidad_barrio.second;
             if(index == my_rank) {
                 mis_barrios.push_back(cantidad_barrio.first);
             }
         }
-
+        for(auto asignacion : asignacion_barrios) {
+            cout << "first: " << asignacion.first <<  " sec:" << asignacion.second << endl;
+        }
         int index = 0;
         for(auto c : carga_por_nodo) {
-            cout << "index:" << index++ << " cantidad:" << c << endl;
+            cout << "index:" << index << " cantidad:" << c << endl;
+            index++;
         }
 
 
