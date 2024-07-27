@@ -193,15 +193,6 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes_recivi
 
     solicitudes_a_enviar.clear();
 
-    //auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
-
-    /*int cont = 0;
-    for(auto nodo_vecino: nodos_mpi_vecinos){
-
-        MPI_Isend(&total_solicitudes_por_nodo[nodo_vecino], 1, MPI_INT, nodo_vecino, 1, MPI_COMM_WORLD, &requests[cont]);
-        cont++;
-    }*/
-
     int size_buffer = total_solicitudes * sizeof(SolicitudTranspaso) + MPI_BSEND_OVERHEAD;
     auto bufferEnvioSolicitudes = (char*)malloc( size_buffer);
 
@@ -221,15 +212,6 @@ void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes_recivi
 
         delete[] buff;
     }
-
-    /*
-    int max_numero_solicitudes_por_nodo = 0;
-    for(auto nodo_vecino: nodos_mpi_vecinos) {
-        int numero_solcitud;
-        MPI_Recv(&numero_solcitud, 1, MPI_INT, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        max_numero_solicitudes_por_nodo = max(max_numero_solicitudes_por_nodo, numero_solcitud);
-    }
-    */
 
     int max_cantidad = nodos_mpi_vecinos.size() * 5000;
     auto buffResepcion = new SolicitudTranspaso[max_cantidad]; //Todo Mejorar estimador
@@ -334,7 +316,6 @@ void ejecutar_epoca() {
             {
 
                 if (my_rank == 0) {
-                    cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: "<< endl;
                     if ((numero_epoca + 1) % 500 == 1) {
                         milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
                         cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: "
@@ -355,13 +336,12 @@ void ejecutar_epoca() {
                 vector<int> notificacionesRecividas;
                 intercambiar_notificaciones(&notificacionesRecividas, notificaciones_traspaso_epoca_anterior);
 
-                // ToDo esto estaria bueno que fuera tareas y tambien se hagan en paralelo
                 procesar_solicitudes_recividas(solicitudesRecividas);
 
                 procesar_notificaciones_recividas(notificacionesRecividas);
 
-                MPI_Allreduce(&numero_vehiculos_en_curso_en_el_nodo, &numero_vehiculos_en_curso_global, 1, MPI_INT, MPI_SUM,
-                              MPI_COMM_WORLD);
+
+
 
             }
 
@@ -375,6 +355,16 @@ void ejecutar_epoca() {
 
             #pragma omp single
             {
+
+                // Calcular el nuevo de vehiculos globales en la simulacion
+                if( (numero_epoca + 1) % 250 == 0){
+                    MPI_Allreduce(&numero_vehiculos_en_curso_en_el_nodo, &numero_vehiculos_en_curso_global, 1, MPI_INT, MPI_SUM,
+                                  MPI_COMM_WORLD);
+                }
+
+                MPI_Barrier(MPI_COMM_WORLD);
+
+
                 numero_epoca++;
 
                 for(auto s: solicitudes_transpaso_entre_nodos_mpi){
@@ -773,9 +763,6 @@ int main(int argc, char* argv[]) {
         switch(stoi(conf["modo_balance_carga"])) {
             case 1:
                 calculo_equitativo_por_personas(size_mpi,my_rank,cantidad_vehiculos_a_generar_por_barrio,asignacion_barrios,mis_barrios);
-                for(auto asignacion : asignacion_barrios) {
-                    cout << "asignacion " << asignacion.first << ": " << asignacion.second << endl;
-                }
                 break;
             case 2:
                 calculo_naive_por_nodo_mpi(my_rank,size_mpi,barrios,asignacion_barrios,mis_barrios);
