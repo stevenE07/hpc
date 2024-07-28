@@ -19,7 +19,8 @@
 #define TAG_SEGMENTOS 1
 #define TAG_SOLICITUDES 2
 #define TAG_NOTIFICACIONES 3
-#define TAG_ASIGNACION_BARRIOS
+
+#define MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA 5000
 
 
 INITIALIZE_EASYLOGGINGPP
@@ -49,7 +50,6 @@ MPI_Datatype MPI_AsignacionBarrio;
 
 time_point<Clock> inicioTiempoEp;
 
-bool calculo_por_distribucion_cantidad_barrio = false;
 
 int my_rank, size_mpi;
 
@@ -73,6 +73,19 @@ vector<SolicitudTranspaso> solicitudes_transpaso_entre_nodos_mpi;
 vector<NotificacionTranspaso> notificaciones_transpaso_entre_nodos_mpi;
 
 vector<float> tiempoRecorridoPor10Km;
+
+
+
+// --- Buffers de Resepcion y Envio de notificacion y solicitudes
+
+
+SolicitudTranspaso * bufferEnvioSolicitudesEpocaActual;
+SolicitudTranspaso * bufferEnvioSolicitudesEpocaPasado;
+int * bufferEnvioNotificacionesEpocaActual;
+int * bufferEnvioNotificacionesEpocaPasado;
+
+SolicitudTranspaso * buffRecepcionSolicitudes;
+int * buffRecepcionNotificaciones;
 
 
 // ----------- Funciones auxiliares
@@ -131,17 +144,22 @@ void create_mpi_types() {
     MPI_Type_commit(&MPI_AsignacionBarrio);
 }
 
-void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesRecividas){
-    for(SolicitudTranspaso solicitud: solicitudesRecividas){
+void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, int & cantidadSolicitudesRecivdas){
+    //#pragma omp for schedule(static, 1)
+    for(int s = 0; s < cantidadSolicitudesRecivdas; s++){
+        auto solicitud = solicitudesRecividas[s];
         pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
+
         SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
 
-        #pragma omp critical(segmentos_a_recorrer_pop_mutex)
+        //#pragma omp critical(segmentos_a_recorrer_pop_mutex)
         segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
 
         auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
 
         auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
+
+        #pragma omp critical(mapa_mis_vehiculos_mutex)
         mapa_mis_vehiculos[vehiculoIngresado->getId()] =  vehiculoIngresado;
 
         vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
@@ -150,9 +168,7 @@ void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesReci
         vehiculoIngresado->setEpocaInicio(solicitud.epocaInicial);
         vehiculoIngresado->setDistanciaRecorrida(solicitud.trayectoriaTotal);
 
-
         long idBarrioSiguiente = grafoMapa->obtenerNodo(caminoSigBarrio[0])->getSeccion();
-
 
         string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
         Calle *sigCalle = mapa_mis_barios[idBarrioSiguiente]->obtenerCalle(idSigCalle);
@@ -162,84 +178,116 @@ void procesar_solicitudes_recividas(vector<SolicitudTranspaso> & solicitudesReci
     }
 }
 
-void procesar_notificaciones_recividas (vector<int> & id_vehculos_notificados){
-    for( auto idVehiculo: id_vehculos_notificados){
+void procesar_notificaciones_recividas (int* notificacionesRecividas, int & cantidadNotificaciones){
+    //#pragma omp for schedule(static, 1)
+    for (int s = 0; s < cantidadNotificaciones; s++){
+        auto idVehiculo = notificacionesRecividas[s];
         mapa_mis_vehiculos[idVehiculo]->getCalleactual()->notificarTranspasoCompleto(idVehiculo, true);
         mapa_mis_vehiculos.erase(idVehiculo);
     }
 }
 
-void intercambiar_solicitudes(vector<SolicitudTranspaso>* ptr_solicitudes_recividas, vector<SolicitudTranspaso>& solicitudes_a_enviar){
 
-    map<int, vector<SolicitudTranspaso>> solicitudes_por_nodos;
 
-    int total_solicitudes = 0;
-
-    auto * total_solicitudes_por_nodo = new int[size_mpi];
-
-    for(int i = 0; i < size_mpi; i++){
-        total_solicitudes_por_nodo[i] = 0;
-    }
-
-    for(auto solicitud: solicitudes_a_enviar){
-        long id_barrio = solicitud.id_barrio;
-        int nodo_encargado = asignacion_barrios[id_barrio];
-
-        total_solicitudes_por_nodo[nodo_encargado]++;
-        total_solicitudes++;
-
-        solicitudes_por_nodos[nodo_encargado].push_back(solicitud);
-    }
-
-    solicitudes_a_enviar.clear();
-
-    int size_buffer = total_solicitudes * sizeof(SolicitudTranspaso) + MPI_BSEND_OVERHEAD;
-    auto bufferEnvioSolicitudes = (char*)malloc( size_buffer);
-
-    MPI_Buffer_attach(bufferEnvioSolicitudes, size_buffer);
-
-    for(auto nodo_vecino: nodos_mpi_vecinos){
-        int numeroSolicitudes = total_solicitudes_por_nodo[nodo_vecino];
-        auto buff = new SolicitudTranspaso[numeroSolicitudes];
-
-        int cont = 0;
-        for(auto solicitud: solicitudes_por_nodos[nodo_vecino]){
-            buff[cont] = solicitud;
-            cont++;
-        }
-
-        MPI_Bsend(buff, numeroSolicitudes, MPI_SolicitudTranspaso, nodo_vecino, TAG_SOLICITUDES, MPI_COMM_WORLD);
-
-        delete[] buff;
-    }
-
-    int max_cantidad = nodos_mpi_vecinos.size() * 5000;
-    auto buffResepcion = new SolicitudTranspaso[max_cantidad]; //Todo Mejorar estimador
-
+void recivir_solicitudes(SolicitudTranspaso* ptr_solicitudes_recividas, int & cantidad_solicitudes_recividas_global){
     for(auto nodo_vecino: nodos_mpi_vecinos) {
-        int numero_solcitud;
+
+        auto buffRecepcionSolicitudes = new SolicitudTranspaso [MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA];
 
         MPI_Status status;
-        MPI_Recv(buffResepcion, max_cantidad, MPI_SolicitudTranspaso, MPI_ANY_SOURCE, TAG_SOLICITUDES, MPI_COMM_WORLD, &status);
+        MPI_Recv(buffRecepcionSolicitudes, MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA, MPI_SolicitudTranspaso, MPI_ANY_SOURCE, TAG_SOLICITUDES, MPI_COMM_WORLD, &status);
 
         int cantidad_solicitudes_recividas;
         MPI_Get_count(&status, MPI_SolicitudTranspaso, &cantidad_solicitudes_recividas);
 
         if(cantidad_solicitudes_recividas > 0){
             for(int i = 0; i < cantidad_solicitudes_recividas; i++){
-                (*ptr_solicitudes_recividas).push_back(buffResepcion[i]);
+                ptr_solicitudes_recividas[cantidad_solicitudes_recividas_global] = buffRecepcionSolicitudes[i];
+                cantidad_solicitudes_recividas_global++;
             }
         }
+
+        delete [] buffRecepcionSolicitudes;
     }
-
-    delete [] buffResepcion;
-    delete [] total_solicitudes_por_nodo;
-
-    MPI_Buffer_detach(bufferEnvioSolicitudes, &size_buffer);
-    delete[] bufferEnvioSolicitudes;
 }
 
-void intercambiar_notificaciones(vector<int>* ptr_notificaciones, vector<NotificacionTranspaso>& notificaciones_a_enviar){
+void enviar_solicitudes( vector<SolicitudTranspaso>& solicitudes_a_enviar, SolicitudTranspaso* buff, MPI_Request* requests, int & cont_request){
+
+    map<int, vector<SolicitudTranspaso>> solicitudes_por_nodos;
+
+    int total_solicitudes = 0;
+
+    for(auto solicitud: solicitudes_a_enviar){
+        long id_barrio = solicitud.id_barrio;
+        int nodo_encargado = asignacion_barrios[id_barrio];
+        total_solicitudes++;
+
+        solicitudes_por_nodos[nodo_encargado].push_back(solicitud);
+    }
+
+
+
+    int inicioEnvioBuffer = 0;
+
+    for(auto nodo_vecino: nodos_mpi_vecinos){
+        int numeroSolicitudes = (int)solicitudes_por_nodos[nodo_vecino].size();
+        int cont = inicioEnvioBuffer;
+        for(auto solicitud: solicitudes_por_nodos[nodo_vecino]){
+            buff[cont] = solicitud;
+            cont++;
+        }
+
+
+
+        MPI_Isend(&buff[inicioEnvioBuffer],
+                  numeroSolicitudes,
+                  MPI_SolicitudTranspaso,
+                  nodo_vecino,
+                  TAG_SOLICITUDES,
+                  MPI_COMM_WORLD,
+                  &requests[cont_request]);
+
+        cont_request++;
+        inicioEnvioBuffer = cont;
+    }
+
+    solicitudes_a_enviar.clear();
+
+    //printf("FIN SOLICITUDES DE %d es %d | %d\n", my_rank, inicioEnvioBuffer, total_solicitudes);
+}
+
+
+void recibir_notificaciones(int* ptr_notificaciones_recividas, int & cantidad_notificaciones_recividas_global){
+    for(auto nodo_vecino: nodos_mpi_vecinos) {
+        int numero_solcitud;
+
+        auto buffRecepcionNotificaciones = new int[MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA];
+
+        MPI_Status status;
+        MPI_Recv(buffRecepcionNotificaciones,
+                 MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA,
+                 MPI_INT,
+                 MPI_ANY_SOURCE,
+                 TAG_NOTIFICACIONES,
+                 MPI_COMM_WORLD,
+                 &status);
+
+        int cantidad_notificaciones_recividas;
+        MPI_Get_count(&status, MPI_INT, &cantidad_notificaciones_recividas);
+
+        if(cantidad_notificaciones_recividas > 0){
+            for(int i = 0; i < cantidad_notificaciones_recividas; i++){
+                ptr_notificaciones_recividas[cantidad_notificaciones_recividas_global] = buffRecepcionNotificaciones[i];
+                cantidad_notificaciones_recividas_global++;
+            }
+        }
+
+        delete [] buffRecepcionNotificaciones;
+    }
+}
+
+
+void enviar_notificaciones(vector<NotificacionTranspaso>& notificaciones_a_enviar, int* buffNotificaciones, MPI_Request* requests, int & cont_request){
     map<int, vector<NotificacionTranspaso>> notificacion_por_nodos;
 
     int total_notificaciones = 0;
@@ -254,52 +302,32 @@ void intercambiar_notificaciones(vector<int>* ptr_notificaciones, vector<Notific
 
     notificaciones_a_enviar.clear();
 
-    auto requests = new MPI_Request[nodos_mpi_vecinos.size()];
-
-    auto bufferEnvioNotificaciones = new int[total_notificaciones];
-
     int inicioEnvioBuffer = 0;
-    int cont_request = 0;
     for(auto nodo_vecino: nodos_mpi_vecinos){
 
         int cont = inicioEnvioBuffer;
         for(auto notificacion: notificacion_por_nodos[nodo_vecino]){
-            bufferEnvioNotificaciones[cont] = notificacion.id_vehiculo;
+            buffNotificaciones[cont] = notificacion.id_vehiculo;
             cont++;
         }
 
-        MPI_Isend(&bufferEnvioNotificaciones[inicioEnvioBuffer], (int)notificacion_por_nodos[nodo_vecino].size(), MPI_INT, nodo_vecino, TAG_NOTIFICACIONES, MPI_COMM_WORLD, &requests[cont_request]);
+        MPI_Request request;
 
-        inicioEnvioBuffer += (int)notificacion_por_nodos[nodo_vecino].size();
-        cont_request ++;
+        MPI_Isend(&buffNotificaciones[inicioEnvioBuffer],
+                  (int)notificacion_por_nodos[nodo_vecino].size(),
+                  MPI_INT,
+                  nodo_vecino,
+                  TAG_NOTIFICACIONES,
+                  MPI_COMM_WORLD,
+                  &requests[cont_request]);
+
+        cont_request++;
+
+        inicioEnvioBuffer = cont;
     }
+    //printf("FIN NOTIFICACIONES DE %d es %d\n", my_rank, inicioEnvioBuffer);
 
-    int max_cantidad = nodos_mpi_vecinos.size() * 5000;
-    auto buffResepcion = new int[max_cantidad]; //Todo Mejorar estimador
 
-    for(auto nodo_vecino: nodos_mpi_vecinos) {
-        int numero_solcitud;
-
-        MPI_Status status;
-        MPI_Recv(buffResepcion, max_cantidad, MPI_INT, MPI_ANY_SOURCE, TAG_NOTIFICACIONES, MPI_COMM_WORLD, &status);
-
-        int cantidad_notificaciones_recividas;
-        MPI_Get_count(&status, MPI_INT, &cantidad_notificaciones_recividas);
-
-        if(cantidad_notificaciones_recividas > 0){
-            for(int i = 0; i < cantidad_notificaciones_recividas; i++){
-                (*ptr_notificaciones).push_back(buffResepcion[i]);
-            }
-        }
-    }
-
-    delete [] buffResepcion;
-
-    for(int i = 0; i < nodos_mpi_vecinos.size(); i++){
-        MPI_Wait(&requests[i], MPI_STATUS_IGNORE);
-    }
-
-    delete [] bufferEnvioNotificaciones;
 }
 
 void ejecutar_epoca() {
@@ -307,14 +335,31 @@ void ejecutar_epoca() {
     vector<SolicitudTranspaso> solicitudes_traspaso_epoca_anterior;
     vector<NotificacionTranspaso> notificaciones_traspaso_epoca_anterior;
 
+    MPI_Request* requestsEpocaActual;
+    MPI_Request* requestsEpocaPasada;
+    int num_request_epoca_actual = 0;
+    int num_request_epoca_pasada = 0;
+
+
+    auto solicitudesRecividas = new SolicitudTranspaso[MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA];
+    auto notificacionesRecividas = new int[MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_EPOCA];
+
+    int numSolicitudesRecividas = 0;
+    int numNotificacionesRecividas = 0;
+
     int numero_epoca = 1;
 
-    #pragma omp parallel shared(numero_epoca)
+    if (my_rank == 0) {
+        cout << "Inicio simulacion" << endl;
+    }
+
+    #pragma omp parallel
     {
         do {
+
+
             #pragma omp master
             {
-
                 if (my_rank == 0) {
                     if ((numero_epoca + 1) % 500 == 1) {
                         milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
@@ -326,19 +371,27 @@ void ejecutar_epoca() {
                     };
                 }
 
-                numero_vehiculos_en_curso_en_el_nodo -= (int) solicitudes_traspaso_epoca_anterior.size();
+                bufferEnvioSolicitudesEpocaActual = new SolicitudTranspaso[(int)solicitudes_traspaso_epoca_anterior.size()];
+                bufferEnvioNotificacionesEpocaActual = new int[(int)notificaciones_traspaso_epoca_anterior.size()];
 
-                vector<SolicitudTranspaso> solicitudesRecividas;
-                intercambiar_solicitudes(&solicitudesRecividas, solicitudes_traspaso_epoca_anterior);
+                requestsEpocaActual = new MPI_Request[2 * size_mpi];
+                num_request_epoca_actual = 0;
 
-                numero_vehiculos_en_curso_en_el_nodo += (int) solicitudesRecividas.size();
+                enviar_solicitudes(solicitudes_traspaso_epoca_anterior, bufferEnvioSolicitudesEpocaActual, requestsEpocaActual, num_request_epoca_actual);
+                enviar_notificaciones(notificaciones_traspaso_epoca_anterior, bufferEnvioNotificacionesEpocaActual, requestsEpocaActual, num_request_epoca_actual);
 
-                vector<int> notificacionesRecividas;
-                intercambiar_notificaciones(&notificacionesRecividas, notificaciones_traspaso_epoca_anterior);
+                numSolicitudesRecividas = 0;
+                numNotificacionesRecividas = 0;
 
-                procesar_solicitudes_recividas(solicitudesRecividas);
+                recivir_solicitudes(solicitudesRecividas, numSolicitudesRecividas);
+                recibir_notificaciones(notificacionesRecividas, numNotificacionesRecividas);
 
-                procesar_notificaciones_recividas(notificacionesRecividas);
+
+                numero_vehiculos_en_curso_en_el_nodo += numSolicitudesRecividas;
+                numero_vehiculos_en_curso_en_el_nodo -= numNotificacionesRecividas;
+
+                procesar_solicitudes_recividas(solicitudesRecividas, numSolicitudesRecividas);
+                procesar_notificaciones_recividas(notificacionesRecividas, numNotificacionesRecividas);
 
 
 
@@ -346,26 +399,41 @@ void ejecutar_epoca() {
             }
 
             #pragma omp for schedule(dynamic, 150)
-            for (int i = 0; i < todas_calles.size(); ++i) {
+            for (int i = 0; i < todas_calles.size(); i++) {
                 auto it = todas_calles[i];
                 it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
             }
 
             #pragma omp barrier
 
-            #pragma omp single
+            #pragma omp master
             {
-
-                // Calcular el nuevo de vehiculos globales en la simulacion
                 if( (numero_epoca + 1) % 250 == 0){
                     MPI_Allreduce(&numero_vehiculos_en_curso_en_el_nodo, &numero_vehiculos_en_curso_global, 1, MPI_INT, MPI_SUM,
                                   MPI_COMM_WORLD);
                 }
 
+                // Calcular el nuevo de vehiculos globales en la simulacion
+
                 MPI_Barrier(MPI_COMM_WORLD);
 
-
                 numero_epoca++;
+
+
+                if(numero_epoca > 0){
+                    delete [] bufferEnvioSolicitudesEpocaPasado;
+                    delete [] bufferEnvioNotificacionesEpocaPasado;
+
+                    for(int i = 0; i< num_request_epoca_pasada; i++){
+                        MPI_Wait(&requestsEpocaPasada[i], MPI_STATUS_IGNORE);
+                    }
+
+                }
+
+                bufferEnvioSolicitudesEpocaPasado = bufferEnvioSolicitudesEpocaActual;
+                bufferEnvioNotificacionesEpocaPasado = bufferEnvioNotificacionesEpocaActual;
+                requestsEpocaPasada = requestsEpocaActual;
+                num_request_epoca_pasada = num_request_epoca_actual;
 
                 for(auto s: solicitudes_transpaso_entre_nodos_mpi){
                     solicitudes_traspaso_epoca_anterior.push_back(s);
@@ -373,14 +441,16 @@ void ejecutar_epoca() {
                 for(auto n: notificaciones_transpaso_entre_nodos_mpi){
                     notificaciones_traspaso_epoca_anterior.push_back(n);
                 }
+
                 solicitudes_transpaso_entre_nodos_mpi.clear();
                 notificaciones_transpaso_entre_nodos_mpi.clear();
             };
 
 
 
-        }while(numero_vehiculos_en_curso_global > 0);
+            #pragma omp barrier
 
+        }while(numero_vehiculos_en_curso_global > 0);
     }
 }
 
@@ -717,6 +787,11 @@ void asignarCantidades(std::mt19937& rnd, int total_cantidad, const std::map<lon
     }
 }
 
+void inicializarBuffersRecepcionSolicitudNotificacion(){
+
+}
+
+
 int main(int argc, char* argv[]) {
 
     std::map<long, int> barrios_con_poblacion;
@@ -726,6 +801,7 @@ int main(int argc, char* argv[]) {
 
     initConfig();
     initMpi(argc, argv);
+    inicializarBuffersRecepcionSolicitudNotificacion();
     std::mt19937 rng(2024); // Semilia random
 
 
