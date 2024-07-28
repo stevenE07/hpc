@@ -165,7 +165,8 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
 
             nodo_anterior[id_int] = -1;
 
-            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (45.f );
+            //estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (45.f );
+            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (60.f );
         }
     }
 

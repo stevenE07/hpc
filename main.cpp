@@ -678,7 +678,6 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
         long dst = nodo_final[num_vehiculo_localmente_generado];
 
         auto camino = grafoMapa->computarCaminoMasCortoUtilizandoAStar(src, dst);
-        //auto camino = grafoMapa->computarCaminoMasCorto(src, dst, -1);
 
         if (camino.empty()) {
             #pragma omp atomic
