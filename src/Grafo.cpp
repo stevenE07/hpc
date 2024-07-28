@@ -46,7 +46,7 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
 
     priority_queue<elemento_cola> cola_pesos_a_evaluar;
 
-
+    int nodos_recorridos = 0;
 
     auto nodos_pendientes = new int[sigIdNodo];
     auto pesos = new float[sigIdNodo];
@@ -78,6 +78,9 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
         Nodo* ultimo_nodo_revisado = nodos_id_int[id_ultimo_nodo_agregado];
 
         if(seccion == -1 || ultimo_nodo_revisado->getSeccion() == seccion){
+
+            nodos_recorridos++;
+
             if(!ultimo_nodo_revisado->getNodosVecinos().empty()){
                 for (auto nodo_peso_vecino: ultimo_nodo_revisado->getNodosVecinos()){
                     float peso_cantidado = pesos[id_ultimo_nodo_agregado] + nodo_peso_vecino.second;
@@ -137,10 +140,12 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
 
     priority_queue<elemento_cola> cola_pesos_a_evaluar;
 
+    int nodos_recorridos = 0;
+
     auto nodos_pendientes = new int[sigIdNodo];
     auto pesos = new float[sigIdNodo];
     auto nodo_anterior = new int[sigIdNodo];
-    auto estimadores = new double[sigIdNodo];
+    auto estimadores = new float[sigIdNodo];
 
     Nodo* nodoObjetivo = nodos_id_ext[id_ext_nodo_final];
 
@@ -160,7 +165,7 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
 
             nodo_anterior[id_int] = -1;
 
-            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / 60.f;
+            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (45.f );
         }
     }
 
@@ -175,13 +180,16 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
 
         Nodo* ultimo_nodo_revisado = nodos_id_int[id_ultimo_nodo_agregado];
 
+        nodos_recorridos ++;
+
         if(!ultimo_nodo_revisado->getNodosVecinos().empty()){
             for (auto nodo_peso_vecino: ultimo_nodo_revisado->getNodosVecinos()){
-                float peso_cantidado = pesos[id_ultimo_nodo_agregado] + nodo_peso_vecino.second + estimadores[id_ultimo_nodo_agregado];
+                int idNodoVecino = nodo_peso_vecino.first->getIdInt();
+                float peso_cantidado = pesos[id_ultimo_nodo_agregado] + nodo_peso_vecino.second;
                 float peso_actual_vecino = pesos[nodo_peso_vecino.first->getIdInt()];
                 if (peso_actual_vecino == -1 ||  peso_cantidado < peso_actual_vecino){
-                    pesos[nodo_peso_vecino.first->getIdInt()] = peso_cantidado;
-                    cola_pesos_a_evaluar.push({peso_cantidado, nodo_peso_vecino.first});
+                    pesos[idNodoVecino] = peso_cantidado;
+                    cola_pesos_a_evaluar.push({(peso_cantidado + estimadores[idNodoVecino]), nodo_peso_vecino.first});
                     nodo_anterior[nodo_peso_vecino.first->getIdInt()] = id_ultimo_nodo_agregado;
                 }
             }

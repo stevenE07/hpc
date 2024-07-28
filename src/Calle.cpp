@@ -201,16 +201,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
     // 3- aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
 
-
-    /*
-    long data_received[4];
-    MPI_Request request;
-    MPI_Irecv(data_received, 4, MPI_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &request);
-    MPI_Status status;
-    int flag;
-    MPI_Test(&request, &flag, &status);
-     */
-
     omp_set_lock(&lock_solicitud);
 
     if(!solicitudes_traspaso_calle.empty()){

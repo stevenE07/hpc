@@ -45,14 +45,14 @@ typedef struct {
 
 
 
-inline double getDistanceEntrePuntosEnMetros(double latitude1, double longitude1, double latitude2, double longitude2) {
+inline float getDistanceEntrePuntosEnMetros(double latitude1, double longitude1, double latitude2, double longitude2) {
     double theta = longitude1 - longitude2;
     double distance = 60 * 1.1515 * (180/M_PI) * acos(
             sin(latitude1 * (M_PI/180)) * sin(latitude2 * (M_PI/180)) +
             cos(latitude1 * (M_PI/180)) * cos(latitude2 * (M_PI/180)) * cos(theta * (M_PI/180))
     );
 
-    return round(distance * 1.609344 * 1000);
+    return (float)round(distance * 1.609344 * 1000);
 
 }
 

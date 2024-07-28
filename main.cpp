@@ -370,9 +370,9 @@ void ejecutar_epoca() {
             #pragma omp master
             {
                 if (my_rank == 0) {
-                    if ((numero_epoca + 1) % 500 == 1) {
+                    if ((numero_epoca + 1) % 500 == 0) {
                         milliseconds milisecondsEp = duration_cast<milliseconds>(Clock::now() - inicioTiempoEp);
-                        cout << " ========  Epoca  " << numero_epoca + 1 << " | Tiempo: "
+                        cout << " ========  Epoca  " << numero_epoca << " | Tiempo: "
                              << ((float) milisecondsEp.count() / 1000.f) / 500.f << " ms | numero vehiculos pendientes "
                              << numero_vehiculos_en_curso_global << " ==========" << endl;
                         inicioTiempoEp = Clock::now();
@@ -439,8 +439,6 @@ void ejecutar_epoca() {
 
                     contadorRequestNotificaciones++;
                 }
-
-
             }
 
             #pragma omp barrier
@@ -680,6 +678,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
         long dst = nodo_final[num_vehiculo_localmente_generado];
 
         auto camino = grafoMapa->computarCaminoMasCortoUtilizandoAStar(src, dst);
+        //auto camino = grafoMapa->computarCaminoMasCorto(src, dst, -1);
 
         if (camino.empty()) {
             #pragma omp atomic
@@ -689,13 +688,6 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             auto nodo_inicial_barrio = camino.front();
 
             int size_camino = camino.size();
-
-            /*  // Descomenta para imprimir los caminos
-            for (auto c : camino){
-                long id_barrio = grafoMapa->obtenerNodo(c)->getSeccion();
-                cout << id_barrio << " --- " << c << endl;
-            }
-            */
 
             for (size_t j = 0; j < size_camino; ++j) {
                 long barrio = grafoMapa->obtenerNodo(camino[j])->getSeccion();
