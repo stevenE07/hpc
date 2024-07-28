@@ -165,7 +165,7 @@ void create_mpi_types() {
 }
 
 void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, int & cantidadSolicitudesRecivdas){
-    #pragma omp for schedule(static, 1) nowait
+    #pragma omp for schedule(dynamic, 1) nowait
     for(int s = 0; s < cantidadSolicitudesRecivdas; s++){
         auto solicitud = solicitudesRecividas[s];
         pair<int, long> claveSegmento = make_pair(solicitud.id_vehiculo, solicitud.id_barrio);
@@ -359,8 +359,9 @@ void ejecutar_epoca() {
 
 
 
-
-    cout << "Inicio simulacion" << endl;
+    if(my_rank == 0){
+        cout << "Inicio simulacion" << endl;
+    }
 
 
     #pragma omp parallel
@@ -439,14 +440,7 @@ void ejecutar_epoca() {
                     contadorRequestNotificaciones++;
                 }
 
-                numAllSolicitudesRecividas = 0;
-                numAllNotificacionesRecividas = 0;
 
-                leer_solicitud_recibidas(allsolicitudesRecividas, numAllSolicitudesRecividas);
-                leer_notificaciones_recibidas(allNotificacionesRecividas, numAllNotificacionesRecividas);
-
-                numero_vehiculos_en_curso_en_el_nodo += numAllSolicitudesRecividas;
-                numero_vehiculos_en_curso_en_el_nodo -= numAllNotificacionesRecividas;
             }
 
             #pragma omp barrier
@@ -472,6 +466,18 @@ void ejecutar_epoca() {
                 solicitudes_transpaso_entre_nodos_mpi.clear();
                 notificaciones_transpaso_entre_nodos_mpi.clear();
 
+            };
+
+            #pragma omp single
+            {
+                numAllSolicitudesRecividas = 0;
+                numAllNotificacionesRecividas = 0;
+
+                leer_solicitud_recibidas(allsolicitudesRecividas, numAllSolicitudesRecividas);
+                leer_notificaciones_recibidas(allNotificacionesRecividas, numAllNotificacionesRecividas);
+
+                numero_vehiculos_en_curso_en_el_nodo += numAllSolicitudesRecividas;
+                numero_vehiculos_en_curso_en_el_nodo -= numAllNotificacionesRecividas;
             };
 
 
@@ -581,7 +587,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
                 }
             }
         }
-        cout << "cont ::" << cont << endl;
 
         MPI_Bsend(buff_data_vehiculo_a_enviar, cantidad_mensajes_a_enviar[rank_nodo_a_enviar],
                   MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD);
