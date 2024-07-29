@@ -923,6 +923,7 @@ int main(int argc, char* argv[]) {
 
     // ---- Leer MAPA
     CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
+    //CargarGrafo loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
 
 
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
@@ -932,8 +933,8 @@ int main(int argc, char* argv[]) {
     if(my_rank == 0){
 
         // ---- Leer poblaciones por barrio
-        //std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
         std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
+        //std::string dir = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
         leerCSVbarrioCantidades( dir ,barrios_con_poblacion);
         calcularProbabilidad(barrios_con_poblacion, probabilidad_por_barrio);
         asignarCantidades(rng, numero_vehiculos_en_curso_global, probabilidad_por_barrio, cantidad_vehiculos_a_generar_por_barrio);

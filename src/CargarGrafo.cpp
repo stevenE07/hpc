@@ -96,7 +96,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
         float largo = data["links"][i]["length"];
 
         if (largo < LARGO_VEHICULO) {
-            largo = LARGO_VEHICULO + 1.f;
+            largo = 2*LARGO_VEHICULO;
         }
 
         string velocidad_max;

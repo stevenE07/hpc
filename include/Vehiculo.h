@@ -29,6 +29,7 @@ private:
     bool contadorDePasienciaActivado;
     int numeroEpocasAntesDeCambio;
     long numeroNodoCalleEnEspera;
+    int numeroIntentosCambioDeRuta;
 
     float distancia_recorrida;
     int epoca_inicio;
@@ -90,6 +91,10 @@ public:
     int getEpocaInicio() const;
 
     void setEpocaInicio(int epocaInicio);
+
+    int getNumeroIntentosCambioDeRuta() const;
+
+    void setNumeroIntentosCambioDeRuta(int numeroIntentosCambioDeRuta);
 
     long obtenerUltimoNodoDeLaRuta(){
         return ruta[ruta.size() - 1];

@@ -135,4 +135,12 @@ void Vehiculo::setNumeroNodoCalleEnEspera(long numeroNodoCalleEnEspera) {
     Vehiculo::numeroNodoCalleEnEspera = numeroNodoCalleEnEspera;
 }
 
+int Vehiculo::getNumeroIntentosCambioDeRuta() const {
+    return numeroIntentosCambioDeRuta;
+}
+
+void Vehiculo::setNumeroIntentosCambioDeRuta(int numeroIntentosCambioDeRuta) {
+    Vehiculo::numeroIntentosCambioDeRuta = numeroIntentosCambioDeRuta;
+}
+
 

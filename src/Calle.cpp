@@ -286,7 +286,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                                string idSigCalle = Calle::getIdCalle(nodo_final, nodoInicioSigCaminoMinimo);
                                Calle* sigCalle = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idSigCalle);
                                sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
-
+                               v->setNumeroNodoCalleEnEspera(nodoInicioSigCaminoMinimo);
                            }
                        }
                        v->setNumeroEpocasAntesDeCambio(200);
@@ -408,7 +408,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
     float valorTiempoMedioDefault = largo / (float)(velocidad_maxima * (float)numero_carriles);
 
     //float tiempoMedioEsperado = (valorCongestion*0.25f) * (largo / valorVelocidadMedia) + (1-valorCongestion*0.75f) * valorTiempoMedioDefault;
-    float tiempoMedioEsperado = valorTiempoMedioDefault + valorTiempoMedioDefault * valorCongestion * ( (velocidad_maxima - valorVelocidadMedia) / velocidad_maxima) * 0.20;
+    float tiempoMedioEsperado = valorTiempoMedioDefault + valorTiempoMedioDefault * valorCongestion * ( (velocidad_maxima - valorVelocidadMedia) / velocidad_maxima) * 1.00;
 
 
     medicion_costo.push_back(tiempoMedioEsperado);
@@ -465,7 +465,7 @@ void Calle::mostrarEstado(){
         }
     }
 
-    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo << " COSTO Original " << valorTiempoMedioDefault << " Costo actual " << costoActual << endl; ;
+    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo << " COSTO Original " << valorTiempoMedioDefault << " Costo actual " << costoActual; ;
 
     for( Vehiculo* v: vehculos_ordenados_en_calle){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
@@ -474,7 +474,14 @@ void Calle::mostrarEstado(){
         << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
     }
 
-    LOG(INFO) << " >>>>>>>>>>>  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
+    LOG(INFO) << " ##  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
+
+    for( auto a : solicitudes_traspaso_calle){
+        LOG(INFO) << " id = " << a.second->getId() << " calle-origen :" << a.first.first << "-" << a.first.second;
+    }
+
+    LOG(INFO) << endl;
+
 
 }
 
