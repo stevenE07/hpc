@@ -38,7 +38,7 @@ bool operator<(const elemento_cola& left, const elemento_cola& right)
     return (left.peso > right.peso);
 }
 
-vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final, long seccion){
+vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final, long seccion, float & pesoEncontrado){
     if(id_ext_nodo_inicio == id_ext_nodo_final){
         vector<long> emptyVector;
         return emptyVector;
@@ -115,6 +115,10 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
 
     }
 
+
+
+    pesoEncontrado = pesos[id_ultimo_nodo_agregado];
+
     vector<long> camino;
     camino.push_back(id_int_to_ext[id_ultimo_nodo_agregado]);
     int ultimo_nodo_camino = id_ultimo_nodo_agregado;
@@ -166,7 +170,7 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
             nodo_anterior[id_int] = -1;
 
             //estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (45.f );
-            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (60.f );
+            estimadores[id_int] = getDistanceEntrePuntosEnMetros(nodoObjetivo->getY(), nodoObjetivo->getX(), nodo->getY(), nodo->getX()) / (80.f );
         }
     }
 

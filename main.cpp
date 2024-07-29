@@ -175,7 +175,8 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
         //#pragma omp critical(segmentos_a_recorrer_pop_mutex)
         segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
 
-        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
+        float peso;
+        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio, peso); //ToDo mejorar que solo busque en el barrio
 
         auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
 
@@ -193,6 +194,7 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
         string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
         Calle *sigCalle = mapa_mis_barios[idBarrioSiguiente]->obtenerCalle(idSigCalle);
 
+        vehiculoIngresado->setContadorDePasienciaActivado(false);
         sigCalle->insertarSolicitudTranspaso(solicitud.id_nodo_inicial_calle_anterior, caminoSigBarrio[0], vehiculoIngresado);
 
     }
@@ -427,7 +429,7 @@ void ejecutar_epoca() {
 
             #pragma omp barrier
             #pragma omp critical
-            if(numero_epoca > 30000){
+            if(numero_epoca > 80000){
                 for (int i = 0; i < todas_calles.size(); i++) {
                     auto it = todas_calles[i];
                     it->mostrarEstado();
@@ -772,9 +774,11 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             #pragma omp critical(segmentos_a_recorrer_pop_mutex)
             segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].pop();
 
-
+            float peso;
             auto caminoPrimerBarrio = grafoMapa->computarCaminoMasCorto(primerSegmento.id_inicio,
-                                                                        primerSegmento.id_fin, primerSegmento.id_barrio); //ToDo mejorar que solo busque en el barrio
+                                                                        primerSegmento.id_fin,
+                                                                        primerSegmento.id_barrio,
+                                                                        peso); //ToDo mejorar que solo busque en el barrio
 
             v->setRuta(caminoPrimerBarrio, primerSegmento.is_segmento_final);
 
@@ -788,6 +792,8 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             Nodo *nodo_inicial_r = grafoMapa->obtenerNodo(id_camino_primer_nodo);
 
             Calle *calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
+
+            v->setContadorDePasienciaActivado(false);
             calle->insertarSolicitudTranspaso(-1, -1, v);
 
         }

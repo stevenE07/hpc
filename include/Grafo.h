@@ -26,7 +26,7 @@ public:
     void agregarNodo(long id_ext, long seccion, float x, float y);
     void agregarArista(long id_ext_entrada, long id_ext_salida, float peso);
 
-    vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final, long seccion);
+    vector<long> computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_nodo_final, long seccion, float & pesoEncontrado);
 
     vector<long> computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inicio, long id_ext_nodo_final);
 

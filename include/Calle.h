@@ -53,7 +53,7 @@ private:
     omp_lock_t lock_notificacion;
 
     float calcularCongestion();
-    float calcularVelocidadMedia();
+    float calcularVelocidadMedia(vector<float> & velocidades);
 
 
 public:
@@ -68,6 +68,9 @@ public:
           int my_rank);
 
     void insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id_fin_calle_solicitante, Vehiculo* vehiculo);
+
+    //Retorna true si la solicitud seguia en la lista de solicitudes, y en ese caso es eliminada de la lista
+    bool consultarSolicitudActivaYRemover(int idVehiculo);
 
     void notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
 

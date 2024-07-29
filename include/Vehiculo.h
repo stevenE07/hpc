@@ -26,6 +26,10 @@ private:
 
     bool esperando_traslado_entre_calles;
 
+    bool contadorDePasienciaActivado;
+    int numeroEpocasAntesDeCambio;
+    long numeroNodoCalleEnEspera;
+
     float distancia_recorrida;
     int epoca_inicio;
 
@@ -67,9 +71,17 @@ public:
 
     long nodo_actual();
 
-    unsigned char getIsSegmentoFinal() const;
+    long getNumeroNodoCalleEnEspera() const;
 
-    void setIsSegmentoFinal(unsigned char isSegmentoFinal);
+    void setNumeroNodoCalleEnEspera(long numeroNodoCalleEnEspera);
+
+    bool isContadorDePasienciaActivado() const;
+
+    void setContadorDePasienciaActivado(bool contadorDePasienciaActivado);
+
+    int getNumeroEpocasAntesDeCambio() const;
+
+    void setNumeroEpocasAntesDeCambio(int numeroEpocasAntesDeCambio);
 
     float getDistanciaRecorrida() const;
 
@@ -78,6 +90,10 @@ public:
     int getEpocaInicio() const;
 
     void setEpocaInicio(int epocaInicio);
+
+    long obtenerUltimoNodoDeLaRuta(){
+        return ruta[ruta.size() - 1];
+    }
 
 };
 

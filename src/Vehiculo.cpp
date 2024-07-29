@@ -111,4 +111,28 @@ void Vehiculo::setEpocaInicio(int epocaInicio) {
     epoca_inicio = epocaInicio;
 }
 
+bool Vehiculo::isContadorDePasienciaActivado() const {
+    return contadorDePasienciaActivado;
+}
+
+void Vehiculo::setContadorDePasienciaActivado(bool contadorDePasienciaActivado) {
+    Vehiculo::contadorDePasienciaActivado = contadorDePasienciaActivado;
+}
+
+int Vehiculo::getNumeroEpocasAntesDeCambio() const {
+    return numeroEpocasAntesDeCambio;
+}
+
+void Vehiculo::setNumeroEpocasAntesDeCambio(int numeroEpocasAntesDeCambio) {
+    Vehiculo::numeroEpocasAntesDeCambio = numeroEpocasAntesDeCambio;
+}
+
+long Vehiculo::getNumeroNodoCalleEnEspera() const {
+    return numeroNodoCalleEnEspera;
+}
+
+void Vehiculo::setNumeroNodoCalleEnEspera(long numeroNodoCalleEnEspera) {
+    Vehiculo::numeroNodoCalleEnEspera = numeroNodoCalleEnEspera;
+}
+
 
