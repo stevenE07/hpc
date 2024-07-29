@@ -425,7 +425,17 @@ void ejecutar_epoca() {
                 it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
             }
 
-            if((numero_epoca + 1) % 100 == 0){
+            #pragma omp barrier
+            #pragma omp critical
+            if(numero_epoca > 30000){
+                for (int i = 0; i < todas_calles.size(); i++) {
+                    auto it = todas_calles[i];
+                    it->mostrarEstado();
+                }
+                exit(1);
+            }
+
+            if((numero_epoca + 1) % 1000 == 0){
                 #pragma omp for schedule(dynamic, 50)
                 for (int index_nodo = 0; index_nodo < numeroDeNodos; index_nodo++){
                     Nodo* nodoAActualizar = nodosDelGrafoAsignados[index_nodo];

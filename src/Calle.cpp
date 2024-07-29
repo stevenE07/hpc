@@ -327,7 +327,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
     float valorVelocidadMedia = calcularVelocidadMedia();
     float valorTiempoMedioDefault = largo / (float)(velocidad_maxima * sqrt(numero_carriles));
 
-    float tiempoMedioEsperado = (valorCongestion/2) * (largo / valorVelocidadMedia) + (1-valorCongestion/2) * valorTiempoMedioDefault;
+    float tiempoMedioEsperado = (valorCongestion/4) * (largo / valorVelocidadMedia) + (1-valorCongestion/4) * valorTiempoMedioDefault;
     medicion_costo.push_back(tiempoMedioEsperado);
 }
 
@@ -343,14 +343,24 @@ float Calle::obtenerNuevoCostoYLimpiarMedidas(){
 
 void Calle::mostrarEstado(){
 
-    if(vehculos_ordenados_en_calle.empty() && solicitudes_traspaso_calle.empty()){
-        return;
-    }
+    //if(vehculos_ordenados_en_calle.empty() && solicitudes_traspaso_calle.empty()){
+    //    return;
+    //}
 
     string idCalle = Calle::getIdCalle(this);
 
-    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo ;
+    float valorTiempoMedioDefault = largo / (float)(velocidad_maxima * sqrt(numero_carriles));
 
+    Nodo* nodo = grafo->obtenerNodo(nodo_inicial);
+
+    float costoActual;
+    for(auto n : nodo->getNodosVecinos()){
+        if(n.first->getIdExt() == nodo_final){
+            costoActual = n.second;
+        }
+    }
+
+    LOG(INFO) << " >>>>>>>>>>>  Info calle: " << idCalle << " cantidad_carriles:" << this->numero_carriles << "largo: " << this->largo << " COSTO Original " << valorTiempoMedioDefault << " Costo actual " << costoActual << endl; ;
 
     for( Vehiculo* v: vehculos_ordenados_en_calle){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
