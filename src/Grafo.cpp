@@ -240,6 +240,14 @@ Nodo* Grafo::obtenerNodo(long id_ext_nodo){
     return nodos_id_ext[id_ext_nodo];
 }
 
+vector<Nodo*> Grafo::obtenerNodos(){
+    vector<Nodo*> nodos;
+    for(auto n: nodos_id_ext){
+        nodos.push_back(n.second);
+    }
+    return nodos;
+}
+
 Grafo::~Grafo() {
     for (auto n: nodos_id_ext){
         delete(n.second);

@@ -32,6 +32,41 @@ Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned num
    omp_init_lock(&lock_notificacion);
 }
 
+float Calle::calcularCongestion(){
+
+    int cantidad_max_vehiculos = floor((largo / LARGO_VEHICULO));
+    int cantidad_vehiculos = (int)vehculos_ordenados_en_calle.size();
+
+    return (float) cantidad_vehiculos / (float)cantidad_max_vehiculos;
+}
+
+float Calle::calcularVelocidadMedia(){
+    float acumulado = 0.f;
+
+    int cantidad = (int)vehculos_ordenados_en_calle.size();
+
+    for(auto v: vehculos_ordenados_en_calle){
+        acumulado += v->getVelocidad();
+    }
+
+
+    float velocidadMedia;
+    if(cantidad == 0){
+        velocidadMedia = 1; //Asi se puede hacer la divicion
+    } else {
+        velocidadMedia = acumulado / (float)cantidad;
+    }
+
+    if (velocidadMedia < 1.f){
+        return 1.0f;
+    } else {
+        return velocidadMedia;
+    }
+}
+
+
+
+
 void Calle::insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id_fin_calle_solicitante, Vehiculo* vehiculo){
     pair<pair<long, long>, Vehiculo*> solicitud;
     solicitud.first = make_pair(id_inicio_calle_solicitante, id_fin_calle_solicitante);
@@ -209,8 +244,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
             if (maximoPorCarril[num_carril] - LARGO_VEHICULO > 0){
                 if(!solicitudes_traspaso_calle.empty()){
 
-
-
                     // Logica de cual vehiculo elegir de otra calle
 
                     int indice_sig_solicitud_aceptada = -1;
@@ -263,7 +296,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                             notificacion.id_vehiculo = vehiculoIngresado->getId();
                             notificacion.id_barrio = idBarrioCalleANotificar;
 
-#pragma omp critical(enviar_notificacion_fn_mutex)
+                            #pragma omp critical(enviar_notificacion_fn_mutex)
                             enviarNotificacionFn(notificacion);
 
                         } else {
@@ -278,13 +311,34 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                 }
             }
         }
+
+
+
+
+
     }
-
-
 
     omp_unset_lock(&lock_solicitud);
 
     delete[] maximoPorCarril;
+
+
+    float valorCongestion = calcularCongestion();
+    float valorVelocidadMedia = calcularVelocidadMedia();
+    float valorTiempoMedioDefault = largo / (float)(velocidad_maxima * sqrt(numero_carriles));
+
+    float tiempoMedioEsperado = (valorCongestion/2) * (largo / valorVelocidadMedia) + (1-valorCongestion/2) * valorTiempoMedioDefault;
+    medicion_costo.push_back(tiempoMedioEsperado);
+}
+
+float Calle::obtenerNuevoCostoYLimpiarMedidas(){
+    float promedio = 0.f;
+    for(auto v: medicion_costo)
+        promedio += v;
+    promedio = promedio / (float)medicion_costo.size();
+    medicion_costo.clear();
+
+    return promedio;
 }
 
 void Calle::mostrarEstado(){

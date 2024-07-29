@@ -36,6 +36,8 @@ public:
 
     Nodo* obtenerNodo(long id_ext_nodo);
 
+    vector<Nodo*> obtenerNodos();
+
     long idNodoAletorio(std::mt19937& rnd, long seccion){
         std::uniform_int_distribution<int> dist(0, (int)nodos_id_por_seccion[seccion].size()-1);
         return nodos_id_por_seccion[seccion][dist(rnd)];

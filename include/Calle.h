@@ -25,7 +25,6 @@ private:
     float largo;
     unsigned int numero_carriles;
     float velocidad_maxima;
-    Grafo g;
 
     vector<pair<pair<long,long>, Vehiculo*>> solicitudes_traspaso_calle;
     set<pair<int, bool>>notificaciones_traslado_calle_realizado;
@@ -48,8 +47,14 @@ private:
 
     int my_rank;
 
+    vector<float> medicion_costo;
+
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
+
+    float calcularCongestion();
+    float calcularVelocidadMedia();
+
 
 public:
     Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles,float velocidad_maxima,
@@ -70,6 +75,8 @@ public:
     void ejecutarEpoca(float tiempo_epoca, int numeroEpoca);
 
     void mostrarEstado();
+
+    float obtenerNuevoCostoYLimpiarMedidas();
 
     static string getIdCalle(Calle* calle){
         return to_string(calle->nodo_inicial) + "-" + to_string(calle->nodo_final);

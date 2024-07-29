@@ -357,7 +357,16 @@ void ejecutar_epoca() {
     allsolicitudesRecividas = new SolicitudTranspaso[nodos_mpi_vecinos.size() * MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
     allNotificacionesRecividas = new int[nodos_mpi_vecinos.size() * MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
 
+    vector<Nodo*> nodosDelGrafoAsignados;
+    for(auto nodo :grafoMapa->obtenerNodos()){
+        if(asignacion_barrios[nodo->getSeccion()] == my_rank){
+            nodosDelGrafoAsignados.push_back(nodo);
+        }
+    }
 
+
+
+    int numeroDeNodos = (int)nodosDelGrafoAsignados.size();
 
     if(my_rank == 0){
         cout << "Inicio simulacion" << endl;
@@ -414,6 +423,31 @@ void ejecutar_epoca() {
             for (int i = 0; i < todas_calles.size(); i++) {
                 auto it = todas_calles[i];
                 it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
+            }
+
+            if((numero_epoca + 1) % 100 == 0){
+                #pragma omp for schedule(dynamic, 50)
+                for (int index_nodo = 0; index_nodo < numeroDeNodos; index_nodo++){
+                    Nodo* nodoAActualizar = nodosDelGrafoAsignados[index_nodo];
+
+                    long idNodoInicio = nodoAActualizar->getIdExt();
+                    long idBarrio = nodoAActualizar->getSeccion();
+
+                    vector<pair<Nodo*, float>> nuevosPesosVecinos;
+
+                    for(auto nodoVecino : nodoAActualizar->getNodosVecinos()){
+                        long idNodoFin = nodoVecino.first->getIdExt();
+
+                        string idCalle = Calle::getIdCalle(idNodoInicio, idNodoFin);
+                        Calle* calle = mapa_mis_barios[idBarrio]->obtenerCalle(idCalle);
+
+                        float nuevoCosto = calle->obtenerNuevoCostoYLimpiarMedidas();
+
+                        nuevosPesosVecinos.push_back(make_pair(nodoVecino.first, nuevoCosto));
+                    }
+
+                    nodoAActualizar->setNodosVecinos(nuevosPesosVecinos);
+                }
             }
 
             #pragma omp barrier
