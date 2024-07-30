@@ -129,6 +129,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
             v->setEsperandoTrasladoEntreCalles(false);
             v->setContadorDePasienciaActivado(false);
             v->setNumeroEpocasAntesDeCambio(0);
+            v->setNumeroIntentosCambioDeRuta(0);
             posiciones_vehiculos_en_calle.erase(v->getId());
 
             bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
@@ -164,12 +165,10 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
         if(nuevaCarilPosicion.second >= largo){
            if(!v->isEsperandoTrasladoEntreCalles()) {
 
-               v->setNumeroEpocasAntesDeCambio(200);
+               v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
+               v->setNumeroIntentosCambioDeRuta(0);
 
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1) {
-                   // termino de computar la ultima calle dentro del barrio.
-                   //#pragma omp critical
-                   //LOG(INFO) << " #####################################  Vehiculo con ID: " << v->getId() << " Termino_barrio";
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
                        #pragma omp critical(doneFn_mutex)
@@ -230,12 +229,34 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                    sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
                }
            } else {
+
+               if(v->getNumeroIntentosCambioDeRuta() == NUMERO_MAXIMO_INTENTO_CAMBIO_CARRILES){
+                   //printf("Desaparesco! %d\n", v->getId());
+
+                   v->setEsperandoTrasladoEntreCalles(false);
+                   v->setContadorDePasienciaActivado(false);
+                   v->setNumeroEpocasAntesDeCambio(0);
+                   v->setNumeroIntentosCambioDeRuta(0);
+                   posiciones_vehiculos_en_calle.erase(v->getId());
+
+                   bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
+
+                   if(vehiculo_insertado_en_otro_nodo_mpi ){
+                       delete v;
+                   }
+
+                   continue;
+
+               }
+
                if(v->isContadorDePasienciaActivado()){
                    v->setNumeroEpocasAntesDeCambio(v->getNumeroEpocasAntesDeCambio() - 1); //Descuento 1 antes de formzar el cambio
 
                    #pragma omp critical(debugg) //ToDo quitar eso que no es necesario
                    if(v->getNumeroEpocasAntesDeCambio() == 0){
                        // -- Se buscan caminos alternativos
+
+                       v->setNumeroIntentosCambioDeRuta(v->getNumeroIntentosCambioDeRuta() + 1);
 
                        Nodo* nodoFinalCalleActual = grafo->obtenerNodo(nodo_final);
                        long ultimoNodoDeLaSubRuta = v->obtenerUltimoNodoDeLaRuta();
@@ -289,7 +310,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                                v->setNumeroNodoCalleEnEspera(nodoInicioSigCaminoMinimo);
                            }
                        }
-                       v->setNumeroEpocasAntesDeCambio(200);
+                       v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
                    }
                }
            }

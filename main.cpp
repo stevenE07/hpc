@@ -428,14 +428,7 @@ void ejecutar_epoca() {
             }
 
             #pragma omp barrier
-            #pragma omp critical
-            if(numero_epoca > 80000){
-                for (int i = 0; i < todas_calles.size(); i++) {
-                    auto it = todas_calles[i];
-                    it->mostrarEstado();
-                }
-                exit(1);
-            }
+
 
             if((numero_epoca + 1) % 1000 == 0){
                 #pragma omp for schedule(dynamic, 50)
