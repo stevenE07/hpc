@@ -230,29 +230,27 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                }
            } else {
 
-               if(v->getNumeroIntentosCambioDeRuta() == NUMERO_MAXIMO_INTENTO_CAMBIO_CARRILES){
-                   //printf("Desaparesco! %d\n", v->getId());
+               if(v->isContadorDePasienciaActivado()){
 
-                   v->setEsperandoTrasladoEntreCalles(false);
-                   v->setContadorDePasienciaActivado(false);
-                   v->setNumeroEpocasAntesDeCambio(0);
-                   v->setNumeroIntentosCambioDeRuta(0);
-                   posiciones_vehiculos_en_calle.erase(v->getId());
+                   if(v->getNumeroIntentosCambioDeRuta() == NUMERO_MAXIMO_INTENTO_CAMBIO_CARRILES){
+                       v->setEsperandoTrasladoEntreCalles(false);
+                       v->setContadorDePasienciaActivado(false);
+                       v->setNumeroEpocasAntesDeCambio(0);
+                       v->setNumeroIntentosCambioDeRuta(0);
+                       posiciones_vehiculos_en_calle.erase(v->getId());
 
-                   bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
+                       bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
 
-                   if(vehiculo_insertado_en_otro_nodo_mpi ){
-                       delete v;
+                       if(vehiculo_insertado_en_otro_nodo_mpi ){
+                           delete v;
+                       }
+
+                       continue;
+
                    }
 
-                   continue;
-
-               }
-
-               if(v->isContadorDePasienciaActivado()){
                    v->setNumeroEpocasAntesDeCambio(v->getNumeroEpocasAntesDeCambio() - 1); //Descuento 1 antes de formzar el cambio
 
-                   #pragma omp critical(debugg) //ToDo quitar eso que no es necesario
                    if(v->getNumeroEpocasAntesDeCambio() == 0){
                        // -- Se buscan caminos alternativos
 
@@ -292,8 +290,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                                 nodoInicioSigCaminoMinimo = nodoVecinoCantidado->getIdExt();
                             }
                        }
-
-                       Barrio* barrio = mapa_barrio[nodoFinalCalleActual->getSeccion()];
 
                        if(nodoInicioSigCaminoMinimo != v->getNumeroNodoCalleEnEspera()){
                            string idCalleDondeSeIntentabaIngresar = Calle::getIdCalle(nodo_final, v->getNumeroNodoCalleEnEspera());
@@ -380,6 +376,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                     posiciones_vehiculos_en_calle[vehiculoIngresado->getId()] = carrilPosicion;
 
                     vehiculoIngresado->setDistanciaRecorrida(vehiculoIngresado->getDistanciaRecorrida() + largo);
+                    vehiculoIngresado->setNumeroIntentosCambioDeRuta(0);
 
                     vehculos_ordenados_en_calle.push_back(vehiculoIngresado);
 
