@@ -72,7 +72,7 @@ public:
     //Retorna true si la solicitud seguia en la lista de solicitudes, y en ese caso es eliminada de la lista
     bool consultarSolicitudActivaYRemover(int idVehiculo);
 
-    void notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
+    bool notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
 
     // tiempo_epoca en ms
     void ejecutarEpoca(float tiempo_epoca, int numeroEpoca);

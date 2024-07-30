@@ -1,3 +1,7 @@
+#include "map"
+#include "vector"
+#include "omp.h"
+
 #ifndef HPC_NODO_H
 #define HPC_NODO_H
 
@@ -10,6 +14,11 @@ private:
     long id_ext;
     long seccion; //Identificador de la componente a la que pertenecen, en nuestro conexto es el barrio
     vector<pair<Nodo*, float>> nodos_vecinos;
+
+    map<long, vector<long>> tablaDeRutas;
+
+    omp_lock_t lock;
+
 public:
     Nodo(int id_int, long id_ext, long seccion, float x, float y){
         this->id_int = id_int;
@@ -17,7 +26,42 @@ public:
         this->seccion = seccion;
         this->x = x;
         this->y = y;
+        omp_init_lock(&lock);
     }
+
+    void consultarRutaPreCargada(long dest, vector<long> & ruta, bool & encontrada){
+        omp_set_lock(&lock);
+        encontrada = false; //this->tablaDeRutas.count(dest) > 0;
+        if(encontrada){
+            ruta = tablaDeRutas[dest];
+        }
+        omp_unset_lock(&lock);
+    }
+
+    void agregarRutaPreCargada(long dest, vector<long>& ruta){
+        omp_set_lock(&lock);
+
+        if(this->tablaDeRutas.count(dest) == 0){
+            tablaDeRutas[dest] = ruta;
+        }
+        omp_unset_lock(&lock);
+    }
+
+    void limpiarRutasPreCargadas(){
+        omp_set_lock(&lock);
+
+        for(auto lista: tablaDeRutas){
+            lista.second.clear();
+        }
+        this->tablaDeRutas.clear();
+
+        omp_unset_lock(&lock);
+    }
+
+    ~Nodo(){
+        omp_destroy_lock(&lock);
+    }
+
     void conectarNodo(Nodo* nodo, float peso){
         pair<Nodo*, float> arista;
         arista.first = nodo;

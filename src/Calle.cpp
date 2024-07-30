@@ -72,10 +72,20 @@ void Calle::insertarSolicitudTranspaso(long id_inicio_calle_solicitante, long id
     omp_unset_lock(&lock_solicitud);
 }
 
-void Calle::notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar){
+bool Calle::notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar){
     omp_set_lock(&lock_notificacion); //Mutex al insertar notificacion
-    notificaciones_traslado_calle_realizado.insert(make_pair(idVehiculo, eliminar_luego_de_notificar));
+
+    if(posiciones_vehiculos_en_calle.count(idVehiculo) == 0){
+        if(eliminar_luego_de_notificar){
+            omp_unset_lock(&lock_notificacion);
+            return true; //Vehiculo ya eliminado
+        }
+    } else {
+        notificaciones_traslado_calle_realizado.insert(make_pair(idVehiculo, eliminar_luego_de_notificar));
+    }
+
     omp_unset_lock(&lock_notificacion);
+    return false;
 }
 
 
@@ -127,7 +137,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
             omp_unset_lock(&lock_notificacion);
 
             v->setEsperandoTrasladoEntreCalles(false);
-            v->setContadorDePasienciaActivado(false);
             v->setNumeroEpocasAntesDeCambio(0);
             v->setNumeroIntentosCambioDeRuta(0);
             posiciones_vehiculos_en_calle.erase(v->getId());
@@ -168,6 +177,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
                v->setNumeroIntentosCambioDeRuta(0);
 
+
                if(v->getNumeroCalleRecorrida() + 1 == v->getRuta().size() - 1) {
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
@@ -187,11 +197,23 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                            (*ptr_segmentos_a_recorrer_por_barrio_por_vehiculo)[clave].pop();
 
                            float peso;
-                           auto caminoSigBarrio = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio, peso); //ToDo mejorar que solo busque en el barrio
-                           v->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
+
+                           Nodo* nodoInicio = grafo->obtenerNodo(sigSegmento.id_inicio);
+
+                           vector<long> ruta;
+                           bool rutaPrecargada;
+
+                           nodoInicio->consultarRutaPreCargada(sigSegmento.id_fin, ruta, rutaPrecargada);
+
+                           if(!rutaPrecargada){
+                               ruta = grafo->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio, peso); //ToDo mejorar que solo busque en el barrio
+                               nodoInicio->agregarRutaPreCargada(sigSegmento.id_fin, ruta);
+                           }
+
+                           v->setRuta(ruta, sigSegmento.is_segmento_final);
                            v->set_indice_calle_recorrida(0);
 
-                           string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
+                           string idSigCalle = Calle::getIdCalle(ruta[0], ruta[1]);
                            Calle *sigCalle = mapa_barrio[idBarrioSig]->obtenerCalle(idSigCalle);
                            v->setEsperandoTrasladoEntreCalles(true);
                            v->setContadorDePasienciaActivado(false);
@@ -225,88 +247,94 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
                    v->setNumeroNodoCalleEnEspera(idSiguienteNodo);
 
-
                    sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
                }
            } else {
-
-               if(v->isContadorDePasienciaActivado()){
+               bool isCGG = v->isContadorDePasienciaActivado();
+               if(v->getCalleactual()->nodo_inicial == nodo_inicial && v->getCalleactual()->nodo_final == nodo_final){
 
                    if(v->getNumeroIntentosCambioDeRuta() == NUMERO_MAXIMO_INTENTO_CAMBIO_CARRILES){
-                       v->setEsperandoTrasladoEntreCalles(false);
-                       v->setContadorDePasienciaActivado(false);
+
+                       printf("Me voy \n");
                        v->setNumeroEpocasAntesDeCambio(0);
                        v->setNumeroIntentosCambioDeRuta(0);
                        posiciones_vehiculos_en_calle.erase(v->getId());
-
-                       bool vehiculo_insertado_en_otro_nodo_mpi = mi_notificacion.second;
-
-                       if(vehiculo_insertado_en_otro_nodo_mpi ){
-                           delete v;
-                       }
-
                        continue;
-
                    }
 
                    v->setNumeroEpocasAntesDeCambio(v->getNumeroEpocasAntesDeCambio() - 1); //Descuento 1 antes de formzar el cambio
 
                    if(v->getNumeroEpocasAntesDeCambio() == 0){
-                       // -- Se buscan caminos alternativos
 
-                       v->setNumeroIntentosCambioDeRuta(v->getNumeroIntentosCambioDeRuta() + 1);
+                       if(v->isContadorDePasienciaActivado()){
 
-                       Nodo* nodoFinalCalleActual = grafo->obtenerNodo(nodo_final);
-                       long ultimoNodoDeLaSubRuta = v->obtenerUltimoNodoDeLaRuta();
 
-                       float minimoPeso = 0;
-                       bool isPrimerCaminoExplorado = true;
-                       long nodoInicioSigCaminoMinimo;
-                       vector<long> rutaMimima;
-                       for(auto nv: nodoFinalCalleActual->getNodosVecinos()){
+                           Nodo* nodoFinalCalleActual = grafo->obtenerNodo(nodo_final);
+                           Nodo* nodoInicialCalleActual = grafo->obtenerNodo(nodo_final);
+                           long ultimoNodoDeLaSubRuta = v->obtenerUltimoNodoDeLaRuta();
 
-                           Nodo* nodoVecinoCantidado = nv.first;
-                           float costoArista = nv.second;
+                           float minimoPeso = 0;
+                           bool isPrimerCaminoExplorado = true;
+                           long nodoInicioSigCaminoMinimo;
+                           vector<long> rutaMimima;
+                           for(auto nv: nodoFinalCalleActual->getNodosVecinos()){
 
-                           if(nodoVecinoCantidado->getIdExt() == nodo_inicial){
-                               // No permitidmos que vuelva hacia atras por la calle en la que fue, o sea, no vuelta en U
-                               continue;
+                               Nodo* nodoVecinoCantidado = nv.first;
+                               float costoArista = nv.second;
+
+                               if(nodoVecinoCantidado->getIdExt() == nodo_inicial){
+                                   // No permitidmos que vuelva hacia atras por la calle en la que fue, o sea, no vuelta en U
+                                   continue;
+                               }
+
+                               float pesoPorEseCamino = 0.f;
+                               vector<long> ruta;
+
+
+
+                               if(nodoVecinoCantidado->getIdExt() == ultimoNodoDeLaSubRuta){ //Caso borde, se tranca en la ultima calle que debe recorrer
+                                   ruta.push_back(ultimoNodoDeLaSubRuta);
+                               } else {
+                                   Nodo* nodoInicio = grafo->obtenerNodo(nodoVecinoCantidado->getIdExt());
+
+                                   bool rutaPrecargada;
+                                   nodoInicio->consultarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta, rutaPrecargada);
+
+                                   if(!rutaPrecargada){
+                                       ruta = grafo->computarCaminoMasCorto(nodoVecinoCantidado->getIdExt(), ultimoNodoDeLaSubRuta, nodoInicialCalleActual->getSeccion(), pesoPorEseCamino);
+                                       nodoInicio->agregarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta);
+                                   }
+
+                                   if(ruta.empty()) continue;
+                               }
+
+                               pesoPorEseCamino += costoArista;
+                               if(isPrimerCaminoExplorado || pesoPorEseCamino < minimoPeso){
+                                   isPrimerCaminoExplorado = false;
+                                   minimoPeso = pesoPorEseCamino;
+                                   rutaMimima = ruta;
+                                   nodoInicioSigCaminoMinimo = nodoVecinoCantidado->getIdExt();
+                               }
                            }
 
-                           float pesoPorEseCamino = 0.f;
-                           vector<long> ruta;
-                           if(nodoVecinoCantidado->getIdExt() == ultimoNodoDeLaSubRuta){ //Caso borde, se tranca en la ultima calle que debe recorrer
-                               ruta.push_back(ultimoNodoDeLaSubRuta);
-                           } else {
-                               ruta = grafo->computarCaminoMasCorto(nodoVecinoCantidado->getIdExt(), ultimoNodoDeLaSubRuta, nodoFinalCalleActual->getSeccion(), pesoPorEseCamino);
-                               if(ruta.empty()) continue;
-                           }
+                           if(nodoInicioSigCaminoMinimo != v->getNumeroNodoCalleEnEspera() && !isPrimerCaminoExplorado){
+                               string idCalleDondeSeIntentabaIngresar = Calle::getIdCalle(nodo_final, v->getNumeroNodoCalleEnEspera());
+                               Calle* calleDondeSeIntentabaIngresar = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idCalleDondeSeIntentabaIngresar);
+                               bool solicitudeRetirada = calleDondeSeIntentabaIngresar->consultarSolicitudActivaYRemover(v->getId());
+                               if (solicitudeRetirada){ // En caso contrario es que es que la solicitud fue aceptada y es cuestion de que llege la notificacion
+                                   rutaMimima.insert(rutaMimima.begin(), nodo_final);
+                                   v->setRuta(rutaMimima, v->get_is_segmento_final());
+                                   v->set_indice_calle_recorrida(0);
 
-                           pesoPorEseCamino += costoArista;
-                            if(isPrimerCaminoExplorado || pesoPorEseCamino < minimoPeso){
-                                isPrimerCaminoExplorado = false;
-                                minimoPeso = pesoPorEseCamino;
-                                rutaMimima = ruta;
-                                nodoInicioSigCaminoMinimo = nodoVecinoCantidado->getIdExt();
-                            }
-                       }
-
-                       if(nodoInicioSigCaminoMinimo != v->getNumeroNodoCalleEnEspera()){
-                           string idCalleDondeSeIntentabaIngresar = Calle::getIdCalle(nodo_final, v->getNumeroNodoCalleEnEspera());
-                           Calle* calleDondeSeIntentabaIngresar = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idCalleDondeSeIntentabaIngresar);
-                           bool solicitudeRetirada = calleDondeSeIntentabaIngresar->consultarSolicitudActivaYRemover(v->getId());
-                           if (solicitudeRetirada){ // En caso contrario es que es que la solicitud fue aceptada y es cuestion de que llege la notificacion
-                              rutaMimima.insert(rutaMimima.begin(), nodo_final);
-                              v->setRuta(rutaMimima, v->get_is_segmento_final());
-                               v->set_indice_calle_recorrida(0);
-
-                               string idSigCalle = Calle::getIdCalle(nodo_final, nodoInicioSigCaminoMinimo);
-                               Calle* sigCalle = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idSigCalle);
-                               sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
-                               v->setNumeroNodoCalleEnEspera(nodoInicioSigCaminoMinimo);
+                                   string idSigCalle = Calle::getIdCalle(nodo_final, nodoInicioSigCaminoMinimo);
+                                   Calle* sigCalle = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idSigCalle);
+                                   sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
+                                   v->setNumeroNodoCalleEnEspera(nodoInicioSigCaminoMinimo);
+                               }
                            }
                        }
                        v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
+                       v->setNumeroIntentosCambioDeRuta(v->getNumeroIntentosCambioDeRuta() + 1);
                    }
                }
            }
@@ -368,6 +396,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                     Vehiculo* vehiculoIngresado = solicitud.second;
 
                     vehiculoIngresado->setCalleactual(this);
+                    vehiculoIngresado->setNumeroIntentosCambioDeRuta(0);
+                    vehiculoIngresado->setContadorDePasienciaActivado(false);
 
                     pair<int, float> carrilPosicion;
                     carrilPosicion.first = num_carril;
@@ -489,7 +519,9 @@ void Calle::mostrarEstado(){
         auto carrilPosicion = posiciones_vehiculos_en_calle[v->getId()];
 
         LOG(INFO) << " id = " << v->getId() << " | carril = " << carrilPosicion.first
-        << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad() << "Km";
+        << " | posicion= " << carrilPosicion.second << " tope:" << this->largo << " | velocidad = " << v->getVelocidad()
+        << "Km" << " Peidente? " << v->isEsperandoTrasladoEntreCalles() << " Pasiencia" << v->isContadorDePasienciaActivado()
+        << " Fin Ruta? " << v->get_is_segmento_final() << "Ultimo eleme ruta " << v->getRuta()[v->getRuta().size() - 1]  << "Estoy en: " << v->getNumeroCalleRecorrida() << " Nº int cambio" << v->getNumeroIntentosCambioDeRuta();
     }
 
     LOG(INFO) << " ##  SOLICITUDES DE AUTOS CALLE:  " << getIdCalle(this) << " : " <<  this->solicitudes_traspaso_calle.size();
