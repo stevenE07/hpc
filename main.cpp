@@ -686,8 +686,8 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             for (int i = 0; i < bario_y_cantidad.second; i++) {
                 long id_barrio = bario_y_cantidad.first;
                 nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng, id_barrio));
-                long barrioSortadoIndice = getClasePorProbailidad(rng, prob_barrio_barrio[id_barrio]);
-                nodo_final.push_back( grafoMapa->idNodoAletorio(rng));
+                long barrioSortadoIndice = getClasePorProbailidad(rng, prob_barrio_barrio[id_barrio - 1]);
+                nodo_final.push_back( grafoMapa->idNodoAletorio(rng, barrios[barrioSortadoIndice].first));
 
 
 
