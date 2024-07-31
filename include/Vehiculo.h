@@ -1,6 +1,7 @@
 #include "easylogging++.h"
 #include "vector"
 #include "string"
+#include "omp.h"
 
 #ifndef VEHICULO_H
 #define VEHICULO_H
@@ -24,19 +25,22 @@ private:
     //Aspectos temporales
     float velocidad;
 
-    bool esperando_traslado_entre_calles;
-
-    bool contadorDePasienciaActivado;
-    int numeroEpocasAntesDeCambio;
-    long numeroNodoCalleEnEspera;
-    int numeroIntentosCambioDeRuta;
+    bool esperando_notificacion;
 
     float distancia_recorrida;
     int epoca_inicio;
 
+
+    omp_lock_t lock_esperando_notificacion;
+
 public:
 
     Vehiculo(int id);
+
+    ~Vehiculo();
+
+
+
 
     Calle *getCalleactual() const;
 
@@ -56,10 +60,6 @@ public:
 
     long sigNodoARecorrer();
 
-    bool isEsperandoTrasladoEntreCalles() const;
-
-    void setEsperandoTrasladoEntreCalles(bool esperandoTrasladoEntreCalles);
-
     const vector<long> &getRuta() const;
 
     unsigned char get_is_segmento_final();
@@ -72,17 +72,6 @@ public:
 
     long nodo_actual();
 
-    long getNumeroNodoCalleEnEspera() const;
-
-    void setNumeroNodoCalleEnEspera(long numeroNodoCalleEnEspera);
-
-    bool isContadorDePasienciaActivado() const;
-
-    void setContadorDePasienciaActivado(bool contadorDePasienciaActivado);
-
-    int getNumeroEpocasAntesDeCambio() const;
-
-    void setNumeroEpocasAntesDeCambio(int numeroEpocasAntesDeCambio);
 
     float getDistanciaRecorrida() const;
 
@@ -92,9 +81,10 @@ public:
 
     void setEpocaInicio(int epocaInicio);
 
-    int getNumeroIntentosCambioDeRuta() const;
+    bool isEsperandoNotificacion() const;
 
-    void setNumeroIntentosCambioDeRuta(int numeroIntentosCambioDeRuta);
+    void setEsperandoNotificacion(bool esperandoNotificacion);
+
 
     long obtenerUltimoNodoDeLaRuta(){
         return ruta[ruta.size() - 1];

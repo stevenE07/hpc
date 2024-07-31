@@ -8,9 +8,15 @@ Vehiculo::Vehiculo(int id){
     this->id = id;
     this->indice_calle_recorrida = 0;
     this->is_segmento_final = 0;
-    this->esperando_traslado_entre_calles = false;
+    this->esperando_notificacion = false;
     this->calleactual = nullptr;
     this->distancia_recorrida = 0.0f;
+
+    omp_init_lock(&lock_esperando_notificacion);
+}
+
+Vehiculo::~Vehiculo() {
+    omp_destroy_lock(&lock_esperando_notificacion);
 }
 
 int Vehiculo::getId() const {
@@ -20,12 +26,10 @@ int Vehiculo::getId() const {
 void Vehiculo::setId(unsigned int id) {
     Vehiculo::id = id;
 }
+
 unsigned char Vehiculo::get_is_segmento_final() {
     return this->is_segmento_final;
 }
-
-
-
 
 float Vehiculo::getVelocidad() const {
     return velocidad;
@@ -46,14 +50,6 @@ void Vehiculo::setNumeroCalleRecorrida(unsigned int numeroCalleRecorrida) {
 long Vehiculo::sigNodoARecorrer(){
     indice_calle_recorrida ++;
     return ruta[indice_calle_recorrida + 1];
-}
-
-bool Vehiculo::isEsperandoTrasladoEntreCalles() const {
-    return esperando_traslado_entre_calles;
-}
-
-void Vehiculo::setEsperandoTrasladoEntreCalles(bool esperandoTrasladoEntreCalles) {
-    esperando_traslado_entre_calles = esperandoTrasladoEntreCalles;
 }
 
 const vector<long> &Vehiculo::getRuta() const {
@@ -111,36 +107,12 @@ void Vehiculo::setEpocaInicio(int epocaInicio) {
     epoca_inicio = epocaInicio;
 }
 
-bool Vehiculo::isContadorDePasienciaActivado() const {
-    return contadorDePasienciaActivado;
+bool Vehiculo::isEsperandoNotificacion() const {
+    return esperando_notificacion;
 }
 
-void Vehiculo::setContadorDePasienciaActivado(bool contadorDePasienciaActivado) {
-    Vehiculo::contadorDePasienciaActivado = contadorDePasienciaActivado;
-}
-
-int Vehiculo::getNumeroEpocasAntesDeCambio() const {
-    return numeroEpocasAntesDeCambio;
-}
-
-void Vehiculo::setNumeroEpocasAntesDeCambio(int numeroEpocasAntesDeCambio) {
-    Vehiculo::numeroEpocasAntesDeCambio = numeroEpocasAntesDeCambio;
-}
-
-long Vehiculo::getNumeroNodoCalleEnEspera() const {
-    return numeroNodoCalleEnEspera;
-}
-
-void Vehiculo::setNumeroNodoCalleEnEspera(long numeroNodoCalleEnEspera) {
-    Vehiculo::numeroNodoCalleEnEspera = numeroNodoCalleEnEspera;
-}
-
-int Vehiculo::getNumeroIntentosCambioDeRuta() const {
-    return numeroIntentosCambioDeRuta;
-}
-
-void Vehiculo::setNumeroIntentosCambioDeRuta(int numeroIntentosCambioDeRuta) {
-    Vehiculo::numeroIntentosCambioDeRuta = numeroIntentosCambioDeRuta;
+void Vehiculo::setEsperandoNotificacion(bool esperandoNotificacion) {
+    esperando_notificacion = esperandoNotificacion;
 }
 
 

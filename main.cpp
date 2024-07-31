@@ -172,11 +172,18 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
 
         SegmentoTrayectoVehculoEnBarrio sigSegmento = (segmentos_a_recorrer_por_barrio_por_vehiculo)[claveSegmento].front();
 
-        //#pragma omp critical(segmentos_a_recorrer_pop_mutex)
         segmentos_a_recorrer_por_barrio_por_vehiculo[claveSegmento].pop();
 
-        float peso;
-        auto caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio, peso); //ToDo mejorar que solo busque en el barrio
+        Nodo* nodoInicial = grafoMapa->obtenerNodo(sigSegmento.id_inicio);
+        bool rutaPrecargada;
+        vector<long> caminoSigBarrio;
+
+        nodoInicial->consultarRutaPreCargada(sigSegmento.id_fin, caminoSigBarrio, rutaPrecargada);
+        if(!rutaPrecargada){
+            float peso;
+            caminoSigBarrio = grafoMapa->computarCaminoMasCorto(sigSegmento.id_inicio, sigSegmento.id_fin, sigSegmento.id_barrio, peso);
+            nodoInicial->agregarRutaPreCargada(sigSegmento.id_fin, caminoSigBarrio);
+        }
 
         auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
 
@@ -185,7 +192,6 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
 
         vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
         vehiculoIngresado->set_indice_calle_recorrida(0);
-        vehiculoIngresado->setEsperandoTrasladoEntreCalles(false);
         vehiculoIngresado->setEpocaInicio(solicitud.epocaInicial);
         vehiculoIngresado->setDistanciaRecorrida(solicitud.trayectoriaTotal);
 
@@ -194,7 +200,6 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
         string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
         Calle *sigCalle = mapa_mis_barios[idBarrioSiguiente]->obtenerCalle(idSigCalle);
 
-        vehiculoIngresado->setContadorDePasienciaActivado(false);
         sigCalle->insertarSolicitudTranspaso(solicitud.id_nodo_inicial_calle_anterior, caminoSigBarrio[0], vehiculoIngresado);
 
     }
@@ -203,12 +208,14 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
 void procesar_notificaciones_recividas (int* notificacionesRecividas, int & cantidadNotificaciones){
     for (int s = 0; s < cantidadNotificaciones; s++){
         auto idVehiculo = notificacionesRecividas[s];
-        #pragma critial(mapa_mis_vehiculos_mutex)
+        #pragma omp critical(mapa_mis_vehiculos_mutex)
         {
-            mapa_mis_vehiculos[idVehiculo]->getCalleactual()->notificarTranspasoCompleto(idVehiculo, true);
+            bool eliminar = mapa_mis_vehiculos[idVehiculo]->getCalleactual()->notificarTranspasoCompleto(idVehiculo, true);
+            if(eliminar){
+                delete mapa_mis_vehiculos[idVehiculo];
+            }
             mapa_mis_vehiculos.erase(idVehiculo);
         }
-
     }
 }
 
@@ -429,7 +436,6 @@ void ejecutar_epoca() {
 
             #pragma omp barrier
 
-
             if((numero_epoca + 1) % 1000 == 0){
                 #pragma omp for schedule(dynamic, 50)
                 for (int index_nodo = 0; index_nodo < numeroDeNodos; index_nodo++){
@@ -452,8 +458,10 @@ void ejecutar_epoca() {
                     }
 
                     nodoAActualizar->setNodosVecinos(nuevosPesosVecinos);
+                    nodoAActualizar->limpiarRutasPreCargadas();
                 }
             }
+
 
             #pragma omp barrier
 
@@ -540,7 +548,7 @@ void initConfig(){
     // Values are always std::string
     defaultConf.set(el::Level::Info,
                     el::ConfigurationType::Format, "%datetime %level %msg");
-    std::string loogingFile =  PROJECT_BASE_DIR + std::string("/logs/logs.log");
+    std::string loogingFile =  PROJECT_BASE_DIR + std::string( "/logs/logs.log" );
     std::string configFilePath = PROJECT_BASE_DIR + std::string("/configuraciones/logging.ini");
 
     el::Configurations conf(configFilePath);
@@ -791,7 +799,6 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
 
             Calle *calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
 
-            v->setContadorDePasienciaActivado(false);
             calle->insertarSolicitudTranspaso(-1, -1, v);
 
         }

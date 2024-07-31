@@ -35,9 +35,22 @@ private:
     // Lista de vehiculos dentro de la calle, ordenadados por posicion (de mayor a menor), se actualizan en este orden.
     vector<Vehiculo*> vehculos_ordenados_en_calle;
 
+
+    //Conjunto con todos los vehiculos que ya enviaron su solicitud y estan a la espera de la notificacion
+    map<int, Calle*> vehiculos_con_solicitud_enviada;
+
+    //Conjunto con todos los vehiculos cuya solicitud se verifico aceptada al no encontrarse mas en la lista de solicitudes
+    // de la calle a la que se solicito
+
+    set<int> vehiculos_con_solicitud_aceptada_esperando_notificacion;
+    map<int, int> numero_intentos_restantes_re_entruamiento;
+    map<int, int> numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento;
+
+
     function<void(float, int)> doneFn;
     function<void(SolicitudTranspaso&)> enviarSolicitudFn;
     function<void(NotificacionTranspaso &)> enviarNotificacionFn;
+
 
     Grafo* grafo;
     map<long, Barrio*> mapa_barrio;
@@ -51,6 +64,9 @@ private:
 
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
+
+
+    void remover_vehiculo_calle(Vehiculo* v, bool eliminarInstancia);
 
     float calcularCongestion();
     float calcularVelocidadMedia(vector<float> & velocidades);
@@ -72,7 +88,7 @@ public:
     //Retorna true si la solicitud seguia en la lista de solicitudes, y en ese caso es eliminada de la lista
     bool consultarSolicitudActivaYRemover(int idVehiculo);
 
-    void notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
+    bool notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
 
     // tiempo_epoca en ms
     void ejecutarEpoca(float tiempo_epoca, int numeroEpoca);
