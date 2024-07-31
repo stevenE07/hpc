@@ -39,6 +39,7 @@ private:
     function<void(SolicitudTranspaso&)> enviarSolicitudFn;
     function<void(NotificacionTranspaso &)> enviarNotificacionFn;
 
+
     Grafo* grafo;
     map<long, Barrio*> mapa_barrio;
     map<long, int> asignacion_barrios;
@@ -51,6 +52,9 @@ private:
 
     omp_lock_t lock_solicitud;
     omp_lock_t lock_notificacion;
+
+
+    void remover_vehiculo_calle(Vehiculo* v, bool eliminarInstancia);
 
     float calcularCongestion();
     float calcularVelocidadMedia(vector<float> & velocidades);
@@ -72,7 +76,7 @@ public:
     //Retorna true si la solicitud seguia en la lista de solicitudes, y en ese caso es eliminada de la lista
     bool consultarSolicitudActivaYRemover(int idVehiculo);
 
-    void notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
+    bool notificarTranspasoCompleto(int idVehiculo, bool eliminar_luego_de_notificar);
 
     // tiempo_epoca en ms
     void ejecutarEpoca(float tiempo_epoca, int numeroEpoca);
