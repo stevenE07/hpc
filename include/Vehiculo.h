@@ -34,7 +34,11 @@ private:
     float distancia_recorrida;
     int epoca_inicio;
 
+
 public:
+
+    long id_barrio_inicio = 0;
+    long id_barrio_final = 0;
 
     Vehiculo(int id);
 

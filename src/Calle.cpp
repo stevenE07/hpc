@@ -6,7 +6,7 @@
 
 Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,
              map<long, Barrio*> & mapa_barrio,
-             function<void(float, int)>& doneFn,
+             function<void(float, int,long)>& doneFn,
              function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
              function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
              Grafo* grafo,
@@ -172,7 +172,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                    if(v->get_is_segmento_final() == 1) { // si el segmento es final.
                        //si es la ultima el ultimo segmento por transitar.
                        #pragma omp critical(doneFn_mutex)
-                       doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio());
+                       doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->id_barrio_final);
                        posiciones_vehiculos_en_calle.erase(v->getId());
                        continue;
                    } else { // tengo que cambiar de barrio.

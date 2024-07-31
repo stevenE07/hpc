@@ -73,6 +73,7 @@ vector<SolicitudTranspaso> solicitudes_transpaso_entre_nodos_mpi;
 vector<NotificacionTranspaso> notificaciones_transpaso_entre_nodos_mpi;
 
 vector<float> tiempoRecorridoPor10Km;
+map<long,vector<float>> tiempoRecorridoPor10KmBarrio;
 
 
 
@@ -764,8 +765,11 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             }
 
             auto v = new Vehiculo(id_vehiculo);
-
+            long barrio = grafoMapa->obtenerNodo(dst)->getSeccion();
+            cout <<  barrio << endl;
+            v->id_barrio_final = barrio;
             pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
+
 
             SegmentoTrayectoVehculoEnBarrio primerSegmento = segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].front();
 
@@ -906,10 +910,11 @@ int main(int argc, char* argv[]) {
 
 
     // ---- Funciones de notificacion
-    auto notificarFinalizacion = std::function<void(float, int)>{};
-    notificarFinalizacion = [&] (float distancia, int numero_epocas) -> void {
+    auto notificarFinalizacion = std::function<void(float, int,long)>{};
+    notificarFinalizacion = [&] (float distancia, int numero_epocas, long id_barrio_final) -> void {
         numero_vehiculos_en_curso_en_el_nodo--;
         tiempoRecorridoPor10Km.push_back(  ((float)numero_epocas / distancia) * 10000);
+        tiempoRecorridoPor10KmBarrio[id_barrio_final].push_back( ((float)numero_epocas / distancia) * 10000);
     };
 
 
@@ -925,6 +930,9 @@ int main(int argc, char* argv[]) {
 
 
     vector<pair<long, basic_string<char>>> barrios = loadData.obtenerBarrios();
+    std::sort(barrios.begin(), barrios.end(), [](pair<long, basic_string<char>>  &a, pair<long, basic_string<char>>  &b) {
+        return a.first < b.first;
+    });
     int numBarrios = (int)barrios.size();
     auto buffAsignacionesBarrio = new Asignacion_barrio [numBarrios];
 
@@ -1034,12 +1042,22 @@ int main(int argc, char* argv[]) {
 
     MPI_Reduce(&cantidadEnNodo, &cantidadTotal, 1, MPI_LONG, MPI_SUM, 0 , MPI_COMM_WORLD);
 
-
     if(my_rank == 0){
         double tiempoPromedio = tiempoTotal / (double)cantidadTotal;
         printf("----- TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)\n", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
         milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
         printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+    }
+
+    printf("NROBARRIO,PROMEDIO\n");
+    for(auto tiempos_en_barrio : tiempoRecorridoPor10KmBarrio) {
+        double tiempoTotal = 0;
+        double cantidadTotal = tiempos_en_barrio.second.size();
+        for(auto tiempos : tiempos_en_barrio.second ) {
+            tiempoTotal += tiempos;
+        }
+        double tiempoPromedio = tiempoTotal / (double)cantidadTotal;
+        printf("%ld,%2.f \n",tiempos_en_barrio.first, tiempoPromedio / 10.f );
     }
 
     // ----- Limpieza

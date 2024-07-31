@@ -27,7 +27,7 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 
 
 void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
-                              std::function<void(float, int)> &doneFn,
+                              std::function<void(float, int,long)> &doneFn,
                               function<void(SolicitudTranspaso &)> &enviarSolicitudFn,
                               function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
                               map<long, int> &asignacion_barrios,
