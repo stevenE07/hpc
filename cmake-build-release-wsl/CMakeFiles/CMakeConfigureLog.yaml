@@ -1430,3 +1430,108 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:18 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_442a4/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT'
+        /usr/bin/make  -f CMakeFiles/cmTC_442a4.dir/build.make CMakeFiles/cmTC_442a4.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT'
+        Building C object CMakeFiles/cmTC_442a4.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -pthread -o CMakeFiles/cmTC_442a4.dir/test_mpi.c.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT/test_mpi.c
+        Linking C executable cmTC_442a4
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_442a4.dir/link.txt --verbose=1
+        /usr/bin/cc -pthread CMakeFiles/cmTC_442a4.dir/test_mpi.c.o -o cmTC_442a4  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-NjbSFT'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:18 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_98e97/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS'
+        /usr/bin/make  -f CMakeFiles/cmTC_98e97.dir/build.make CMakeFiles/cmTC_98e97.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS'
+        Building CXX object CMakeFiles/cmTC_98e97.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -fopenmp  -std=gnu++17 -pthread -o CMakeFiles/cmTC_98e97.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS/test_mpi.cpp
+        Linking CXX executable cmTC_98e97
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_98e97.dir/link.txt --verbose=1
+        /usr/bin/c++  -fopenmp  -pthread CMakeFiles/cmTC_98e97.dir/test_mpi.cpp.o -o cmTC_98e97  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-2kJmqS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/share/cmake-3.27/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:18 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR"
+      binary: "/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: " -fopenmp"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_14c59/fast
+        make[1]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR'
+        /usr/bin/make  -f CMakeFiles/cmTC_14c59.dir/build.make CMakeFiles/cmTC_14c59.dir/build
+        make[2]: Entering directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR'
+        Building CXX object CMakeFiles/cmTC_14c59.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -fopenmp  -std=gnu++17 -pthread -o CMakeFiles/cmTC_14c59.dir/test_mpi.cpp.o -c /mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR/test_mpi.cpp
+        Linking CXX executable cmTC_14c59
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_14c59.dir/link.txt --verbose=1
+        /usr/bin/c++  -fopenmp  -pthread CMakeFiles/cmTC_14c59.dir/test_mpi.cpp.o -o cmTC_14c59  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        make[2]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR'
+        make[1]: Leaving directory '/mnt/c/Users/Steven/Desktop/hpc/cmake-build-release-wsl/CMakeFiles/CMakeScratch/TryCompile-HWnQLR'
+        
+      exitCode: 0
+...

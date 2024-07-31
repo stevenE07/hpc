@@ -410,6 +410,7 @@ CMakeFiles/hpc.dir/main.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/main.cpp \
 
 CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.cpp \
   /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
+  /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
   /mnt/c/Users/Steven/Desktop/hpc/include/Barrio.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
@@ -424,7 +425,9 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/asm-generic/int-ll64.h \
   /usr/include/asm-generic/posix_types.h \
   /usr/include/asm-generic/types.h \
+  /usr/include/assert.h \
   /usr/include/c++/9/algorithm \
+  /usr/include/c++/9/any \
   /usr/include/c++/9/array \
   /usr/include/c++/9/backward/auto_ptr.h \
   /usr/include/c++/9/backward/binders.h \
@@ -450,29 +453,44 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/bits/exception.h \
   /usr/include/c++/9/bits/exception_defines.h \
   /usr/include/c++/9/bits/exception_ptr.h \
+  /usr/include/c++/9/bits/forward_list.h \
+  /usr/include/c++/9/bits/forward_list.tcc \
+  /usr/include/c++/9/bits/fs_dir.h \
+  /usr/include/c++/9/bits/fs_fwd.h \
+  /usr/include/c++/9/bits/fs_ops.h \
+  /usr/include/c++/9/bits/fs_path.h \
   /usr/include/c++/9/bits/fstream.tcc \
   /usr/include/c++/9/bits/functexcept.h \
   /usr/include/c++/9/bits/functional_hash.h \
+  /usr/include/c++/9/bits/gslice.h \
+  /usr/include/c++/9/bits/gslice_array.h \
   /usr/include/c++/9/bits/hash_bytes.h \
   /usr/include/c++/9/bits/hashtable.h \
   /usr/include/c++/9/bits/hashtable_policy.h \
+  /usr/include/c++/9/bits/indirect_array.h \
   /usr/include/c++/9/bits/invoke.h \
   /usr/include/c++/9/bits/ios_base.h \
   /usr/include/c++/9/bits/istream.tcc \
   /usr/include/c++/9/bits/locale_classes.h \
   /usr/include/c++/9/bits/locale_classes.tcc \
+  /usr/include/c++/9/bits/locale_conv.h \
   /usr/include/c++/9/bits/locale_facets.h \
   /usr/include/c++/9/bits/locale_facets.tcc \
+  /usr/include/c++/9/bits/locale_facets_nonio.h \
+  /usr/include/c++/9/bits/locale_facets_nonio.tcc \
   /usr/include/c++/9/bits/localefwd.h \
+  /usr/include/c++/9/bits/mask_array.h \
   /usr/include/c++/9/bits/memoryfwd.h \
   /usr/include/c++/9/bits/move.h \
   /usr/include/c++/9/bits/nested_exception.h \
   /usr/include/c++/9/bits/node_handle.h \
   /usr/include/c++/9/bits/ostream.tcc \
   /usr/include/c++/9/bits/ostream_insert.h \
+  /usr/include/c++/9/bits/parse_numbers.h \
   /usr/include/c++/9/bits/postypes.h \
   /usr/include/c++/9/bits/predefined_ops.h \
   /usr/include/c++/9/bits/ptr_traits.h \
+  /usr/include/c++/9/bits/quoted_string.h \
   /usr/include/c++/9/bits/random.h \
   /usr/include/c++/9/bits/random.tcc \
   /usr/include/c++/9/bits/range_access.h \
@@ -480,6 +498,7 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/bits/shared_ptr.h \
   /usr/include/c++/9/bits/shared_ptr_atomic.h \
   /usr/include/c++/9/bits/shared_ptr_base.h \
+  /usr/include/c++/9/bits/slice_array.h \
   /usr/include/c++/9/bits/specfun.h \
   /usr/include/c++/9/bits/sstream.tcc \
   /usr/include/c++/9/bits/std_abs.h \
@@ -507,6 +526,7 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/bits/stl_tree.h \
   /usr/include/c++/9/bits/stl_uninitialized.h \
   /usr/include/c++/9/bits/stl_vector.h \
+  /usr/include/c++/9/bits/stream_iterator.h \
   /usr/include/c++/9/bits/streambuf.tcc \
   /usr/include/c++/9/bits/streambuf_iterator.h \
   /usr/include/c++/9/bits/string_view.tcc \
@@ -515,13 +535,21 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/bits/unique_ptr.h \
   /usr/include/c++/9/bits/unordered_map.h \
   /usr/include/c++/9/bits/uses_allocator.h \
+  /usr/include/c++/9/bits/valarray_after.h \
+  /usr/include/c++/9/bits/valarray_array.h \
+  /usr/include/c++/9/bits/valarray_array.tcc \
+  /usr/include/c++/9/bits/valarray_before.h \
   /usr/include/c++/9/bits/vector.tcc \
+  /usr/include/c++/9/cassert \
   /usr/include/c++/9/cctype \
   /usr/include/c++/9/cerrno \
+  /usr/include/c++/9/chrono \
   /usr/include/c++/9/clocale \
   /usr/include/c++/9/cmath \
+  /usr/include/c++/9/codecvt \
   /usr/include/c++/9/csignal \
   /usr/include/c++/9/cstdarg \
+  /usr/include/c++/9/cstddef \
   /usr/include/c++/9/cstdint \
   /usr/include/c++/9/cstdio \
   /usr/include/c++/9/cstdlib \
@@ -541,14 +569,19 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/ext/numeric_traits.h \
   /usr/include/c++/9/ext/string_conversions.h \
   /usr/include/c++/9/ext/type_traits.h \
+  /usr/include/c++/9/filesystem \
+  /usr/include/c++/9/forward_list \
   /usr/include/c++/9/fstream \
   /usr/include/c++/9/functional \
   /usr/include/c++/9/initializer_list \
+  /usr/include/c++/9/iomanip \
   /usr/include/c++/9/ios \
   /usr/include/c++/9/iosfwd \
   /usr/include/c++/9/iostream \
   /usr/include/c++/9/istream \
+  /usr/include/c++/9/iterator \
   /usr/include/c++/9/limits \
+  /usr/include/c++/9/locale \
   /usr/include/c++/9/map \
   /usr/include/c++/9/memory \
   /usr/include/c++/9/new \
@@ -562,6 +595,7 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/pstl/pstl_config.h \
   /usr/include/c++/9/queue \
   /usr/include/c++/9/random \
+  /usr/include/c++/9/ratio \
   /usr/include/c++/9/set \
   /usr/include/c++/9/sstream \
   /usr/include/c++/9/stdexcept \
@@ -586,11 +620,14 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/c++/9/typeinfo \
   /usr/include/c++/9/unordered_map \
   /usr/include/c++/9/utility \
+  /usr/include/c++/9/valarray \
   /usr/include/c++/9/vector \
+  /usr/include/c++/9/version \
   /usr/include/ctype.h \
   /usr/include/endian.h \
   /usr/include/errno.h \
   /usr/include/features.h \
+  /usr/include/libintl.h \
   /usr/include/linux/errno.h \
   /usr/include/linux/posix_types.h \
   /usr/include/linux/stat.h \
@@ -727,8 +764,10 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
   /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr-default.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -744,6 +783,7 @@ CMakeFiles/hpc.dir/src/Barrio.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Barrio.
 
 CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cpp \
   /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
+  /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
   /mnt/c/Users/Steven/Desktop/hpc/include/Barrio.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
@@ -758,7 +798,9 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/asm-generic/int-ll64.h \
   /usr/include/asm-generic/posix_types.h \
   /usr/include/asm-generic/types.h \
+  /usr/include/assert.h \
   /usr/include/c++/9/algorithm \
+  /usr/include/c++/9/any \
   /usr/include/c++/9/array \
   /usr/include/c++/9/backward/auto_ptr.h \
   /usr/include/c++/9/backward/binders.h \
@@ -784,29 +826,44 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/bits/exception.h \
   /usr/include/c++/9/bits/exception_defines.h \
   /usr/include/c++/9/bits/exception_ptr.h \
+  /usr/include/c++/9/bits/forward_list.h \
+  /usr/include/c++/9/bits/forward_list.tcc \
+  /usr/include/c++/9/bits/fs_dir.h \
+  /usr/include/c++/9/bits/fs_fwd.h \
+  /usr/include/c++/9/bits/fs_ops.h \
+  /usr/include/c++/9/bits/fs_path.h \
   /usr/include/c++/9/bits/fstream.tcc \
   /usr/include/c++/9/bits/functexcept.h \
   /usr/include/c++/9/bits/functional_hash.h \
+  /usr/include/c++/9/bits/gslice.h \
+  /usr/include/c++/9/bits/gslice_array.h \
   /usr/include/c++/9/bits/hash_bytes.h \
   /usr/include/c++/9/bits/hashtable.h \
   /usr/include/c++/9/bits/hashtable_policy.h \
+  /usr/include/c++/9/bits/indirect_array.h \
   /usr/include/c++/9/bits/invoke.h \
   /usr/include/c++/9/bits/ios_base.h \
   /usr/include/c++/9/bits/istream.tcc \
   /usr/include/c++/9/bits/locale_classes.h \
   /usr/include/c++/9/bits/locale_classes.tcc \
+  /usr/include/c++/9/bits/locale_conv.h \
   /usr/include/c++/9/bits/locale_facets.h \
   /usr/include/c++/9/bits/locale_facets.tcc \
+  /usr/include/c++/9/bits/locale_facets_nonio.h \
+  /usr/include/c++/9/bits/locale_facets_nonio.tcc \
   /usr/include/c++/9/bits/localefwd.h \
+  /usr/include/c++/9/bits/mask_array.h \
   /usr/include/c++/9/bits/memoryfwd.h \
   /usr/include/c++/9/bits/move.h \
   /usr/include/c++/9/bits/nested_exception.h \
   /usr/include/c++/9/bits/node_handle.h \
   /usr/include/c++/9/bits/ostream.tcc \
   /usr/include/c++/9/bits/ostream_insert.h \
+  /usr/include/c++/9/bits/parse_numbers.h \
   /usr/include/c++/9/bits/postypes.h \
   /usr/include/c++/9/bits/predefined_ops.h \
   /usr/include/c++/9/bits/ptr_traits.h \
+  /usr/include/c++/9/bits/quoted_string.h \
   /usr/include/c++/9/bits/random.h \
   /usr/include/c++/9/bits/random.tcc \
   /usr/include/c++/9/bits/range_access.h \
@@ -814,6 +871,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/bits/shared_ptr.h \
   /usr/include/c++/9/bits/shared_ptr_atomic.h \
   /usr/include/c++/9/bits/shared_ptr_base.h \
+  /usr/include/c++/9/bits/slice_array.h \
   /usr/include/c++/9/bits/specfun.h \
   /usr/include/c++/9/bits/sstream.tcc \
   /usr/include/c++/9/bits/std_abs.h \
@@ -841,6 +899,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/bits/stl_tree.h \
   /usr/include/c++/9/bits/stl_uninitialized.h \
   /usr/include/c++/9/bits/stl_vector.h \
+  /usr/include/c++/9/bits/stream_iterator.h \
   /usr/include/c++/9/bits/streambuf.tcc \
   /usr/include/c++/9/bits/streambuf_iterator.h \
   /usr/include/c++/9/bits/string_view.tcc \
@@ -849,13 +908,21 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/bits/unique_ptr.h \
   /usr/include/c++/9/bits/unordered_map.h \
   /usr/include/c++/9/bits/uses_allocator.h \
+  /usr/include/c++/9/bits/valarray_after.h \
+  /usr/include/c++/9/bits/valarray_array.h \
+  /usr/include/c++/9/bits/valarray_array.tcc \
+  /usr/include/c++/9/bits/valarray_before.h \
   /usr/include/c++/9/bits/vector.tcc \
+  /usr/include/c++/9/cassert \
   /usr/include/c++/9/cctype \
   /usr/include/c++/9/cerrno \
+  /usr/include/c++/9/chrono \
   /usr/include/c++/9/clocale \
   /usr/include/c++/9/cmath \
+  /usr/include/c++/9/codecvt \
   /usr/include/c++/9/csignal \
   /usr/include/c++/9/cstdarg \
+  /usr/include/c++/9/cstddef \
   /usr/include/c++/9/cstdint \
   /usr/include/c++/9/cstdio \
   /usr/include/c++/9/cstdlib \
@@ -875,14 +942,19 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/ext/numeric_traits.h \
   /usr/include/c++/9/ext/string_conversions.h \
   /usr/include/c++/9/ext/type_traits.h \
+  /usr/include/c++/9/filesystem \
+  /usr/include/c++/9/forward_list \
   /usr/include/c++/9/fstream \
   /usr/include/c++/9/functional \
   /usr/include/c++/9/initializer_list \
+  /usr/include/c++/9/iomanip \
   /usr/include/c++/9/ios \
   /usr/include/c++/9/iosfwd \
   /usr/include/c++/9/iostream \
   /usr/include/c++/9/istream \
+  /usr/include/c++/9/iterator \
   /usr/include/c++/9/limits \
+  /usr/include/c++/9/locale \
   /usr/include/c++/9/map \
   /usr/include/c++/9/memory \
   /usr/include/c++/9/new \
@@ -896,6 +968,7 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/pstl/pstl_config.h \
   /usr/include/c++/9/queue \
   /usr/include/c++/9/random \
+  /usr/include/c++/9/ratio \
   /usr/include/c++/9/set \
   /usr/include/c++/9/sstream \
   /usr/include/c++/9/stdexcept \
@@ -920,11 +993,14 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/c++/9/typeinfo \
   /usr/include/c++/9/unordered_map \
   /usr/include/c++/9/utility \
+  /usr/include/c++/9/valarray \
   /usr/include/c++/9/vector \
+  /usr/include/c++/9/version \
   /usr/include/ctype.h \
   /usr/include/endian.h \
   /usr/include/errno.h \
   /usr/include/features.h \
+  /usr/include/libintl.h \
   /usr/include/linux/errno.h \
   /usr/include/linux/posix_types.h \
   /usr/include/linux/stat.h \
@@ -1061,8 +1137,10 @@ CMakeFiles/hpc.dir/src/Calle.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Calle.cp
   /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr-default.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -1484,18 +1562,25 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Ca
   /usr/lib/gcc/x86_64-linux-gnu/9/include/stdint.h
 
 CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cpp \
+  /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
   /mnt/c/Users/Steven/Desktop/hpc/include/Grafo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Nodo.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Utils.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
+  /usr/include/assert.h \
   /usr/include/c++/9/algorithm \
+  /usr/include/c++/9/any \
   /usr/include/c++/9/array \
+  /usr/include/c++/9/backward/auto_ptr.h \
   /usr/include/c++/9/backward/binders.h \
   /usr/include/c++/9/bits/algorithmfwd.h \
   /usr/include/c++/9/bits/alloc_traits.h \
+  /usr/include/c++/9/bits/allocated_ptr.h \
   /usr/include/c++/9/bits/allocator.h \
+  /usr/include/c++/9/bits/atomic_base.h \
+  /usr/include/c++/9/bits/atomic_lockfree_defines.h \
   /usr/include/c++/9/bits/basic_ios.h \
   /usr/include/c++/9/bits/basic_ios.tcc \
   /usr/include/c++/9/bits/basic_string.h \
@@ -1512,33 +1597,52 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/c++/9/bits/exception.h \
   /usr/include/c++/9/bits/exception_defines.h \
   /usr/include/c++/9/bits/exception_ptr.h \
+  /usr/include/c++/9/bits/forward_list.h \
+  /usr/include/c++/9/bits/forward_list.tcc \
+  /usr/include/c++/9/bits/fs_dir.h \
+  /usr/include/c++/9/bits/fs_fwd.h \
+  /usr/include/c++/9/bits/fs_ops.h \
+  /usr/include/c++/9/bits/fs_path.h \
   /usr/include/c++/9/bits/fstream.tcc \
   /usr/include/c++/9/bits/functexcept.h \
   /usr/include/c++/9/bits/functional_hash.h \
+  /usr/include/c++/9/bits/gslice.h \
+  /usr/include/c++/9/bits/gslice_array.h \
   /usr/include/c++/9/bits/hash_bytes.h \
   /usr/include/c++/9/bits/hashtable.h \
   /usr/include/c++/9/bits/hashtable_policy.h \
+  /usr/include/c++/9/bits/indirect_array.h \
   /usr/include/c++/9/bits/invoke.h \
   /usr/include/c++/9/bits/ios_base.h \
   /usr/include/c++/9/bits/istream.tcc \
   /usr/include/c++/9/bits/locale_classes.h \
   /usr/include/c++/9/bits/locale_classes.tcc \
+  /usr/include/c++/9/bits/locale_conv.h \
   /usr/include/c++/9/bits/locale_facets.h \
   /usr/include/c++/9/bits/locale_facets.tcc \
+  /usr/include/c++/9/bits/locale_facets_nonio.h \
+  /usr/include/c++/9/bits/locale_facets_nonio.tcc \
   /usr/include/c++/9/bits/localefwd.h \
+  /usr/include/c++/9/bits/mask_array.h \
   /usr/include/c++/9/bits/memoryfwd.h \
   /usr/include/c++/9/bits/move.h \
   /usr/include/c++/9/bits/nested_exception.h \
   /usr/include/c++/9/bits/node_handle.h \
   /usr/include/c++/9/bits/ostream.tcc \
   /usr/include/c++/9/bits/ostream_insert.h \
+  /usr/include/c++/9/bits/parse_numbers.h \
   /usr/include/c++/9/bits/postypes.h \
   /usr/include/c++/9/bits/predefined_ops.h \
   /usr/include/c++/9/bits/ptr_traits.h \
+  /usr/include/c++/9/bits/quoted_string.h \
   /usr/include/c++/9/bits/random.h \
   /usr/include/c++/9/bits/random.tcc \
   /usr/include/c++/9/bits/range_access.h \
   /usr/include/c++/9/bits/refwrap.h \
+  /usr/include/c++/9/bits/shared_ptr.h \
+  /usr/include/c++/9/bits/shared_ptr_atomic.h \
+  /usr/include/c++/9/bits/shared_ptr_base.h \
+  /usr/include/c++/9/bits/slice_array.h \
   /usr/include/c++/9/bits/specfun.h \
   /usr/include/c++/9/bits/sstream.tcc \
   /usr/include/c++/9/bits/std_abs.h \
@@ -1559,27 +1663,40 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/c++/9/bits/stl_numeric.h \
   /usr/include/c++/9/bits/stl_pair.h \
   /usr/include/c++/9/bits/stl_queue.h \
+  /usr/include/c++/9/bits/stl_raw_storage_iter.h \
   /usr/include/c++/9/bits/stl_relops.h \
   /usr/include/c++/9/bits/stl_set.h \
   /usr/include/c++/9/bits/stl_tempbuf.h \
   /usr/include/c++/9/bits/stl_tree.h \
   /usr/include/c++/9/bits/stl_uninitialized.h \
   /usr/include/c++/9/bits/stl_vector.h \
+  /usr/include/c++/9/bits/stream_iterator.h \
   /usr/include/c++/9/bits/streambuf.tcc \
   /usr/include/c++/9/bits/streambuf_iterator.h \
   /usr/include/c++/9/bits/string_view.tcc \
   /usr/include/c++/9/bits/stringfwd.h \
   /usr/include/c++/9/bits/uniform_int_dist.h \
+  /usr/include/c++/9/bits/unique_ptr.h \
   /usr/include/c++/9/bits/unordered_map.h \
   /usr/include/c++/9/bits/uses_allocator.h \
+  /usr/include/c++/9/bits/valarray_after.h \
+  /usr/include/c++/9/bits/valarray_array.h \
+  /usr/include/c++/9/bits/valarray_array.tcc \
+  /usr/include/c++/9/bits/valarray_before.h \
   /usr/include/c++/9/bits/vector.tcc \
+  /usr/include/c++/9/cassert \
   /usr/include/c++/9/cctype \
   /usr/include/c++/9/cerrno \
+  /usr/include/c++/9/chrono \
   /usr/include/c++/9/clocale \
   /usr/include/c++/9/cmath \
+  /usr/include/c++/9/codecvt \
+  /usr/include/c++/9/cstddef \
   /usr/include/c++/9/cstdint \
   /usr/include/c++/9/cstdio \
   /usr/include/c++/9/cstdlib \
+  /usr/include/c++/9/cstring \
+  /usr/include/c++/9/ctime \
   /usr/include/c++/9/cwchar \
   /usr/include/c++/9/cwctype \
   /usr/include/c++/9/debug/assertions.h \
@@ -1589,29 +1706,38 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/c++/9/ext/aligned_buffer.h \
   /usr/include/c++/9/ext/alloc_traits.h \
   /usr/include/c++/9/ext/atomicity.h \
+  /usr/include/c++/9/ext/concurrence.h \
   /usr/include/c++/9/ext/new_allocator.h \
   /usr/include/c++/9/ext/numeric_traits.h \
   /usr/include/c++/9/ext/string_conversions.h \
   /usr/include/c++/9/ext/type_traits.h \
+  /usr/include/c++/9/filesystem \
+  /usr/include/c++/9/forward_list \
   /usr/include/c++/9/fstream \
   /usr/include/c++/9/functional \
   /usr/include/c++/9/initializer_list \
+  /usr/include/c++/9/iomanip \
   /usr/include/c++/9/ios \
   /usr/include/c++/9/iosfwd \
   /usr/include/c++/9/iostream \
   /usr/include/c++/9/istream \
+  /usr/include/c++/9/iterator \
   /usr/include/c++/9/limits \
+  /usr/include/c++/9/locale \
   /usr/include/c++/9/map \
+  /usr/include/c++/9/memory \
   /usr/include/c++/9/new \
   /usr/include/c++/9/numeric \
   /usr/include/c++/9/optional \
   /usr/include/c++/9/ostream \
   /usr/include/c++/9/pstl/execution_defs.h \
   /usr/include/c++/9/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/9/pstl/glue_memory_defs.h \
   /usr/include/c++/9/pstl/glue_numeric_defs.h \
   /usr/include/c++/9/pstl/pstl_config.h \
   /usr/include/c++/9/queue \
   /usr/include/c++/9/random \
+  /usr/include/c++/9/ratio \
   /usr/include/c++/9/set \
   /usr/include/c++/9/sstream \
   /usr/include/c++/9/stdexcept \
@@ -1636,11 +1762,14 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/c++/9/typeinfo \
   /usr/include/c++/9/unordered_map \
   /usr/include/c++/9/utility \
+  /usr/include/c++/9/valarray \
   /usr/include/c++/9/vector \
+  /usr/include/c++/9/version \
   /usr/include/ctype.h \
   /usr/include/endian.h \
   /usr/include/errno.h \
   /usr/include/features.h \
+  /usr/include/libintl.h \
   /usr/include/linux/errno.h \
   /usr/include/locale.h \
   /usr/include/math.h \
@@ -1650,6 +1779,8 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/stdint.h \
   /usr/include/stdio.h \
   /usr/include/stdlib.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
   /usr/include/time.h \
   /usr/include/wchar.h \
   /usr/include/wctype.h \
@@ -1688,6 +1819,8 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib.h \
+  /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
+  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
   /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
   /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
@@ -1740,8 +1873,10 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
   /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr-default.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -1753,6 +1888,7 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Grafo.cp
 
 CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehiculo.cpp \
   /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
+  /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
   /mnt/c/Users/Steven/Desktop/hpc/include/Barrio.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Calle.h \
   /mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h \
@@ -1767,7 +1903,9 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/asm-generic/int-ll64.h \
   /usr/include/asm-generic/posix_types.h \
   /usr/include/asm-generic/types.h \
+  /usr/include/assert.h \
   /usr/include/c++/9/algorithm \
+  /usr/include/c++/9/any \
   /usr/include/c++/9/array \
   /usr/include/c++/9/backward/auto_ptr.h \
   /usr/include/c++/9/backward/binders.h \
@@ -1793,29 +1931,44 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/bits/exception.h \
   /usr/include/c++/9/bits/exception_defines.h \
   /usr/include/c++/9/bits/exception_ptr.h \
+  /usr/include/c++/9/bits/forward_list.h \
+  /usr/include/c++/9/bits/forward_list.tcc \
+  /usr/include/c++/9/bits/fs_dir.h \
+  /usr/include/c++/9/bits/fs_fwd.h \
+  /usr/include/c++/9/bits/fs_ops.h \
+  /usr/include/c++/9/bits/fs_path.h \
   /usr/include/c++/9/bits/fstream.tcc \
   /usr/include/c++/9/bits/functexcept.h \
   /usr/include/c++/9/bits/functional_hash.h \
+  /usr/include/c++/9/bits/gslice.h \
+  /usr/include/c++/9/bits/gslice_array.h \
   /usr/include/c++/9/bits/hash_bytes.h \
   /usr/include/c++/9/bits/hashtable.h \
   /usr/include/c++/9/bits/hashtable_policy.h \
+  /usr/include/c++/9/bits/indirect_array.h \
   /usr/include/c++/9/bits/invoke.h \
   /usr/include/c++/9/bits/ios_base.h \
   /usr/include/c++/9/bits/istream.tcc \
   /usr/include/c++/9/bits/locale_classes.h \
   /usr/include/c++/9/bits/locale_classes.tcc \
+  /usr/include/c++/9/bits/locale_conv.h \
   /usr/include/c++/9/bits/locale_facets.h \
   /usr/include/c++/9/bits/locale_facets.tcc \
+  /usr/include/c++/9/bits/locale_facets_nonio.h \
+  /usr/include/c++/9/bits/locale_facets_nonio.tcc \
   /usr/include/c++/9/bits/localefwd.h \
+  /usr/include/c++/9/bits/mask_array.h \
   /usr/include/c++/9/bits/memoryfwd.h \
   /usr/include/c++/9/bits/move.h \
   /usr/include/c++/9/bits/nested_exception.h \
   /usr/include/c++/9/bits/node_handle.h \
   /usr/include/c++/9/bits/ostream.tcc \
   /usr/include/c++/9/bits/ostream_insert.h \
+  /usr/include/c++/9/bits/parse_numbers.h \
   /usr/include/c++/9/bits/postypes.h \
   /usr/include/c++/9/bits/predefined_ops.h \
   /usr/include/c++/9/bits/ptr_traits.h \
+  /usr/include/c++/9/bits/quoted_string.h \
   /usr/include/c++/9/bits/random.h \
   /usr/include/c++/9/bits/random.tcc \
   /usr/include/c++/9/bits/range_access.h \
@@ -1823,6 +1976,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/bits/shared_ptr.h \
   /usr/include/c++/9/bits/shared_ptr_atomic.h \
   /usr/include/c++/9/bits/shared_ptr_base.h \
+  /usr/include/c++/9/bits/slice_array.h \
   /usr/include/c++/9/bits/specfun.h \
   /usr/include/c++/9/bits/sstream.tcc \
   /usr/include/c++/9/bits/std_abs.h \
@@ -1850,6 +2004,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/bits/stl_tree.h \
   /usr/include/c++/9/bits/stl_uninitialized.h \
   /usr/include/c++/9/bits/stl_vector.h \
+  /usr/include/c++/9/bits/stream_iterator.h \
   /usr/include/c++/9/bits/streambuf.tcc \
   /usr/include/c++/9/bits/streambuf_iterator.h \
   /usr/include/c++/9/bits/string_view.tcc \
@@ -1858,13 +2013,21 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/bits/unique_ptr.h \
   /usr/include/c++/9/bits/unordered_map.h \
   /usr/include/c++/9/bits/uses_allocator.h \
+  /usr/include/c++/9/bits/valarray_after.h \
+  /usr/include/c++/9/bits/valarray_array.h \
+  /usr/include/c++/9/bits/valarray_array.tcc \
+  /usr/include/c++/9/bits/valarray_before.h \
   /usr/include/c++/9/bits/vector.tcc \
+  /usr/include/c++/9/cassert \
   /usr/include/c++/9/cctype \
   /usr/include/c++/9/cerrno \
+  /usr/include/c++/9/chrono \
   /usr/include/c++/9/clocale \
   /usr/include/c++/9/cmath \
+  /usr/include/c++/9/codecvt \
   /usr/include/c++/9/csignal \
   /usr/include/c++/9/cstdarg \
+  /usr/include/c++/9/cstddef \
   /usr/include/c++/9/cstdint \
   /usr/include/c++/9/cstdio \
   /usr/include/c++/9/cstdlib \
@@ -1884,14 +2047,19 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/ext/numeric_traits.h \
   /usr/include/c++/9/ext/string_conversions.h \
   /usr/include/c++/9/ext/type_traits.h \
+  /usr/include/c++/9/filesystem \
+  /usr/include/c++/9/forward_list \
   /usr/include/c++/9/fstream \
   /usr/include/c++/9/functional \
   /usr/include/c++/9/initializer_list \
+  /usr/include/c++/9/iomanip \
   /usr/include/c++/9/ios \
   /usr/include/c++/9/iosfwd \
   /usr/include/c++/9/iostream \
   /usr/include/c++/9/istream \
+  /usr/include/c++/9/iterator \
   /usr/include/c++/9/limits \
+  /usr/include/c++/9/locale \
   /usr/include/c++/9/map \
   /usr/include/c++/9/memory \
   /usr/include/c++/9/new \
@@ -1905,6 +2073,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/pstl/pstl_config.h \
   /usr/include/c++/9/queue \
   /usr/include/c++/9/random \
+  /usr/include/c++/9/ratio \
   /usr/include/c++/9/set \
   /usr/include/c++/9/sstream \
   /usr/include/c++/9/stdexcept \
@@ -1929,11 +2098,14 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/c++/9/typeinfo \
   /usr/include/c++/9/unordered_map \
   /usr/include/c++/9/utility \
+  /usr/include/c++/9/valarray \
   /usr/include/c++/9/vector \
+  /usr/include/c++/9/version \
   /usr/include/ctype.h \
   /usr/include/endian.h \
   /usr/include/errno.h \
   /usr/include/features.h \
+  /usr/include/libintl.h \
   /usr/include/linux/errno.h \
   /usr/include/linux/posix_types.h \
   /usr/include/linux/stat.h \
@@ -2070,8 +2242,10 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: /mnt/c/Users/Steven/Desktop/hpc/src/Vehic
   /usr/include/x86_64-linux-gnu/c++/9/bits/error_constants.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr-default.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/opt_random.h \
   /usr/include/x86_64-linux-gnu/c++/9/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \

@@ -666,7 +666,7 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
 }
 
-void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, int>& cantidad_vehiculos_a_generar_por_barrio) {
+void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, int> & cantidad_vehiculos_a_generar_por_barrio, std::vector<std::vector<double>> & prob_barrio_barrio, std::map<std::string, std::string> & conf, vector<pair<long, basic_string<char>>> & barrios) {
 
     time_point<Clock> inicioTiempoDJ = Clock::now();
 
@@ -686,12 +686,17 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
             for (int i = 0; i < bario_y_cantidad.second; i++) {
                 long id_barrio = bario_y_cantidad.first;
                 nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng, id_barrio));
+                long barrioSortadoIndice = getClasePorProbailidad(rng, prob_barrio_barrio[id_barrio]);
                 nodo_final.push_back( grafoMapa->idNodoAletorio(rng));
+
+
+
 
                 numero_vehiculos_en_curso_en_el_nodo++;
             }
         }
     }
+
 
     // ----- Calculamos a partir de que id podemos generar los vehiculos
     int numVehiculosDeNodosAnteriores = 0;
@@ -923,6 +928,8 @@ int main(int argc, char* argv[]) {
     int numBarrios = (int)barrios.size();
     auto buffAsignacionesBarrio = new Asignacion_barrio [numBarrios];
 
+    std::vector<std::vector<double>> prob_barrios_a_barrios = cargar_matriz_barrios_barrios(PROJECT_BASE_DIR + std::string("/datos/probabilidad_barrios_a_barrios.json"),numBarrios);
+
     if(my_rank == 0){
 
         // ---- Leer poblaciones por barrio
@@ -996,7 +1003,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    generar_vehiculos_y_notificar_segmentos(rng, cantidad_vehiculos_a_generar_por_barrio);
+    generar_vehiculos_y_notificar_segmentos(rng, cantidad_vehiculos_a_generar_por_barrio,prob_barrios_a_barrios,conf, barrios);
 
     // ---- Ejecuccion de la simulaccion
 

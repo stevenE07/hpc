@@ -10,6 +10,11 @@
 #ifndef HPC_UTILS_H
 #define HPC_UTILS_H
 
+#include <json.hpp>
+
+using json = nlohmann::json;
+using namespace std;
+
 # define M_PI 3.14159265358979323846
 
 using namespace std;
@@ -124,6 +129,44 @@ inline void calculo_naive_por_nodo_mpi(int my_rank, int size_mpi, vector<pair<lo
             mis_barrios.push_back(barrios[i].first);
         }
     }
+}
+
+inline std::vector<std::vector<double>> cargar_matriz_barrios_barrios(string file, int cant_barrios) {
+    json data;
+    std::ifstream f(file);
+    data = json::parse(f);
+    std::vector<std::vector<double>> res(cant_barrios , std::vector<double>(cant_barrios , 0));
+    for (int i = 0; i < data["probabilidades"].size(); ++i) {
+        int x = data["probabilidades"][i]["bi"];
+        int y = data["probabilidades"][i]["bf"];
+        double prob = data["probabilidades"][i]["prob"];
+        res[x][y] = prob;
+    }
+
+    for(int i = 0; i < cant_barrios; i++) {
+        double valor = 1;
+        int cantidad_distintos_cero = 0;
+        for(int j = 0; j < cant_barrios; j++) {
+            valor =  valor - res[i][j];
+            cantidad_distintos_cero ++;
+        }
+        double prob_faltantes = valor/cantidad_distintos_cero;
+        for(int j = 0; j < cant_barrios; j++) {
+            if(res[i][j] == 0) {
+                res[i][j] = prob_faltantes;
+            }
+        }
+    }
+    cout << "####### MATRIZ DE PROBABILIDADES BARRIOS A BARRIOS #####" << endl;
+    for (int i = 0; i < cant_barrios; ++i) {
+        for (int j = 0; j < cant_barrios; ++j) {
+            std::cout << res[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return res;
+
 }
 
 

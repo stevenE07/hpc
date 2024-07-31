@@ -98,6 +98,9 @@
 		<Unit filename="/mnt/c/Users/Steven/Desktop/hpc/include/Constantes.h">
 			<Option target="hpc"/>
 		</Unit>
+		<Unit filename="/mnt/c/Users/Steven/Desktop/hpc/include/Utils.h">
+			<Option target="hpc"/>
+		</Unit>
 		<Unit filename="/mnt/c/Users/Steven/Desktop/hpc/main.cpp">
 			<Option target="hpc"/>
 		</Unit>

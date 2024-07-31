@@ -205,12 +205,48 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/include/c++/9/bits/hashtable.h \
  /usr/include/c++/9/bits/hashtable_policy.h \
  /usr/include/c++/9/bits/unordered_map.h \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/Calle.h \
- /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
- /usr/include/c++/9/ctime /usr/include/c++/9/cstring \
- /usr/include/string.h /usr/include/strings.h \
+ /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
+ /usr/include/c++/9/cstddef /usr/include/c++/9/iterator \
+ /usr/include/c++/9/bits/stream_iterator.h /usr/include/c++/9/memory \
+ /usr/include/c++/9/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/9/ext/concurrence.h \
+ /usr/include/c++/9/bits/unique_ptr.h \
+ /usr/include/c++/9/bits/shared_ptr.h \
+ /usr/include/c++/9/bits/shared_ptr_base.h \
+ /usr/include/c++/9/bits/allocated_ptr.h \
+ /usr/include/c++/9/bits/shared_ptr_atomic.h \
+ /usr/include/c++/9/bits/atomic_base.h \
+ /usr/include/c++/9/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/9/backward/auto_ptr.h \
+ /usr/include/c++/9/pstl/glue_memory_defs.h \
+ /usr/include/c++/9/forward_list /usr/include/c++/9/bits/forward_list.h \
+ /usr/include/c++/9/bits/forward_list.tcc /usr/include/c++/9/valarray \
+ /usr/include/c++/9/bits/valarray_array.h \
+ /usr/include/c++/9/bits/valarray_array.tcc \
+ /usr/include/c++/9/bits/valarray_before.h \
+ /usr/include/c++/9/bits/slice_array.h \
+ /usr/include/c++/9/bits/valarray_after.h \
+ /usr/include/c++/9/bits/gslice.h /usr/include/c++/9/bits/gslice_array.h \
+ /usr/include/c++/9/bits/mask_array.h \
+ /usr/include/c++/9/bits/indirect_array.h /usr/include/c++/9/version \
+ /usr/include/c++/9/cassert /usr/include/assert.h \
+ /usr/include/c++/9/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
  /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
+ /usr/include/c++/9/filesystem /usr/include/c++/9/bits/fs_fwd.h \
+ /usr/include/c++/9/chrono /usr/include/c++/9/ratio \
+ /usr/include/c++/9/ctime /usr/include/c++/9/bits/parse_numbers.h \
+ /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
+ /usr/include/c++/9/bits/locale_facets_nonio.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
+ /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
+ /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/codecvt \
+ /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
+ /usr/include/c++/9/any \
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Calle.h \
+ /mnt/c/Users/Steven/Desktop/hpc/external/easyloggingpp/src/easylogging++.h \
  /usr/include/c++/9/csignal /usr/include/signal.h \
  /usr/include/x86_64-linux-gnu/bits/signum.h \
  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
@@ -246,18 +282,7 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
- /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/c++/9/memory \
- /usr/include/c++/9/bits/stl_raw_storage_iter.h \
- /usr/include/c++/9/ext/concurrence.h \
- /usr/include/c++/9/bits/unique_ptr.h \
- /usr/include/c++/9/bits/shared_ptr.h \
- /usr/include/c++/9/bits/shared_ptr_base.h \
- /usr/include/c++/9/bits/allocated_ptr.h \
- /usr/include/c++/9/bits/shared_ptr_atomic.h \
- /usr/include/c++/9/bits/atomic_base.h \
- /usr/include/c++/9/bits/atomic_lockfree_defines.h \
- /usr/include/c++/9/backward/auto_ptr.h \
- /usr/include/c++/9/pstl/glue_memory_defs.h /usr/include/c++/9/queue \
+ /usr/include/x86_64-linux-gnu/sys/time.h /usr/include/c++/9/queue \
  /usr/include/c++/9/deque /usr/include/c++/9/bits/stl_deque.h \
  /usr/include/c++/9/bits/deque.tcc /usr/include/c++/9/bits/stl_queue.h \
  /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
@@ -265,30 +290,4 @@ CMakeFiles/hpc.dir/src/CargarGrafo.cpp.o: \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Vehiculo.h \
- /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h \
- /mnt/c/Users/Steven/Desktop/hpc/external/nlohmann/json.hpp \
- /usr/include/c++/9/cstddef /usr/include/c++/9/iterator \
- /usr/include/c++/9/bits/stream_iterator.h \
- /usr/include/c++/9/forward_list /usr/include/c++/9/bits/forward_list.h \
- /usr/include/c++/9/bits/forward_list.tcc /usr/include/c++/9/valarray \
- /usr/include/c++/9/bits/valarray_array.h \
- /usr/include/c++/9/bits/valarray_array.tcc \
- /usr/include/c++/9/bits/valarray_before.h \
- /usr/include/c++/9/bits/slice_array.h \
- /usr/include/c++/9/bits/valarray_after.h \
- /usr/include/c++/9/bits/gslice.h /usr/include/c++/9/bits/gslice_array.h \
- /usr/include/c++/9/bits/mask_array.h \
- /usr/include/c++/9/bits/indirect_array.h /usr/include/c++/9/version \
- /usr/include/c++/9/cassert /usr/include/assert.h \
- /usr/include/c++/9/filesystem /usr/include/c++/9/bits/fs_fwd.h \
- /usr/include/c++/9/chrono /usr/include/c++/9/ratio \
- /usr/include/c++/9/bits/parse_numbers.h \
- /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
- /usr/include/c++/9/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
- /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
- /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/codecvt \
- /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
- /usr/include/c++/9/any
+ /mnt/c/Users/Steven/Desktop/hpc/src/../include/Barrio.h

@@ -1,0 +1,9 @@
+{
+  "probabilidades": [
+    {"bi":1,"bf":1,"prob":0.5},
+    {"bi":2,"bf":3,"prob":0.5},
+    {"bi":4,"bf":5,"prob":0.5},
+    {"bi":6,"bf":7,"prob":0.5},
+    {"bi":8,"bf":9,"prob":0.5}
+  ]
+}
