@@ -664,12 +664,15 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
         }
     }
 
+    delete [] buffResepcion;
+
     for(int i = 0; i < cont_request; i++){
         MPI_Wait(&requests_cantidad_segmentos[i], MPI_STATUS_IGNORE);
     }
 
 
     MPI_Buffer_detach(bufferEnvioSegmentos, &size_buffer);
+    delete [] requests_cantidad_segmentos;
     delete [] bufferEnvioSegmentos;
 
 }
@@ -1066,6 +1069,7 @@ int main(int argc, char* argv[]) {
     delete [] cantidadNotificacionesRecibidas;
     delete [] cantidadSolicitudesRecibidas;
 
+    delete grafoMapa;
 
     MPI_Finalize();
 

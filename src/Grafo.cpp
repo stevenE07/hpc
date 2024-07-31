@@ -110,6 +110,11 @@ vector<long> Grafo::computarCaminoMasCorto(long id_ext_nodo_inicio, long id_ext_
 
         if(cola_pesos_a_evaluar.empty() && !encontrado){
             vector<long> emptyVector;
+
+            delete[] nodos_pendientes;
+            delete[] pesos;
+            delete[] nodo_anterior;
+
             return emptyVector;
         }
 
@@ -215,6 +220,11 @@ vector<long> Grafo::computarCaminoMasCortoUtilizandoAStar(long id_ext_nodo_inici
         }
 
         if(cola_pesos_a_evaluar.empty() && !encontrado){
+            delete[] nodos_pendientes;
+            delete[] pesos;
+            delete[] nodo_anterior;
+            delete[] estimadores;
+
             vector<long> emptyVector;
             return emptyVector;
         }

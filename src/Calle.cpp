@@ -144,14 +144,11 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
     for (int i = 0; i < numero_carriles; i++) {
         maximoPorCarril[i] = this->largo;
     }
-
     vector<float> velocidadesVehiculos;
 
     vector<Vehiculo *> vehiculos_ordenados_en_calle_aux;
 
     for (Vehiculo *v: vehculos_ordenados_en_calle) {
-
-
         omp_set_lock(&lock_notificacion);
         //eliminamos los vehiculos que fueron aceptados.
 
@@ -397,8 +394,6 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
     for(auto v: vehiculos_ordenados_en_calle_aux){
         vehculos_ordenados_en_calle.push_back(v);
     }
-
-
 
     // --------  Etapa 3: aceptar vehiculo solicitante, en principio lo hacemos naive aceptando el primero de la cola.
 
