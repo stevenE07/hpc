@@ -192,7 +192,6 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
 
         vehiculoIngresado->setRuta(caminoSigBarrio, sigSegmento.is_segmento_final);
         vehiculoIngresado->set_indice_calle_recorrida(0);
-        vehiculoIngresado->setEsperandoTrasladoEntreCalles(false);
         vehiculoIngresado->setEpocaInicio(solicitud.epocaInicial);
         vehiculoIngresado->setDistanciaRecorrida(solicitud.trayectoriaTotal);
 
@@ -201,7 +200,6 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
         string idSigCalle = Calle::getIdCalle(caminoSigBarrio[0], caminoSigBarrio[1]);
         Calle *sigCalle = mapa_mis_barios[idBarrioSiguiente]->obtenerCalle(idSigCalle);
 
-        vehiculoIngresado->setContadorDePasienciaActivado(false);
         sigCalle->insertarSolicitudTranspaso(solicitud.id_nodo_inicial_calle_anterior, caminoSigBarrio[0], vehiculoIngresado);
 
     }
@@ -438,7 +436,7 @@ void ejecutar_epoca() {
 
             #pragma omp barrier
             #pragma omp critical
-            if(numero_epoca > 90000){
+            if(numero_epoca > 50000){
                 for (int i = 0; i < todas_calles.size(); i++) {
                     auto it = todas_calles[i];
                     it->mostrarEstado();
@@ -446,7 +444,7 @@ void ejecutar_epoca() {
                 exit(1);
             }
 
-
+            /*
             if((numero_epoca + 1) % 1000 == 0){
                 #pragma omp for schedule(dynamic, 50)
                 for (int index_nodo = 0; index_nodo < numeroDeNodos; index_nodo++){
@@ -472,6 +470,7 @@ void ejecutar_epoca() {
                     nodoAActualizar->limpiarRutasPreCargadas();
                 }
             }
+            */
 
             #pragma omp barrier
 
@@ -804,7 +803,6 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng, std::map<long, 
 
             Calle *calle = mapa_mis_barios[nodo_inicial_r->getSeccion()]->obtenerCalle(id_calle);
 
-            v->setContadorDePasienciaActivado(false);
             calle->insertarSolicitudTranspaso(-1, -1, v);
 
         }
