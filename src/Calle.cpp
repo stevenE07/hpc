@@ -285,112 +285,99 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                     }
                 }
 
+                // ---- Tecnicas de re-enrutamiento
+                else if( numero_intentos_restantes_re_entruamiento.find(v->getId()) != numero_intentos_restantes_re_entruamiento.end()
+                        && vehiculos_con_solicitud_enviada.find(v->getId()) != vehiculos_con_solicitud_enviada.end()){
+
+                    int v_id = v->getId();
+
+                    if(numero_intentos_restantes_re_entruamiento[v_id] == 0){
+                        remover_vehiculo_calle(v, false);
+                        continue;
+                    } else if (numero_intentos_restantes_re_entruamiento[v_id] < 0){
+                        printf("ERROR 1"); //ToDo borrar
+                        exit(1);
+                    }
 
 
+                    numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento[v_id] = numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento[v_id] - 1;
 
-                /*
+                    if(numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento[v_id] == 0){
 
+                        numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento[v_id] = NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS;
+                        numero_intentos_restantes_re_entruamiento[v_id] = numero_intentos_restantes_re_entruamiento[v_id] - 1;
 
-                if(!v->isEsperandoTrasladoEntreCalles()) {
+                        Nodo* nodoFinalCalleActual = grafo->obtenerNodo(nodo_final);
+                        Nodo* nodoInicialCalleActual = grafo->obtenerNodo(nodo_final);
+                        long ultimoNodoDeLaSubRuta = v->obtenerUltimoNodoDeLaRuta();
 
-                    v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
-                    v->setNumeroIntentosCambioDeRuta(0);
+                        float minimoPeso = 0;
+                        bool isPrimerCaminoExplorado = true;
+                        long nodoInicioSigCaminoMinimo;
+                        vector<long> rutaMimima;
+                        for(auto nv: nodoFinalCalleActual->getNodosVecinos()){
 
+                            Nodo* nodoVecinoCantidado = nv.first;
+                            float costoArista = nv.second;
 
-                     else {
-                    bool isCGG = v->isContadorDePasienciaActivado();
-                    if(v->getCalleactual()->nodo_inicial == nodo_inicial && v->getCalleactual()->nodo_final == nodo_final){
+                            if(nodoVecinoCantidado->getIdExt() == nodo_inicial){
+                                // No permitidmos que vuelva hacia atras por la calle en la que fue, o sea, no vuelta en U
+                                continue;
+                            }
 
-                        if(v->getNumeroIntentosCambioDeRuta() == NUMERO_MAXIMO_INTENTO_CAMBIO_RUTAS){
+                            float pesoPorEseCamino = 0.f;
+                            vector<long> ruta;
 
-                            printf("Me voy \n");
-                            v->setNumeroEpocasAntesDeCambio(0);
-                            v->setNumeroIntentosCambioDeRuta(0);
-                            posiciones_vehiculos_en_calle.erase(v->getId());
-                            continue;
+                            if(nodoVecinoCantidado->getIdExt() == ultimoNodoDeLaSubRuta){ //Caso borde, se tranca en la ultima calle que debe recorrer
+                                ruta.push_back(ultimoNodoDeLaSubRuta);
+                            } else {
+                                Nodo* nodoInicio = grafo->obtenerNodo(nodoVecinoCantidado->getIdExt());
+
+                                bool rutaPrecargada;
+                                nodoInicio->consultarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta, rutaPrecargada);
+
+                                if(!rutaPrecargada){
+                                    ruta = grafo->computarCaminoMasCorto(nodoVecinoCantidado->getIdExt(), ultimoNodoDeLaSubRuta, nodoInicialCalleActual->getSeccion(), pesoPorEseCamino);
+                                    nodoInicio->agregarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta);
+                                }
+
+                                if(ruta.empty()) continue;
+                            }
+
+                            pesoPorEseCamino += costoArista;
+                            if(isPrimerCaminoExplorado || pesoPorEseCamino < minimoPeso){
+                                isPrimerCaminoExplorado = false;
+                                minimoPeso = pesoPorEseCamino;
+                                rutaMimima = ruta;
+                                nodoInicioSigCaminoMinimo = nodoVecinoCantidado->getIdExt();
+                            }
                         }
 
-                        v->setNumeroEpocasAntesDeCambio(v->getNumeroEpocasAntesDeCambio() - 1); //Descuento 1 antes de formzar el cambio
+                        long id_nodo_final_calle_solicitada = vehiculos_con_solicitud_enviada[v_id]->nodo_final;
 
-                        if(v->getNumeroEpocasAntesDeCambio() == 0){
-
-                            if(v->isContadorDePasienciaActivado()){
+                        if(nodoInicioSigCaminoMinimo != id_nodo_final_calle_solicitada && !isPrimerCaminoExplorado){
 
 
-                                Nodo* nodoFinalCalleActual = grafo->obtenerNodo(nodo_final);
-                                Nodo* nodoInicialCalleActual = grafo->obtenerNodo(nodo_final);
-                                long ultimoNodoDeLaSubRuta = v->obtenerUltimoNodoDeLaRuta();
+                            string idCalleDondeSeIntentabaIngresar = Calle::getIdCalle(nodo_final, id_nodo_final_calle_solicitada);
+                            Calle* calleDondeSeIntentabaIngresar = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idCalleDondeSeIntentabaIngresar);
 
-                                float minimoPeso = 0;
-                                bool isPrimerCaminoExplorado = true;
-                                long nodoInicioSigCaminoMinimo;
-                                vector<long> rutaMimima;
-                                for(auto nv: nodoFinalCalleActual->getNodosVecinos()){
+                            bool solicitudeRetirada = calleDondeSeIntentabaIngresar->consultarSolicitudActivaYRemover(v->getId());
 
-                                    Nodo* nodoVecinoCantidado = nv.first;
-                                    float costoArista = nv.second;
+                            if (solicitudeRetirada){ // En caso contrario es que es que la solicitud fue aceptada y es cuestion de que llege la notificacion
+                                rutaMimima.insert(rutaMimima.begin(), nodo_final);
+                                v->setRuta(rutaMimima, v->get_is_segmento_final());
+                                v->set_indice_calle_recorrida(0);
 
-                                    if(nodoVecinoCantidado->getIdExt() == nodo_inicial){
-                                        // No permitidmos que vuelva hacia atras por la calle en la que fue, o sea, no vuelta en U
-                                        continue;
-                                    }
+                                string idSigCalle = Calle::getIdCalle(nodo_final, nodoInicioSigCaminoMinimo);
+                                Calle* sigCalle = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idSigCalle);
+                                sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
 
-                                    float pesoPorEseCamino = 0.f;
-                                    vector<long> ruta;
-
-
-
-                                    if(nodoVecinoCantidado->getIdExt() == ultimoNodoDeLaSubRuta){ //Caso borde, se tranca en la ultima calle que debe recorrer
-                                        ruta.push_back(ultimoNodoDeLaSubRuta);
-                                    } else {
-                                        Nodo* nodoInicio = grafo->obtenerNodo(nodoVecinoCantidado->getIdExt());
-
-                                        bool rutaPrecargada;
-                                        nodoInicio->consultarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta, rutaPrecargada);
-
-                                        if(!rutaPrecargada){
-                                            ruta = grafo->computarCaminoMasCorto(nodoVecinoCantidado->getIdExt(), ultimoNodoDeLaSubRuta, nodoInicialCalleActual->getSeccion(), pesoPorEseCamino);
-                                            nodoInicio->agregarRutaPreCargada(ultimoNodoDeLaSubRuta, ruta);
-                                        }
-
-                                        if(ruta.empty()) continue;
-                                    }
-
-                                    pesoPorEseCamino += costoArista;
-                                    if(isPrimerCaminoExplorado || pesoPorEseCamino < minimoPeso){
-                                        isPrimerCaminoExplorado = false;
-                                        minimoPeso = pesoPorEseCamino;
-                                        rutaMimima = ruta;
-                                        nodoInicioSigCaminoMinimo = nodoVecinoCantidado->getIdExt();
-                                    }
-                                }
-
-                                if(nodoInicioSigCaminoMinimo != v->getNumeroNodoCalleEnEspera() && !isPrimerCaminoExplorado){
-                                    string idCalleDondeSeIntentabaIngresar = Calle::getIdCalle(nodo_final, v->getNumeroNodoCalleEnEspera());
-                                    Calle* calleDondeSeIntentabaIngresar = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idCalleDondeSeIntentabaIngresar);
-                                    bool solicitudeRetirada = calleDondeSeIntentabaIngresar->consultarSolicitudActivaYRemover(v->getId());
-                                    if (solicitudeRetirada){ // En caso contrario es que es que la solicitud fue aceptada y es cuestion de que llege la notificacion
-                                        rutaMimima.insert(rutaMimima.begin(), nodo_final);
-                                        v->setRuta(rutaMimima, v->get_is_segmento_final());
-                                        v->set_indice_calle_recorrida(0);
-
-                                        string idSigCalle = Calle::getIdCalle(nodo_final, nodoInicioSigCaminoMinimo);
-                                        Calle* sigCalle = mapa_barrio[nodoFinalCalleActual->getSeccion()]->obtenerCalle(idSigCalle);
-                                        sigCalle->insertarSolicitudTranspaso(nodo_inicial, nodo_final, v);
-                                        v->setNumeroNodoCalleEnEspera(nodoInicioSigCaminoMinimo);
-                                    }
-                                }
+                                vehiculos_con_solicitud_enviada[v->getId()] = sigCalle;
                             }
-                            v->setNumeroEpocasAntesDeCambio(NUMERO_EPOCAS_ANTE_DE_REACALCULO_DE_RUTAS);
-                            v->setNumeroIntentosCambioDeRuta(v->getNumeroIntentosCambioDeRuta() + 1);
                         }
                     }
                 }
-
-                 */
-
             }
-
             float velocidadActual = ((float)nuevaPosicion - posicion) * (3.6f) / (tiempo_epoca / 1000.f);
             velocidadesVehiculos.push_back(velocidadActual);
 
@@ -403,11 +390,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
             vehiculos_ordenados_en_calle_aux.push_back(v);
 
 
-
         }
-
-
-
     }
 
     vehculos_ordenados_en_calle.clear();
@@ -508,7 +491,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
     float tiempoMedioEsperado = valorTiempoMedioDefault + valorTiempoMedioDefault * valorCongestion * ( (velocidad_maxima - valorVelocidadMedia) / velocidad_maxima) * 1.00;
 
-    //medicion_costo.push_back(tiempoMedioEsperado);
+    medicion_costo.push_back(tiempoMedioEsperado);
 }
 
 bool Calle::consultarSolicitudActivaYRemover(int idVehiculo){
