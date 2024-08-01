@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+
 CargarGrafo::CargarGrafo(string file) {
     std::ifstream f(file);
     data = json::parse(f);
@@ -27,7 +28,7 @@ vector<pair<long, string>> CargarGrafo::obtenerBarrios(){
 
 
 void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
-                              std::function<void(float, int,long)> &doneFn,
+                              std::function<void(float, int,long,long)> & doneFn,
                               function<void(SolicitudTranspaso &)> &enviarSolicitudFn,
                               function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
                               map<long, int> &asignacion_barrios,

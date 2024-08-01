@@ -18,13 +18,14 @@ class CargarGrafo {
 private:
     json data;
 public:
+    CargarGrafo(){}
     CargarGrafo(string file);
 
     vector<pair<long, string>> obtenerBarrios();
 
     void FormarGrafo(Grafo* grafo,
                      map<long, Barrio*>& barrios,
-                     std::function<void(float, int,long)>& doneFn,
+                     std::function<void(float, int,long,long)>& doneFn,
                      function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
                      function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
                      map<long, int>&  asignacion_barrios,

@@ -142,6 +142,7 @@ CMakeFiles/hpc.dir/src/Grafo.cpp.o: \
  /usr/include/c++/9/bits/stl_vector.h \
  /usr/include/c++/9/bits/stl_bvector.h /usr/include/c++/9/bits/vector.tcc \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
+ /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /usr/include/c++/9/iostream /usr/include/c++/9/ostream \
  /usr/include/c++/9/ios /usr/include/c++/9/bits/ios_base.h \
  /usr/include/c++/9/bits/locale_classes.h \

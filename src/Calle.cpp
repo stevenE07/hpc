@@ -6,7 +6,7 @@
 
 Calle::Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles, float velocidad_maxima,
              map<long, Barrio*> & mapa_barrio,
-             function<void(float, int,long)>& doneFn,
+             function<void(float, int,long,long)>& doneFn,
              function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
              function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
              Grafo* grafo,
@@ -202,8 +202,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                         if(v->get_is_segmento_final() == 1) { // Es la subruta final
 
                             #pragma omp critical(doneFn_mutex)
-                            doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio());
-
+                            //doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->id_barrio_final);
+                            doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->id_barrio_inicio, v->id_barrio_final);
                             remover_vehiculo_calle(v, false);
 
                             continue;

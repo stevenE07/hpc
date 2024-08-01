@@ -35,9 +35,18 @@ private:
     // Lista de vehiculos dentro de la calle, ordenadados por posicion (de mayor a menor), se actualizan en este orden.
     vector<Vehiculo*> vehculos_ordenados_en_calle;
 
-    function<void(float, int,long)> doneFn;
+    function<void(float, int,long,long)> doneFn;
     function<void(SolicitudTranspaso&)> enviarSolicitudFn;
     function<void(NotificacionTranspaso &)> enviarNotificacionFn;
+
+    map<int, Calle*> vehiculos_con_solicitud_enviada;
+
+    //Conjunto con todos los vehiculos cuya solicitud se verifico aceptada al no encontrarse mas en la lista de solicitudes
+    // de la calle a la que se solicito
+
+    set<int> vehiculos_con_solicitud_aceptada_esperando_notificacion;
+    map<int, int> numero_intentos_restantes_re_entruamiento;
+    map<int, int> numero_epocas_restantes_antes_de_proximo_intento_de_reenrutamiento;
 
 
     Grafo* grafo;
@@ -63,7 +72,7 @@ private:
 public:
     Calle(long id_nodo_inicial, long id_nodo_final, float largo, unsigned numero_carriles,float velocidad_maxima,
           map<long, Barrio*> & mapa_barrio,
-          function<void(float, int,long)>& doneFn,
+          function<void(float, int,long,long)>& doneFn,
           function<void(SolicitudTranspaso&)>& enviarSolicitudFn,
           function<void(NotificacionTranspaso &)>& enviarNotificacionFn,
           Grafo* grafo,

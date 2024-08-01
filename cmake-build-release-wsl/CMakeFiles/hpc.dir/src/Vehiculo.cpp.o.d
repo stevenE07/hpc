@@ -226,6 +226,7 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: \
  /usr/include/c++/9/bits/atomic_lockfree_defines.h \
  /usr/include/c++/9/backward/auto_ptr.h \
  /usr/include/c++/9/pstl/glue_memory_defs.h \
+ /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Calle.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Utils.h \
  /usr/include/c++/9/cmath /usr/include/math.h \
@@ -285,7 +286,6 @@ CMakeFiles/hpc.dir/src/Vehiculo.cpp.o: \
  /usr/include/c++/9/bits/stl_deque.h /usr/include/c++/9/bits/deque.tcc \
  /usr/include/c++/9/bits/stl_queue.h /usr/include/c++/9/set \
  /usr/include/c++/9/bits/stl_set.h /usr/include/c++/9/bits/stl_multiset.h \
- /usr/lib/gcc/x86_64-linux-gnu/9/include/omp.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Grafo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Nodo.h \
  /mnt/c/Users/Steven/Desktop/hpc/src/../include/Constantes.h \
