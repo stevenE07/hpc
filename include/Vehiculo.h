@@ -14,6 +14,8 @@ private:
     //Propiedades del vehiculo
     int id;
 
+    long id_barrio_inicio;
+
     //Dirrecion
     std::vector<long> ruta;
 
@@ -35,14 +37,16 @@ private:
 
 public:
 
-    long id_barrio_inicio = 0;
-    long id_barrio_final = 0;
 
-    Vehiculo(int id);
+
+
+    Vehiculo(int id, long barrio_inicio);
 
     ~Vehiculo();
 
+    long getIdBarrioInicio() const;
 
+    void setIdBarrioInicio(long idBarrioInicio);
 
 
     Calle *getCalleactual() const;

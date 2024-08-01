@@ -201,9 +201,10 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
 
                         if(v->get_is_segmento_final() == 1) { // Es la subruta final
 
+                            long id_barrio_final = grafo->obtenerNodo(nodo_final)->getSeccion();
+
                             #pragma omp critical(doneFn_mutex)
-                            //doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->id_barrio_final);
-                            doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->id_barrio_inicio, v->id_barrio_final);
+                            doneFn(v->getDistanciaRecorrida(), numeroEpoca - v->getEpocaInicio(), v->getIdBarrioInicio(), id_barrio_final);
                             remover_vehiculo_calle(v, false);
 
                             continue;
@@ -259,6 +260,8 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
                                 solicitudTranspaso.trayectoriaTotal = v->getDistanciaRecorrida();
                                 solicitudTranspaso.epocaInicial = v->getEpocaInicio();
                                 solicitudTranspaso.id_nodo_inicial_calle_anterior = nodo_inicial;
+                                solicitudTranspaso.barrio_inicio = v->getIdBarrioInicio();
+
 
                                 vehiculos_con_solicitud_enviada[v->getId()] = nullptr; //Siguiente calle indeterminada, lo calcula el nodo MPI responsable del barrio
 

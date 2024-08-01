@@ -4,13 +4,14 @@
 
 #include "../include/Vehiculo.h"
 
-Vehiculo::Vehiculo(int id){
+Vehiculo::Vehiculo(int id, long barrio_inicial){
     this->id = id;
     this->indice_calle_recorrida = 0;
     this->is_segmento_final = 0;
     this->esperando_notificacion = false;
     this->calleactual = nullptr;
     this->distancia_recorrida = 0.0f;
+    this->id_barrio_inicio = barrio_inicial;
 
     omp_init_lock(&lock_esperando_notificacion);
 }
@@ -113,6 +114,14 @@ bool Vehiculo::isEsperandoNotificacion() const {
 
 void Vehiculo::setEsperandoNotificacion(bool esperandoNotificacion) {
     esperando_notificacion = esperandoNotificacion;
+}
+
+long Vehiculo::getIdBarrioInicio() const {
+    return id_barrio_inicio;
+}
+
+void Vehiculo::setIdBarrioInicio(long idBarrioInicio) {
+    id_barrio_inicio = idBarrioInicio;
 }
 
 

@@ -1,4 +1,5 @@
-omp_set_num_threads=4
-numero_vehiculos_en_curso_global=1000
-modo_balance_carga=3
-ciudad=montevideo
+omp_set_num_threads=3
+numero_vehiculos_en_curso_global=100000
+modo_balance_carga=1
+ciudad=caba
+mostrar_tiempos_promedio_viaje_por_bario_por_barrio = 1

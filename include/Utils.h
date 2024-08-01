@@ -34,6 +34,7 @@ typedef struct {
     float trayectoriaTotal;
     long id_nodo_inicial_calle_anterior;
     long id_barrio;
+    long barrio_inicio;
 }SolicitudTranspaso;
 
 typedef struct {

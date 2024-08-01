@@ -141,7 +141,7 @@ void create_mpi_types() {
 
 
     const int nitems_solicitud=3;
-    int blocklengths_solicitud[3] = {2, 1, 2};
+    int blocklengths_solicitud[3] = {2, 1, 3};
     MPI_Datatype types_solicitud[3] = {MPI_INT, MPI_FLOAT, MPI_LONG};
     MPI_Aint     offsets_solicitud[3];
 
@@ -186,7 +186,7 @@ void procesar_solicitudes_recividas(SolicitudTranspaso* solicitudesRecividas, in
             nodoInicial->agregarRutaPreCargada(sigSegmento.id_fin, caminoSigBarrio);
         }
 
-        auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo);
+        auto vehiculoIngresado = new Vehiculo(solicitud.id_vehiculo, solicitud.barrio_inicio);
 
         #pragma omp critical(mapa_mis_vehiculos_mutex)
         mapa_mis_vehiculos[vehiculoIngresado->getId()] = vehiculoIngresado;
@@ -789,13 +789,12 @@ void generar_vehiculos_y_notificar_segmentos(string processor_name, std::map<lon
                 }
             }
 
-            auto v = new Vehiculo(id_vehiculo);
-            long barrioinicio = grafoMapa->obtenerNodo(src)->getSeccion();
-            long barrio = grafoMapa->obtenerNodo(dst)->getSeccion();
-            v->id_barrio_final = barrio;
-            v->id_barrio_inicio = barrioinicio;
-            pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
 
+            long barrioinicio = grafoMapa->obtenerNodo(src)->getSeccion();
+
+            auto v = new Vehiculo(id_vehiculo, barrioinicio);
+
+            pair<int, long> claveBarioVehiculo = make_pair(v->getId(), grafoMapa->obtenerNodo(src)->getSeccion());
 
             SegmentoTrayectoVehculoEnBarrio primerSegmento = segmentos_a_recorrer_por_barrio_por_vehiculo[claveBarioVehiculo].front();
 
@@ -924,6 +923,8 @@ char processor_name[MPI_MAX_PROCESSOR_NAME];
 int name_len;
 
 int main(int argc, char* argv[]) {
+
+    time_point<Clock> inicioPrograma = Clock::now();
 
     std::map<long, int> barrios_con_poblacion;
     std::map<long, int> barrios_con_cantidad_calles;
@@ -1101,12 +1102,26 @@ int main(int argc, char* argv[]) {
 
     if(my_rank == 0){
         double tiempoPromedio = tiempoTotal / (double)cantidadTotal;
-        printf("----- TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)\n", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
+
         milliseconds miliseconds = duration_cast<milliseconds>(Clock::now() - inicioTiempo);
-        printf("----- Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+        printf("##### Tiempo transcurido simulacion = %.2f seg \n", (float)miliseconds.count() / 1000.f);
+
+
+        milliseconds milisecondsInicioPrograma = duration_cast<milliseconds>(Clock::now() - inicioPrograma);
+        printf(" ###### Tiempo total = %.2f seg \n", (float)milisecondsInicioPrograma.count() / 1000.f);
+
+        printf(" ------ TIEMPO PROMEDIO VIAJE DE 10KM = %2.f seg (%2.f min)\n", tiempoPromedio / 10.f, tiempoPromedio / (float)(10 * 60) );
+
+        if(stoi(conf["mostrar_tiempos_promedio_viaje_por_bario_por_barrio"]) == 1){
+            printf("@@@ Tiempos Promedios por barrio @@@ \n");
+        }
+
     }
 
-    if( conf["ciudad"] == "montevideo"){
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if(stoi(conf["mostrar_tiempos_promedio_viaje_por_bario_por_barrio"]) == 1){
+
         printf("NROBARRIO,PROMEDIO\n");
         for(auto tiempos_en_barrio : tiempoRecorridoPor10KmBarrio) {
             double tiempoTotal = 0;
@@ -1118,6 +1133,9 @@ int main(int argc, char* argv[]) {
             printf("%ld,%ld ,%2.f \n",tiempos_en_barrio.first.first,tiempos_en_barrio.first.second, tiempoPromedio / 10.f );
         }
     }
+
+
+
 
     // ----- Limpieza
     for (auto barrios : mapa_mis_barios)
