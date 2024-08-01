@@ -709,7 +709,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng,string processor
                     long barrioSortadoIndice = getClasePorProbailidad(rng, prob_barrio_barrio[id_barrio - 1]);
                     nodo_final.push_back( grafoMapa->idNodoAletorio(rng, barrios[barrioSortadoIndice].first));
                 }else {
-                    nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng));
+                    nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng, id_barrio));
                     nodo_final.push_back( grafoMapa->idNodoAletorio(rng));
                 }
 
