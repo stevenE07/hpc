@@ -1,4 +1,4 @@
-omp_set_num_threads=8
+omp_set_num_threads=4
 numero_vehiculos_en_curso_global=1000
-modo_balance_carga=1
-ciudad=caba
+modo_balance_carga=3
+ciudad=montevideo

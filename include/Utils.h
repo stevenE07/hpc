@@ -79,7 +79,7 @@ inline int getClasePorProbailidad(std::mt19937& rnd, std::vector<double>& pro){
     }
 }
 
-inline void calculo_equitativo_por_personas(int size_mpi, int my_rank, std::map<long,int> & cantidad_vehiculos_a_generar_por_barrio, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
+inline void calculo_equitativo(int size_mpi, int my_rank, std::map<long,int> & cantidad_vehiculos_a_generar_por_barrio, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
     vector<pair<long,int>> cantidades_por_barrio_ordenadas;
     for(auto info : cantidad_vehiculos_a_generar_por_barrio) {
         cantidades_por_barrio_ordenadas.push_back({info.first,info.second});
@@ -90,12 +90,15 @@ inline void calculo_equitativo_por_personas(int size_mpi, int my_rank, std::map<
                 return a.second > b.second;
             });
 
+
+
     // --- Asignacion de barios a nodos
     vector<long> carga_por_nodo(size_mpi,0);
     for(auto cantidad_barrio : cantidades_por_barrio_ordenadas ) {
         long index = min_element(carga_por_nodo.begin(), carga_por_nodo.end()) - carga_por_nodo.begin();
-        asignacion_barrios[cantidad_barrio.first] = index;
+        asignacion_barrios[cantidad_barrio.first ] = index;
         carga_por_nodo[index] += cantidad_barrio.second;
+
         if(index == my_rank) {
             mis_barrios.push_back(cantidad_barrio.first);
         }
@@ -122,6 +125,8 @@ inline std::map<std::string, std::string> readConfig(const std::string& filename
 
     return config;
 }
+
+
 inline void calculo_naive_por_nodo_mpi(int my_rank, int size_mpi, vector<pair<long, basic_string<char>>> barrios, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
     for(int i = 0; i < barrios.size(); i++){  //ToDo Cambiar
         asignacion_barrios[barrios[i].first] = i % size_mpi;

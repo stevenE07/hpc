@@ -722,6 +722,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng,string processor
         }
     }
 
+
     // ----- Calculamos a partir de que id podemos generar los vehiculos
     int numVehiculosDeNodosAnteriores = 0;
     for (auto bario_y_cantidad: cantidad_vehiculos_a_generar_por_barrio) {
@@ -924,6 +925,7 @@ int name_len;
 int main(int argc, char* argv[]) {
 
     std::map<long, int> barrios_con_poblacion;
+    std::map<long, int> barrios_con_cantidad_calles;
     std::map<long, double> probabilidad_por_barrio;
     std::map<long, int> cantidad_vehiculos_a_generar_por_barrio;
 
@@ -957,16 +959,24 @@ int main(int argc, char* argv[]) {
 
     CargarGrafo loadData;
     std::string dir_personas_barrios;
+    std::string dir_cantidad_calles;
 
     if (ciudad == "montevideo") {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
     } else if (ciudad == "caba") {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/CABA_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_caba.csv");
-    } else {
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
+    } else if (ciudad == "roma") {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
+    }else if (ciudad == "vegas") {
+        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/las_vegas_suburbio.json"));
+        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_vegas.csv");
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
     }
 
     vector<pair<long, std::string>> barrios = loadData.obtenerBarrios();
@@ -987,16 +997,19 @@ int main(int argc, char* argv[]) {
 
         // ---- Leer poblaciones por barrio
         leerCSVbarrioCantidades( dir_personas_barrios,barrios_con_poblacion);
+        leerCSVbarrioCantidades( dir_cantidad_calles,barrios_con_cantidad_calles);
         calcularProbabilidad(barrios_con_poblacion, probabilidad_por_barrio);
         asignarCantidades(rng, numero_vehiculos_en_curso_global, probabilidad_por_barrio, cantidad_vehiculos_a_generar_por_barrio);
 
         switch(stoi(conf["modo_balance_carga"])) {
             case 1:
-                calculo_equitativo_por_personas(size_mpi,my_rank,cantidad_vehiculos_a_generar_por_barrio,asignacion_barrios,mis_barrios);
+                calculo_equitativo(size_mpi,my_rank,cantidad_vehiculos_a_generar_por_barrio,asignacion_barrios,mis_barrios);
                 break;
             case 2:
                 calculo_naive_por_nodo_mpi(my_rank,size_mpi,barrios,asignacion_barrios,mis_barrios);
-
+                break;
+            case 3:
+                calculo_equitativo(size_mpi,my_rank,barrios_con_cantidad_calles , asignacion_barrios,mis_barrios);
                 break;
         }
 
