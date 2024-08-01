@@ -31,7 +31,7 @@ public:
 
     void consultarRutaPreCargada(long dest, vector<long> & ruta, bool & encontrada){
         omp_set_lock(&lock);
-        encontrada = this->tablaDeRutas.count(dest) > 0;
+        encontrada = this->tablaDeRutas.find(dest) != tablaDeRutas.end();
         if(encontrada){
             ruta = tablaDeRutas[dest];
         }
@@ -39,6 +39,9 @@ public:
     }
 
     void agregarRutaPreCargada(long dest, vector<long>& ruta){
+
+        if(ruta.empty()) return;
+
         omp_set_lock(&lock);
 
         if(this->tablaDeRutas.count(dest) == 0){
