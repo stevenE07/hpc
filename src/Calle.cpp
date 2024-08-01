@@ -155,7 +155,7 @@ void Calle::ejecutarEpoca(float tiempo_epoca, int numeroEpoca) {
         bool hay_notificacion = false;
         pair<int, bool> mi_notificacion;
         for (auto notificacion : notificaciones_traslado_calle_realizado ){
-            if(notificacion.first == v->getId()){
+            if(notificacion.first == v->getId() && vehiculos_con_solicitud_enviada.count(v->getId()) > 0){
                 hay_notificacion = true;
                 mi_notificacion = notificacion;
                 break;
