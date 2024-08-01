@@ -685,7 +685,7 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
 }
 
-void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng,string processor_name, std::map<long, int> & cantidad_vehiculos_a_generar_por_barrio, std::vector<std::vector<double>> & prob_barrio_barrio, std::map<std::string, std::string> & conf, vector<pair<long, basic_string<char>>> & barrios) {
+void generar_vehiculos_y_notificar_segmentos(string processor_name, std::map<long, int> & cantidad_vehiculos_a_generar_por_barrio, std::vector<std::vector<double>> & prob_barrio_barrio, std::map<std::string, std::string> & conf, vector<pair<long, basic_string<char>>> & barrios) {
 
     time_point<Clock> inicioTiempoDJ = Clock::now();
 
@@ -702,6 +702,7 @@ void generar_vehiculos_y_notificar_segmentos( std::mt19937& rng,string processor
     numero_vehiculos_en_curso_en_el_nodo = 0;
     for (auto bario_y_cantidad: cantidad_vehiculos_a_generar_por_barrio) {
         if(asignacion_barrios[bario_y_cantidad.first] == my_rank){
+            std::mt19937 rng(2024);
             for (int i = 0; i < bario_y_cantidad.second; i++) {
                 long id_barrio = bario_y_cantidad.first;
                 if(conf["ciudad"] == "montevideo") {
@@ -1054,7 +1055,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    generar_vehiculos_y_notificar_segmentos(rng, processor_name, cantidad_vehiculos_a_generar_por_barrio,prob_barrios_a_barrios,conf, barrios);
+    generar_vehiculos_y_notificar_segmentos(processor_name, cantidad_vehiculos_a_generar_por_barrio,prob_barrios_a_barrios,conf, barrios);
 
     // ---- Ejecuccion de la simulaccion
 
