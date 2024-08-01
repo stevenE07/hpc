@@ -434,15 +434,8 @@ void ejecutar_epoca() {
                 auto it = todas_calles[i];
                 it->ejecutarEpoca(TIEMPO_EPOCA_MS, numero_epoca); // Ejecutar la época para la calle
             }
+
             #pragma omp barrier
-            #pragma omp critical
-            if(numero_epoca > 87999){
-                for (int i = 0; i < todas_calles.size(); i++) {
-                    auto it = todas_calles[i];
-                    it->mostrarEstado();
-                }
-                exit(1);
-            }
 
             if((numero_epoca + 1) % 1000 == 0){
                 #pragma omp for schedule(dynamic, 50)
@@ -543,7 +536,7 @@ void ejecutar_epoca() {
 
             #pragma omp barrier
 
-        }while(numero_vehiculos_en_curso_global > 100);
+        }while(numero_vehiculos_en_curso_global > 0);
     }
 }
 
@@ -620,9 +613,14 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
             continue;
 
         int cantidad_segmentos;
-        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, MPI_ANY_SOURCE, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         max_numero_segmentos_a_recibir = max(max_numero_segmentos_a_recibir, cantidad_segmentos);
     }
+
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    
 
     for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
         if(rank_nodo_a_enviar == my_rank)
@@ -658,7 +656,7 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
         }
 
         MPI_Status status;
-        MPI_Recv(buffResepcion, max_numero_segmentos_a_recibir, MPI_SegmentoTrayectoVehculoEnBarrio, MPI_ANY_SOURCE, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
+        MPI_Recv(buffResepcion, max_numero_segmentos_a_recibir, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
         int cantidad_segmentos_recibidos;
         MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
 
