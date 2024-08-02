@@ -405,12 +405,11 @@ void ejecutar_epoca() {
                 }
 
                 if(numero_epoca > 0){
-                    for(int i = 0; i< nodos_mpi_vecinos.size(); i++){
-                        MPI_Wait(&requestsSendSolicitudes[i], MPI_STATUS_IGNORE);
-                    }
-                    for(int i = 0; i< nodos_mpi_vecinos.size(); i++){
-                        MPI_Wait(&requestsSendNotificaciones[i], MPI_STATUS_IGNORE);
-                    }
+
+                    MPI_Waitall((int)nodos_mpi_vecinos.size(), requestsSendSolicitudes, MPI_STATUSES_IGNORE);
+                    MPI_Waitall( (int)nodos_mpi_vecinos.size(), requestsSendNotificaciones, MPI_STATUSES_IGNORE);
+
+
 
                     delete [] requestsSendSolicitudes;
                     delete [] requestsSendNotificaciones;
@@ -474,27 +473,27 @@ void ejecutar_epoca() {
 #pragma omp master
             {
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                auto statusSolicitudes = new MPI_Status[nodos_mpi_vecinos.size()];
+                MPI_Waitall((int)nodos_mpi_vecinos.size(), requestRecvSolicitudes, statusSolicitudes);
+
+
+                auto statusNotificaciones = new MPI_Status[nodos_mpi_vecinos.size()];
+                MPI_Waitall((int)nodos_mpi_vecinos.size(), requestRecvSolicitudes, statusNotificaciones);
 
                 int contadorRequestSolicitudes = 0;
                 for(auto nodo_vecino: nodos_mpi_vecinos){
-                    MPI_Status s;
-                    MPI_Wait(&requestRecvSolicitudes[contadorRequestSolicitudes], &s);
-
-                    MPI_Get_count(&s, MPI_SolicitudTranspaso, &cantidadSolicitudesRecibidas[nodo_vecino]);
-
+                    MPI_Get_count(&statusSolicitudes[contadorRequestSolicitudes], MPI_SolicitudTranspaso, &cantidadSolicitudesRecibidas[nodo_vecino]);
                     contadorRequestSolicitudes++;
                 }
 
                 int contadorRequestNotificaciones = 0;
                 for(auto nodo_vecino: nodos_mpi_vecinos){
-                    MPI_Status s;
-                    MPI_Wait(&requestRecvNotificaciones[contadorRequestNotificaciones], &s);
-
-                    MPI_Get_count(&s, MPI_INT, &cantidadNotificacionesRecibidas[nodo_vecino]);
-
+                    MPI_Get_count(&statusNotificaciones[contadorRequestNotificaciones], MPI_INT, &cantidadNotificacionesRecibidas[nodo_vecino]);
                     contadorRequestNotificaciones++;
                 }
+
+                delete [] statusSolicitudes;
+                delete [] statusNotificaciones;
 
             }
 
@@ -507,6 +506,7 @@ void ejecutar_epoca() {
                                   MPI_SUM,
                                   MPI_COMM_WORLD);
                 }
+                MPI_Barrier(MPI_COMM_WORLD);
                 numero_epoca++;
 
                 for (auto s: solicitudes_transpaso_entre_nodos_mpi) {
@@ -592,11 +592,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     }
 
 
-
-    auto requests_cantidad_segmentos = new MPI_Request[size_mpi - 1];
-
-
-    auto buff_cantidad_segmentos = new int[size_mpi - 1];
     int cont_request = 0;
 
 
@@ -659,17 +654,8 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     }
 
 
+    MPI_Waitall(contadorRequestSegmentos,requests_segmentos, MPI_STATUSES_IGNORE);
 
-    for(int i = 0; i < cont_request; i++){
-        MPI_Wait(&requests_cantidad_segmentos[i], MPI_STATUS_IGNORE);
-    }
-
-    for(int i = 0; i < contadorRequestSegmentos; i++){
-        MPI_Wait(&requests_segmentos[i], MPI_STATUS_IGNORE);
-    }
-
-
-    delete [] requests_cantidad_segmentos;
     delete [] bufferEnvioSegmentos;
 
 }
