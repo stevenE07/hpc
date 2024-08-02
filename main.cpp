@@ -478,7 +478,7 @@ void ejecutar_epoca() {
 
 
                 auto statusNotificaciones = new MPI_Status[nodos_mpi_vecinos.size()];
-                MPI_Waitall((int)nodos_mpi_vecinos.size(), requestRecvSolicitudes, statusNotificaciones);
+                MPI_Waitall((int)nodos_mpi_vecinos.size(), requestRecvNotificaciones, statusNotificaciones);
 
                 int contadorRequestSolicitudes = 0;
                 for(auto nodo_vecino: nodos_mpi_vecinos){
