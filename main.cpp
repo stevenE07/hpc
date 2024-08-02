@@ -119,13 +119,12 @@ void calcular_nodos_mpi_vecinos(){
         nodos_mpi_vecinos.push_back(v);
     }
 
+    int  maximo_numero_de_solicitudes_por_epoca_local = 0;
     for(auto bb: mapa_mis_barios){
-        maximo_numero_de_solicitudes_por_epoca += bb.second->getNumeroCallePoderadoPorNumeroCarrilesPerifericas();
+        maximo_numero_de_solicitudes_por_epoca_local += bb.second->getNumeroCallePoderadoPorNumeroCarrilesPerifericas();
     }
 
-    maximo_numero_de_solicitudes_por_epoca = (int)((float)maximo_numero_de_solicitudes_por_epoca * 1.4f); // 40% por margen de seguridad
-
-
+    MPI_Allreduce(&maximo_numero_de_solicitudes_por_epoca_local, &maximo_numero_de_solicitudes_por_epoca, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
 }
 
 void create_mpi_types() {
@@ -386,11 +385,13 @@ void ejecutar_epoca() {
         cout << "Inicio simulacion" << endl;
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
 
-    #pragma omp parallel
+
+#pragma omp parallel
     {
         do {
-            #pragma omp master
+#pragma omp master
             {
                 if (my_rank == 0) {
                     if ((numero_epoca + 1) % 500 == 0) {
@@ -472,6 +473,9 @@ void ejecutar_epoca() {
 
 #pragma omp master
             {
+
+                MPI_Barrier(MPI_COMM_WORLD);
+
                 int contadorRequestSolicitudes = 0;
                 for(auto nodo_vecino: nodos_mpi_vecinos){
                     MPI_Status s;
@@ -491,6 +495,7 @@ void ejecutar_epoca() {
 
                     contadorRequestNotificaciones++;
                 }
+
             }
 
 #pragma omp barrier
@@ -503,8 +508,6 @@ void ejecutar_epoca() {
                                   MPI_COMM_WORLD);
                 }
                 numero_epoca++;
-
-                MPI_Barrier(MPI_COMM_WORLD);
 
                 for (auto s: solicitudes_transpaso_entre_nodos_mpi) {
                     solicitudes_traspaso_epoca_anterior.push_back(s);
@@ -956,6 +959,14 @@ int main(int argc, char* argv[]) {
     } else if (ciudad == "caba") {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/CABA_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_caba.csv");
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
+    } else if (ciudad == "roma") {
+        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
+        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
+        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
+    }else if (ciudad == "vegas") {
+        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/las_vegas_suburbio.json"));
+        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_vegas.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
     }
 

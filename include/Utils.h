@@ -163,7 +163,7 @@ inline std::vector<std::vector<double>> cargar_matriz_barrios_barrios(string fil
             }
         }
     }
-    
+
     return res;
 
 }
