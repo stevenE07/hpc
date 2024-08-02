@@ -19,6 +19,8 @@ private:
     map<string, Calle*> mapa_calles;
     set<long> barriosVecinos;
 
+    int numeroCallePoderadoPorNumeroCarrilesPerifericas = 0;
+
 public:
     Barrio(long id);
 
@@ -29,6 +31,10 @@ public:
     void agregarBarrioVecino(long id_barrio){
         barriosVecinos.insert(id_barrio);
     }
+
+    int getNumeroCallePoderadoPorNumeroCarrilesPerifericas() const;
+
+    void setNumeroCallePoderadoPorNumeroCarrilesPerifericas(int numeroCallePoderadoPorNumeroCarrilesPerifericas);
 
     const set<long> &getBarriosVecinos() const;
 

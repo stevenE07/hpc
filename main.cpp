@@ -18,9 +18,6 @@
 #define TAG_SOLICITUDES 2
 #define TAG_NOTIFICACIONES 3
 
-#define MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA 1000
-
-
 INITIALIZE_EASYLOGGINGPP
 
 #include "json.hpp"
@@ -50,6 +47,8 @@ time_point<Clock> inicioTiempoEp;
 
 
 int my_rank, size_mpi;
+
+int maximo_numero_de_solicitudes_por_epoca;
 
 int numero_vehiculos_en_curso_global = stoi(conf["numero_vehiculos_en_curso_global"]); //Esto se deberia leer por parametro, se actualiza en cada epoca
 int numero_vehiculos_en_curso_en_el_nodo = 0; //Se calcula al generar los vehiculos
@@ -120,7 +119,11 @@ void calcular_nodos_mpi_vecinos(){
         nodos_mpi_vecinos.push_back(v);
     }
 
+    for(auto bb: mapa_mis_barios){
+        maximo_numero_de_solicitudes_por_epoca += bb.second->getNumeroCallePoderadoPorNumeroCarrilesPerifericas();
+    }
 
+    maximo_numero_de_solicitudes_por_epoca = (int)((float)maximo_numero_de_solicitudes_por_epoca * 1.4f); // 40% por margen de seguridad
 
 
 }
@@ -227,7 +230,7 @@ void iniciar_a_recivir_solicitudes(MPI_Request * requestRecv){
     int contador = 0;
     for(auto nodo_vecino: nodos_mpi_vecinos) {
         MPI_Irecv(buffRecepcionSolicitudes[nodo_vecino],
-                  MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA,
+                  maximo_numero_de_solicitudes_por_epoca,
                   MPI_SolicitudTranspaso,
                   nodo_vecino,
                   TAG_SOLICITUDES,
@@ -287,7 +290,7 @@ void iniciar_recibir_notificaciones(MPI_Request * requestRecv){
     int contador = 0;
     for(auto nodo_vecino: nodos_mpi_vecinos) {
         MPI_Irecv(buffRecepcionNotificaciones[nodo_vecino],
-                  MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA,
+                  maximo_numero_de_solicitudes_por_epoca,
                   MPI_INT,
                   nodo_vecino,
                   TAG_NOTIFICACIONES,
@@ -365,8 +368,8 @@ void ejecutar_epoca() {
 
     int numero_epoca = 0;
 
-    allsolicitudesRecividas = new SolicitudTranspaso[nodos_mpi_vecinos.size() * MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
-    allNotificacionesRecividas = new int[nodos_mpi_vecinos.size() * MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
+    allsolicitudesRecividas = new SolicitudTranspaso[nodos_mpi_vecinos.size() * maximo_numero_de_solicitudes_por_epoca];
+    allNotificacionesRecividas = new int[nodos_mpi_vecinos.size() * maximo_numero_de_solicitudes_por_epoca];
 
     vector<Nodo*> nodosDelGrafoAsignados;
     for(auto nodo :grafoMapa->obtenerNodos()){
@@ -892,8 +895,8 @@ void inicializarBuffersRecepcionSolicitudNotificacion(){
     cantidadNotificacionesRecibidas = new int[size_mpi];
 
     for(int nodo_index = 0; nodo_index < size_mpi; nodo_index++){
-        buffRecepcionSolicitudes[nodo_index] = new SolicitudTranspaso[MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
-        buffRecepcionNotificaciones[nodo_index] = new int[MAX_SOLICITUDES_NOTIFICIACION_RECIVIDAS_POR_NODO_POR_EPOCA];
+        buffRecepcionSolicitudes[nodo_index] = new SolicitudTranspaso[maximo_numero_de_solicitudes_por_epoca];
+        buffRecepcionNotificaciones[nodo_index] = new int[maximo_numero_de_solicitudes_por_epoca];
 
         cantidadSolicitudesRecibidas[nodo_index] = 0;
         cantidadNotificacionesRecibidas[nodo_index] = 0;
@@ -918,7 +921,7 @@ int main(int argc, char* argv[]) {
     initConfig();
     initMpi(argc, argv);
     MPI_Get_processor_name(processor_name, &name_len);
-    inicializarBuffersRecepcionSolicitudNotificacion();
+
     std::mt19937 rng(2024); // Semilia random
 
 
@@ -953,14 +956,6 @@ int main(int argc, char* argv[]) {
     } else if (ciudad == "caba") {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/CABA_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_caba.csv");
-        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    } else if (ciudad == "roma") {
-        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
-        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
-        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    }else if (ciudad == "vegas") {
-        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/las_vegas_suburbio.json"));
-        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_vegas.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
     }
 
@@ -1045,6 +1040,8 @@ int main(int argc, char* argv[]) {
 
 
     calcular_nodos_mpi_vecinos(); //Calculo cuales son mis nodos MPI vecinos
+
+    inicializarBuffersRecepcionSolicitudNotificacion();
 
     // ---- Formar un unico arreglo de Calles para todos los barrios del
     for(const auto& id_bario_y_barrio: mapa_mis_barios){

@@ -163,14 +163,7 @@ inline std::vector<std::vector<double>> cargar_matriz_barrios_barrios(string fil
             }
         }
     }
-    cout << "####### MATRIZ DE PROBABILIDADES BARRIOS A BARRIOS #####" << endl;
-    for (int i = 0; i < cant_barrios; ++i) {
-        for (int j = 0; j < cant_barrios; ++j) {
-            std::cout << res[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-
+    
     return res;
 
 }

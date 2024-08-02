@@ -43,3 +43,12 @@ const set<long> &Barrio::getBarriosVecinos() const {
 void Barrio::setBarriosVecinos(const set<long> &barriosVecinos) {
     Barrio::barriosVecinos = barriosVecinos;
 }
+
+int Barrio::getNumeroCallePoderadoPorNumeroCarrilesPerifericas() const {
+    return numeroCallePoderadoPorNumeroCarrilesPerifericas;
+}
+
+void Barrio::setNumeroCallePoderadoPorNumeroCarrilesPerifericas(int numeroCallePoderadoPorNumeroCarrilesPerifericas) {
+    Barrio::numeroCallePoderadoPorNumeroCarrilesPerifericas = numeroCallePoderadoPorNumeroCarrilesPerifericas;
+}
+

@@ -69,13 +69,39 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
         long id_barrio_src = mapa_barios_por_nodo[id_src];
         long id_barrio_dst = mapa_barios_por_nodo[id_dst];
 
+
+        int numeroCarriles = 1;
+        if( data["links"][i].contains("lanes")){
+            if(data["links"][i]["lanes"].is_string()) {
+                string numeroCarrilesStr = data["links"][i]["lanes"];
+                numeroCarriles = stoi(numeroCarrilesStr);
+            } else if(data["links"][i]["lanes"].is_array()){
+                string numeroCarrilesStr = data["links"][i]["lanes"][0];
+                numeroCarriles = stoi(numeroCarrilesStr);
+            } else {
+                float numeroCarrilesflow =   data["links"][i]["lanes"];
+                numeroCarriles = (int)numeroCarrilesflow;
+            }
+        }
+
         if (id_barrio_src != id_barrio_dst){
             if (barrios.find(id_barrio_src) != barrios.end()){
                 barrios[id_barrio_src]->agregarBarrioVecino(id_barrio_dst);
+
+                int numCalle = barrios[id_barrio_src]->getNumeroCallePoderadoPorNumeroCarrilesPerifericas();
+                numCalle += numeroCarriles;
+
+                barrios[id_barrio_src]->setNumeroCallePoderadoPorNumeroCarrilesPerifericas(numCalle);
             }
 
             if (barrios.find(id_barrio_dst) != barrios.end()){
                 barrios[id_barrio_dst]->agregarBarrioVecino(id_barrio_src);
+
+                int numCalle = barrios[id_barrio_dst]->getNumeroCallePoderadoPorNumeroCarrilesPerifericas();
+                numCalle += numeroCarriles;
+
+                barrios[id_barrio_dst]->setNumeroCallePoderadoPorNumeroCarrilesPerifericas(numCalle);
+
             }
         }
 
@@ -124,19 +150,7 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
             velocidad_max = "45";
         }
 
-        int numeroCarriles = 1;
-        if( data["links"][i].contains("lanes")){
-            if(data["links"][i]["lanes"].is_string()) {
-                string numeroCarrilesStr = data["links"][i]["lanes"];
-                numeroCarriles = stoi(numeroCarrilesStr);
-            } else if(data["links"][i]["lanes"].is_array()){
-                string numeroCarrilesStr = data["links"][i]["lanes"][0];
-                numeroCarriles = stoi(numeroCarrilesStr);
-            } else {
-                float numeroCarrilesflow =   data["links"][i]["lanes"];
-                numeroCarriles = (int)numeroCarrilesflow;
-            }
-        }
+
 
 
         float max_speed =  stof(velocidad_max);
