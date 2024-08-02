@@ -69,6 +69,16 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
         long id_barrio_src = mapa_barios_por_nodo[id_src];
         long id_barrio_dst = mapa_barios_por_nodo[id_dst];
 
+        if (id_barrio_src != id_barrio_dst){
+            if (barrios.find(id_barrio_src) != barrios.end()){
+                barrios[id_barrio_src]->agregarBarrioVecino(id_barrio_dst);
+            }
+
+            if (barrios.find(id_barrio_dst) != barrios.end()){
+                barrios[id_barrio_dst]->agregarBarrioVecino(id_barrio_src);
+            }
+        }
+
         if(!grafo->existeNodo(id_src) || !grafo->existeNodo(id_dst)){
             continue;
         }
@@ -142,11 +152,8 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
                 grafo->agregarArista(id_src, id_dst, pesoArista);
 
                 if(asignacion_barrios[id_barrio_src] == my_rank){
-                    Barrio* barrio1 = barrios[id_barrio_src];
 
-                    if(id_barrio_src != id_barrio_dst){
-                        barrio1->agregarBarrioVecino(id_barrio_dst);
-                    }
+                    Barrio* barrio1 = barrios[id_barrio_src];
 
                     auto calle1 = new Calle(id_src,
                                             id_dst,
@@ -173,9 +180,6 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
                 if(asignacion_barrios[id_barrio_dst] == my_rank) {
                     Barrio* barrio2 = barrios[id_barrio_dst];
 
-                    if(id_barrio_src != id_barrio_dst){
-                        barrio2->agregarBarrioVecino(id_barrio_src);
-                    }
 
                     auto calle2 = new Calle(id_dst,
                                             id_src,
@@ -202,12 +206,6 @@ void CargarGrafo::FormarGrafo(Grafo *grafo, map<long, Barrio *> &barrios,
                 grafo->agregarArista(id_src, id_dst, pesoArista);
                 if(asignacion_barrios[id_barrio_src] == my_rank){
                     Barrio* barrio = barrios[id_barrio_src];
-
-                    if(id_barrio_src != id_barrio_dst){
-                        barrio->agregarBarrioVecino(id_barrio_dst);
-                    }
-
-
 
                     auto calle = new Calle(id_src,
                                            id_dst,

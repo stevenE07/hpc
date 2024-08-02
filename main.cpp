@@ -10,12 +10,10 @@
 #include <random>
 #include "chrono"
 #include <mpi.h>
-#include <numeric>
 #include "include/Utils.h"
 #include <queue>
 #include <stdio.h>
 
-#define TAG_CANTIDAD_SEGMENTOS 0
 #define TAG_SEGMENTOS 1
 #define TAG_SOLICITUDES 2
 #define TAG_NOTIFICACIONES 3
@@ -121,6 +119,9 @@ void calcular_nodos_mpi_vecinos(){
     for(auto v : nodosVecinosSet){
         nodos_mpi_vecinos.push_back(v);
     }
+
+
+
 
 }
 
@@ -383,10 +384,10 @@ void ejecutar_epoca() {
     }
 
 
-#pragma omp parallel
+    #pragma omp parallel
     {
         do {
-#pragma omp master
+            #pragma omp master
             {
                 if (my_rank == 0) {
                     if ((numero_epoca + 1) % 500 == 0) {
@@ -592,35 +593,6 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
     auto buff_cantidad_segmentos = new int[size_mpi - 1];
     int cont_request = 0;
 
-    for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
-        if (rank_nodo_a_enviar == my_rank)
-            continue;
-
-        buff_cantidad_segmentos[cont_request] = cantidad_mensajes_a_enviar[rank_nodo_a_enviar];
-
-
-        MPI_Isend(&buff_cantidad_segmentos[cont_request], 1, MPI_INT,
-                  rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, &requests_cantidad_segmentos[cont_request]);
-
-        cont_request++;
-    }
-
-
-    //enviar para cada nodo mpi la informacion que le corresponde.
-    int max_numero_segmentos_a_recibir = 0;
-    for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
-        if(rank_nodo_a_enviar == my_rank)
-            continue;
-
-        int cantidad_segmentos;
-        MPI_Recv(&cantidad_segmentos, 1, MPI_INT, rank_nodo_a_enviar, TAG_CANTIDAD_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        max_numero_segmentos_a_recibir = max(max_numero_segmentos_a_recibir, cantidad_segmentos);
-    }
-
-
-    printf("Cantidades\n");
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
     auto bufferEnvioSegmentos = new SegmentoTrayectoVehculoEnBarrio[cantidad_mensajes_a_enviar_total];
     auto requests_segmentos = new MPI_Request[size_mpi - 1];
@@ -651,7 +623,7 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
 
 
-    auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[max_numero_segmentos_a_recibir];
+
 
     for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
         if(rank_nodo_a_enviar == my_rank){
@@ -659,9 +631,14 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
         }
 
         MPI_Status status;
-        MPI_Recv(buffResepcion, max_numero_segmentos_a_recibir, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
+        MPI_Probe(rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
+
         int cantidad_segmentos_recibidos;
         MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
+
+        auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[cantidad_segmentos_recibidos];
+
+        MPI_Recv(buffResepcion, cantidad_segmentos_recibidos, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         if(cantidad_segmentos_recibidos > 0){
             for(int i = 0; i < cantidad_segmentos_recibidos; i++){
@@ -671,9 +648,11 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
                 SegmentoTrayectoVehculoEnBarrio seg = buffResepcion[i];
             }
         }
+
+        delete [] buffResepcion;
     }
 
-    delete [] buffResepcion;
+
 
     for(int i = 0; i < cont_request; i++){
         MPI_Wait(&requests_cantidad_segmentos[i], MPI_STATUS_IGNORE);
@@ -1159,6 +1138,10 @@ int main(int argc, char* argv[]) {
     delete [] cantidadSolicitudesRecibidas;
 
     delete grafoMapa;
+
+    MPI_Type_free(&MPI_SolicitudTranspaso);
+    MPI_Type_free(&MPI_SegmentoTrayectoVehculoEnBarrio);
+    MPI_Type_free(&MPI_AsignacionBarrio);
 
     MPI_Finalize();
 
