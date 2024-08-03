@@ -596,10 +596,10 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
 
 
     auto bufferEnvioSegmentos = new SegmentoTrayectoVehculoEnBarrio[cantidad_mensajes_a_enviar_total];
-    auto requests_segmentos = new MPI_Request[size_mpi - 1];
+    auto requests_send_segmentos = new MPI_Request[size_mpi - 1];
 
     int inicioBuffParaDestino = 0;
-    int contadorRequestSegmentos = 0;
+    int contador_send_request_segmentos = 0;
     for (int rank_nodo_a_enviar = 0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
         if(rank_nodo_a_enviar == my_rank)
             continue;
@@ -616,23 +616,30 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
         }
 
         MPI_Isend(&bufferEnvioSegmentos[inicioBuffParaDestino], cantidad_mensajes_a_enviar[rank_nodo_a_enviar],
-                  MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &requests_segmentos[contadorRequestSegmentos]);
+                  MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &requests_send_segmentos[contador_send_request_segmentos]);
 
-        contadorRequestSegmentos++;
+        contador_send_request_segmentos++;
         inicioBuffParaDestino += cont;
     }
 
 
 
+    auto requests_resv_segmentos = new MPI_Request[size_mpi - 1];
+    int contador_resv_request_segmentos = 0;
 
-
+    auto buffsRecepcionPtr = new SegmentoTrayectoVehculoEnBarrio*[size_mpi - 1];
     for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
         if(rank_nodo_a_enviar == my_rank){
             continue;
         }
 
         MPI_Status status;
-        MPI_Probe(rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &status);
+
+        int flag = 0;
+        while (!flag) {
+            MPI_Iprobe(rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, &flag, &status);
+        }
+
 
         int cantidad_segmentos_recibidos;
         MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
@@ -641,26 +648,53 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
             cantidad_segmentos_recibidos = 10000;
         }
 
-        auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[cantidad_segmentos_recibidos];
+        buffsRecepcionPtr[contador_resv_request_segmentos] = new SegmentoTrayectoVehculoEnBarrio[cantidad_segmentos_recibidos];
 
-        MPI_Recv(buffResepcion, cantidad_segmentos_recibidos, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Irecv(buffsRecepcionPtr[contador_resv_request_segmentos],
+                  cantidad_segmentos_recibidos,
+                  MPI_SegmentoTrayectoVehculoEnBarrio,
+                  rank_nodo_a_enviar,
+                  TAG_SEGMENTOS,
+                  MPI_COMM_WORLD,
+                  &requests_resv_segmentos[contador_resv_request_segmentos]);
 
-        if(cantidad_segmentos_recibidos > 0){
-            for(int i = 0; i < cantidad_segmentos_recibidos; i++){
-                pair<int, long> clave = make_pair(buffResepcion[i].id_vehiculo,
-                                                  buffResepcion[i].id_barrio);
-                segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(buffResepcion[i]);
-                SegmentoTrayectoVehculoEnBarrio seg = buffResepcion[i];
-            }
-        }
-
-        delete [] buffResepcion;
+        contador_resv_request_segmentos++;
     }
 
 
-    MPI_Waitall(contadorRequestSegmentos,requests_segmentos, MPI_STATUSES_IGNORE);
+    auto status_segmentos_recividos = new MPI_Status [size_mpi - 1];
 
+    MPI_Waitall(contador_send_request_segmentos,requests_send_segmentos, MPI_STATUSES_IGNORE);
+    MPI_Waitall(contador_resv_request_segmentos,requests_resv_segmentos, status_segmentos_recividos);
+
+    int contador_request_procesada = 0;
+    for (int rank_nodo_a_enviar =0; rank_nodo_a_enviar < size_mpi; rank_nodo_a_enviar++) {
+        if (rank_nodo_a_enviar == my_rank) {
+            continue;
+        }
+
+        int cantidad_segmentos_recibidos;
+
+        MPI_Get_count(&status_segmentos_recividos[contador_request_procesada], MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
+
+        if(cantidad_segmentos_recibidos > 0){
+            for(int i = 0; i < cantidad_segmentos_recibidos; i++){
+                pair<int, long> clave = make_pair(buffsRecepcionPtr[contador_request_procesada][i].id_vehiculo,
+                                                  buffsRecepcionPtr[contador_request_procesada][i].id_barrio);
+                segmentos_a_recorrer_por_barrio_por_vehiculo[clave].push(buffsRecepcionPtr[contador_request_procesada][i]);
+            }
+        }
+
+        delete [] buffsRecepcionPtr[contador_request_procesada];
+
+        contador_request_procesada++;
+    }
+
+    delete [] buffsRecepcionPtr;
+    delete [] status_segmentos_recividos;
     delete [] bufferEnvioSegmentos;
+    delete [] requests_send_segmentos;
+    delete [] requests_resv_segmentos;
 
 }
 
@@ -949,14 +983,6 @@ int main(int argc, char* argv[]) {
     } else if (stoi(conf["ciudad"]) == 2) {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/CABA_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_caba.csv");
-        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    } else if (stoi(conf["ciudad"]) == 3) {
-        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
-        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
-        dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    }else if (stoi(conf["ciudad"]) == 4) {
-        loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/las_vegas_suburbio.json"));
-        dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_vegas.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
     }
 
