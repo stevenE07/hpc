@@ -637,6 +637,10 @@ void intercambiar_segmentos(map<long, vector<SegmentoTrayectoVehculoEnBarrio>> &
         int cantidad_segmentos_recibidos;
         MPI_Get_count(&status, MPI_SegmentoTrayectoVehculoEnBarrio, &cantidad_segmentos_recibidos);
 
+        if(cantidad_segmentos_recibidos < 0){
+            cantidad_segmentos_recibidos = 10000;
+        }
+
         auto buffResepcion = new SegmentoTrayectoVehculoEnBarrio[cantidad_segmentos_recibidos];
 
         MPI_Recv(buffResepcion, cantidad_segmentos_recibidos, MPI_SegmentoTrayectoVehculoEnBarrio, rank_nodo_a_enviar, TAG_SEGMENTOS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -680,7 +684,7 @@ void generar_vehiculos_y_notificar_segmentos(string processor_name, std::map<lon
             std::mt19937 rng(2024);
             for (int i = 0; i < bario_y_cantidad.second; i++) {
                 long id_barrio = bario_y_cantidad.first;
-                if(conf["ciudad"] == "montevideo") {
+                if(stoi(conf["ciudad"]) == 1) {
                     nodo_inicial.push_back(grafoMapa->idNodoAletorio(rng,id_barrio));
                     long barrioSortadoIndice = getClasePorProbailidad(rng, prob_barrio_barrio[id_barrio - 1]);
                     nodo_final.push_back( grafoMapa->idNodoAletorio(rng, barrios[barrioSortadoIndice].first));
@@ -966,7 +970,7 @@ int main(int argc, char* argv[]) {
     auto buffAsignacionesBarrio = new Asignacion_barrio [numBarrios];
 
     std::vector<std::vector<double>> prob_barrios_a_barrios;
-    if (ciudad == "montevideo") {
+    if (stoi(ciudad) == 1) {
         prob_barrios_a_barrios = cargar_matriz_barrios_barrios(PROJECT_BASE_DIR + std::string("/datos/probabilidad_barrios_a_barrios.json"),numBarrios);
     }
 
@@ -991,7 +995,7 @@ int main(int argc, char* argv[]) {
             case 4:
                 //esta funcionalidad es experimental, funciona unicamente para montevideo, solo funciona para 6 nodos mpi.
                 if (size_mpi < 6) {
-                    std::cerr << "Error: El número de procesos MPI debe ser 6." << std::endl;
+                    std::cerr << "Error: Si el balance de carga es custom, el numero de nodos tiene que ser 6." << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
                 calculo_por_adyacencia_de_barrios(size_mpi,my_rank,asignacion_barrios,mis_barrios);

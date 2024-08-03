@@ -1,5 +1,5 @@
 omp_set_num_threads=4
-numero_vehiculos_en_curso_global=10
-modo_balance_carga=4
+numero_vehiculos_en_curso_global=100
+modo_balance_carga=1
 ciudad=1
 mostrar_tiempos_promedio_viaje_por_bario_por_barrio=0
