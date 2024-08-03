@@ -815,7 +815,7 @@ void generar_vehiculos_y_notificar_segmentos(string processor_name, std::map<lon
 void leerCSVbarrioCantidades(const std::string& nombreArchivo, std::map<long, int>& barrios_con_cantidades) {
     std::ifstream file(nombreArchivo);
     if (!file.is_open()) {
-        std::cerr << "No se pudo abrir el archivo: " << nombreArchivo << std::endl;
+        std::cerr << "No se pudo abrir el archivo: adf " << nombreArchivo << std::endl;
         exit(1);
     }
 
@@ -932,25 +932,25 @@ int main(int argc, char* argv[]) {
 
     // ---- Leer MAPA
     std::string ciudad = conf["ciudad"];
-    cout << ciudad;
+
 
     CargarGrafo loadData;
     std::string dir_personas_barrios;
     std::string dir_cantidad_calles;
 
-    if (ciudad == "montevideo") {
+    if (stoi(conf["ciudad"]) == 1) {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/montevideo_por_barrios.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_montevideo.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    } else if (ciudad == "caba") {
+    } else if (stoi(conf["ciudad"]) == 2) {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/CABA_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_caba.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    } else if (ciudad == "roma") {
+    } else if (stoi(conf["ciudad"]) == 3) {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/Roma_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_roma.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
-    }else if (ciudad == "vegas") {
+    }else if (stoi(conf["ciudad"]) == 4) {
         loadData = CargarGrafo(PROJECT_BASE_DIR + std::string("/datos/las_vegas_suburbio.json"));
         dir_personas_barrios = PROJECT_BASE_DIR + std::string("/datos/cantidad_personas_por_barrio_vegas.csv");
         dir_cantidad_calles = PROJECT_BASE_DIR + std::string("/datos/cantidad_calles_por_barrio_montevideo.csv");
@@ -971,7 +971,7 @@ int main(int argc, char* argv[]) {
     }
 
     if(my_rank == 0){
-
+        cout <<"ciudad:"<< ciudad << endl;
         // ---- Leer poblaciones por barrio
         leerCSVbarrioCantidades( dir_personas_barrios,barrios_con_poblacion);
         leerCSVbarrioCantidades( dir_cantidad_calles,barrios_con_cantidad_calles);
@@ -987,6 +987,14 @@ int main(int argc, char* argv[]) {
                 break;
             case 3:
                 calculo_equitativo(size_mpi,my_rank,barrios_con_cantidad_calles , asignacion_barrios,mis_barrios);
+                break;
+            case 4:
+                //esta funcionalidad es experimental, funciona unicamente para montevideo, solo funciona para 6 nodos mpi.
+                if (size_mpi < 6) {
+                    std::cerr << "Error: El número de procesos MPI debe ser 6." << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+                calculo_por_adyacencia_de_barrios(size_mpi,my_rank,asignacion_barrios,mis_barrios);
                 break;
         }
 

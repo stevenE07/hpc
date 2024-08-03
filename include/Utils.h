@@ -169,6 +169,29 @@ inline std::vector<std::vector<double>> cargar_matriz_barrios_barrios(string fil
 }
 
 
+inline void calculo_por_adyacencia_de_barrios(int size_mpi, int my_rank, std::map<long,int> & asignacion_barrios, vector<long> & mis_barrios) {
+
+    std::map<int, std::vector<long>> distribucion = {
+        {0, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
+        {1, {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 61}},
+        {2, {23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 62}},
+        {3, {41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51}},
+        {4, {38, 39, 40, 56, 54, 33, 52, 34, 59, 58}},
+        {5, {35, 36, 37, 55, 57, 53, 60}}
+    };
+
+    for (const auto& [nodo, barrios] : distribucion) {
+        for (const auto& barrio : barrios) {
+            asignacion_barrios[barrio] = nodo;
+        }
+    }
+
+    for (const auto& barrio : distribucion[my_rank]) {
+        mis_barrios.push_back(barrio);
+    }
+}
+
+
 
 
 #endif //HPC_UTILS_H
